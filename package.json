@@ -2,7 +2,7 @@
   "name": "gestionale-type-training",
   "private": true,
   "version": "1.0.0",
-  "description": "Gestionale Type Training: corsi CH-47F con parte teorica (MTT) e parte pratica (PTT).",
+  "description": "Gestionale Type Training: corsi CH-47F, UC-228 e VC-180A con parte teorica (MTT) e parte pratica (PTT).",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "e2e": "node tests/e2e.mjs",
-    "catalogo": "py -3.11 scripts/import_catalogo.py",
+    "programmi": "cd scripts && py -3.11 import_programma_mtt.py && py -3.11 import_catalogo.py",
     "pubblica": "node scripts/pubblica.mjs"
   },
   "dependencies": {

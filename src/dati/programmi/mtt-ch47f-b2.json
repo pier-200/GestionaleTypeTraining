@@ -1,10 +1,10 @@
 {
- "id": "mtt-ch47f-b13",
+ "id": "mtt-ch47f-b2",
  "tipo": "teorico",
- "nome": "MTT CH-47F Cat. B1.3",
- "documento": "T1 Military Type Training CH-47F Cat. B1.3 – programma teorico (MTT)",
+ "nome": "MTT CH-47F Cat. B2",
+ "documento": "T1 Military Type Training CH-47F Cat. B2 – programma teorico (MTT)",
  "aeromobile": "CH-47F",
- "categoria": "B1.3",
+ "categoria": "B2",
  "moduli": [
   {
    "numero": 1,
@@ -14,7 +14,7 @@
   {
    "numero": 2,
    "titolo": "HELICOPTERS (Elicottero)",
-   "minuti": 3120
+   "minuti": 1080
   },
   {
    "numero": 3,
@@ -23,18 +23,18 @@
   },
   {
    "numero": 4,
-   "titolo": "AIRFRAME SYSTEMS (Sistemi della cellula)",
-   "minuti": 6480
+   "titolo": "Airframe systems (Sistemi della cellula)",
+   "minuti": 6240
   },
   {
    "numero": 5,
    "titolo": "TURBINE ENGINE (Turbomotore)",
-   "minuti": 1500
+   "minuti": 1140
   },
   {
    "numero": 6,
    "titolo": "MILITARY SPECIFIC SYSTEMS (Sistemi specifici militari)",
-   "minuti": 960
+   "minuti": 1500
   },
   {
    "numero": 7,
@@ -218,31 +218,19 @@
      "item": 11,
      "chapter": "18",
      "subject": "Vibration and Noise Analysis (Blade tracking)",
-     "livello": "3"
+     "livello": "-"
     },
     {
      "item": 12,
      "chapter": "60",
      "subject": "Standard Practices Rotor",
-     "livello": "3"
-    }
-   ],
-   "chapters": [
-    "18",
-    "60"
-   ]
-  },
-  {
-   "id": "m011",
-   "modulo": 2,
-   "minuti": 540,
-   "titolo": "Rotors",
-   "voci": [
+     "livello": "-"
+    },
     {
      "item": 13,
      "chapter": "62",
      "subject": "Rotors",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 14,
@@ -252,21 +240,23 @@
     }
    ],
    "chapters": [
+    "18",
+    "60",
     "62",
     "62A"
    ]
   },
   {
-   "id": "m012",
+   "id": "m011",
    "modulo": 2,
-   "minuti": 660,
+   "minuti": 300,
    "titolo": "Rotor Drives",
    "voci": [
     {
      "item": 15,
      "chapter": "63",
      "subject": "Rotor Drives",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 16,
@@ -278,7 +268,7 @@
      "item": 17,
      "chapter": "64",
      "subject": "Tail Rotor",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 18,
@@ -290,7 +280,7 @@
      "item": 19,
      "chapter": "65",
      "subject": "Tail Rotor Drive",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 20,
@@ -302,7 +292,7 @@
      "item": 21,
      "chapter": "66",
      "subject": "Folding Blades/Pylon",
-     "livello": "3"
+     "livello": "-"
     }
    ],
    "chapters": [
@@ -316,16 +306,16 @@
    ]
   },
   {
-   "id": "m013",
+   "id": "m012",
    "modulo": 2,
-   "minuti": 900,
+   "minuti": 240,
    "titolo": "Rotors Flight Control",
    "voci": [
     {
      "item": 22,
      "chapter": "67",
      "subject": "Rotors Flight Control",
-     "livello": "3"
+     "livello": "2"
     }
    ],
    "chapters": [
@@ -333,22 +323,22 @@
    ]
   },
   {
-   "id": "m014",
+   "id": "m013",
    "modulo": 2,
-   "minuti": 840,
+   "minuti": 360,
    "titolo": "Airframe Structure (Helicopter)",
    "voci": [
     {
      "item": 23,
      "chapter": "53",
      "subject": "Airframe Structure (Helicopter)",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 24,
      "chapter": "25",
      "subject": "Emergency Flotation Equipment",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -357,7 +347,7 @@
    ]
   },
   {
-   "id": "m015",
+   "id": "m014",
    "modulo": 3,
    "minuti": 60,
    "titolo": "Standard practices and structures (damage classification, assessment and repair)",
@@ -366,49 +356,49 @@
      "item": 25,
      "chapter": "51",
      "subject": "Standard practices and structures (damage classification, assessment and repair)",
-     "livello": "-"
+     "livello": "1"
     },
     {
      "item": 26,
      "chapter": "53",
      "subject": "Fuselage",
-     "livello": "-"
+     "livello": "1"
     },
     {
      "item": 27,
      "chapter": "54",
      "subject": "Nacelles/Pylons",
-     "livello": "-"
+     "livello": "1"
     },
     {
      "item": 28,
      "chapter": "55",
      "subject": "Stabilisers",
-     "livello": "-"
+     "livello": "1"
     },
     {
      "item": 29,
      "chapter": "56",
      "subject": "Windows and canopies",
-     "livello": "-"
+     "livello": "1"
     },
     {
      "item": 30,
      "chapter": "57",
      "subject": "Wings",
-     "livello": "-"
+     "livello": "1"
     },
     {
      "item": 31,
      "chapter": "27A",
      "subject": "Flight Control Surfaces (All)",
-     "livello": "-"
+     "livello": "1"
     },
     {
      "item": 32,
      "chapter": "52",
      "subject": "Doors",
-     "livello": "-"
+     "livello": "1"
     },
     {
      "item": 33,
@@ -430,7 +420,7 @@
    ]
   },
   {
-   "id": "m016",
+   "id": "m015",
    "modulo": 4,
    "minuti": 180,
    "titolo": "Air Conditioning",
@@ -445,7 +435,7 @@
      "item": 35,
      "chapter": "21A",
      "subject": "Air Supply",
-     "livello": "3"
+     "livello": "2"
     },
     {
      "item": 36,
@@ -468,22 +458,22 @@
    ]
   },
   {
-   "id": "m017",
+   "id": "m016",
    "modulo": 4,
-   "minuti": 180,
+   "minuti": 360,
    "titolo": "Autoflight",
    "voci": [
     {
      "item": 38,
      "chapter": "22",
      "subject": "Autoflight",
-     "livello": "2"
+     "livello": "3"
     },
     {
      "item": 39,
      "chapter": "23",
      "subject": "Communications",
-     "livello": "2"
+     "livello": "3"
     }
    ],
    "chapters": [
@@ -492,7 +482,7 @@
    ]
   },
   {
-   "id": "m018",
+   "id": "m017",
    "modulo": 4,
    "minuti": 420,
    "titolo": "Electrical Power",
@@ -509,7 +499,7 @@
    ]
   },
   {
-   "id": "m019",
+   "id": "m018",
    "modulo": 4,
    "minuti": 840,
    "titolo": "Equipment and Furnishings",
@@ -524,7 +514,7 @@
      "item": 42,
      "chapter": "25A",
      "subject": "Electronic Equipment including emergency equipment",
-     "livello": "1"
+     "livello": "3"
     }
    ],
    "chapters": [
@@ -533,7 +523,7 @@
    ]
   },
   {
-   "id": "m020",
+   "id": "m019",
    "modulo": 4,
    "minuti": 180,
    "titolo": "Fire Protection",
@@ -548,13 +538,13 @@
      "item": 44,
      "chapter": "27",
      "subject": "Flight Controls",
-     "livello": "3"
+     "livello": "2"
     },
     {
      "item": 45,
      "chapter": "27A",
      "subject": "Sys. Operation: Electrical/Fly-by-Wire",
-     "livello": "-"
+     "livello": "3"
     }
    ],
    "chapters": [
@@ -564,16 +554,16 @@
    ]
   },
   {
-   "id": "m021",
+   "id": "m020",
    "modulo": 4,
-   "minuti": 720,
+   "minuti": 300,
    "titolo": "Fuel Systems",
    "voci": [
     {
      "item": 46,
      "chapter": "28",
      "subject": "Fuel Systems",
-     "livello": "3"
+     "livello": "2"
     },
     {
      "item": 47,
@@ -588,16 +578,16 @@
    ]
   },
   {
-   "id": "m022",
+   "id": "m021",
    "modulo": 4,
-   "minuti": 1080,
+   "minuti": 480,
    "titolo": "Hydraulic Power",
    "voci": [
     {
      "item": 48,
      "chapter": "29",
      "subject": "Hydraulic Power",
-     "livello": "3"
+     "livello": "2"
     },
     {
      "item": 49,
@@ -612,7 +602,7 @@
    ]
   },
   {
-   "id": "m023",
+   "id": "m022",
    "modulo": 4,
    "minuti": 180,
    "titolo": "Ice and Rain Protection",
@@ -629,7 +619,7 @@
    ]
   },
   {
-   "id": "m024",
+   "id": "m023",
    "modulo": 4,
    "minuti": 180,
    "titolo": "Indicating/Recording Systems",
@@ -646,7 +636,7 @@
    ]
   },
   {
-   "id": "m025",
+   "id": "m024",
    "modulo": 4,
    "minuti": 240,
    "titolo": "Instrument Systems",
@@ -663,16 +653,16 @@
    ]
   },
   {
-   "id": "m026",
+   "id": "m025",
    "modulo": 4,
-   "minuti": 360,
+   "minuti": 240,
    "titolo": "Landing Gear",
    "voci": [
     {
      "item": 53,
      "chapter": "32",
      "subject": "Landing Gear",
-     "livello": "3"
+     "livello": "2"
     },
     {
      "item": 54,
@@ -687,7 +677,7 @@
    ]
   },
   {
-   "id": "m027",
+   "id": "m026",
    "modulo": 4,
    "minuti": 360,
    "titolo": "Lights",
@@ -704,28 +694,28 @@
    ]
   },
   {
-   "id": "m028",
+   "id": "m027",
    "modulo": 4,
-   "minuti": 840,
+   "minuti": 1200,
    "titolo": "Navigation",
    "voci": [
     {
      "item": 56,
      "chapter": "34",
      "subject": "Navigation",
-     "livello": "2"
+     "livello": "3"
     },
     {
      "item": 57,
      "chapter": "35",
      "subject": "Oxygen",
-     "livello": "-"
+     "livello": "2"
     },
     {
      "item": 58,
      "chapter": "36",
      "subject": "Pneumatic",
-     "livello": "3"
+     "livello": "2"
     },
     {
      "item": 59,
@@ -737,31 +727,31 @@
      "item": 60,
      "chapter": "37",
      "subject": "Vacuum",
-     "livello": "3"
+     "livello": "2"
     },
     {
      "item": 61,
      "chapter": "38",
      "subject": "Water/Waste",
-     "livello": "-"
+     "livello": "2"
     },
     {
      "item": 62,
      "chapter": "40",
      "subject": "Operational attack functions",
-     "livello": "2"
+     "livello": "3"
     },
     {
      "item": 63,
      "chapter": "42",
      "subject": "Integrated modular avionics",
-     "livello": "2"
+     "livello": "3"
     },
     {
      "item": 64,
      "chapter": "42A",
      "subject": "Cross-technical attack functions",
-     "livello": "2"
+     "livello": "3"
     }
    ],
    "chapters": [
@@ -777,22 +767,22 @@
    ]
   },
   {
-   "id": "m029",
+   "id": "m028",
    "modulo": 4,
-   "minuti": 360,
-   "titolo": "Tactical Communication",
+   "minuti": 540,
+   "titolo": "Tactical Communications",
    "voci": [
     {
      "item": 65,
      "chapter": "43",
-     "subject": "Tactical Communication",
-     "livello": "2"
+     "subject": "Tactical Communications",
+     "livello": "3"
     },
     {
      "item": 66,
      "chapter": "44A",
      "subject": "Cabin Systems: data/radio communication",
-     "livello": "2"
+     "livello": "3"
     },
     {
      "item": 67,
@@ -808,22 +798,22 @@
    ]
   },
   {
-   "id": "m030",
+   "id": "m029",
    "modulo": 4,
-   "minuti": 240,
+   "minuti": 480,
    "titolo": "Information Systems",
    "voci": [
     {
      "item": 68,
      "chapter": "46",
      "subject": "Information Systems",
-     "livello": "2"
+     "livello": "3"
     },
     {
      "item": 69,
      "chapter": "48",
      "subject": "In-Flight refueling tanker",
-     "livello": "3"
+     "livello": "2"
     },
     {
      "item": 70,
@@ -839,16 +829,16 @@
    ]
   },
   {
-   "id": "m031",
+   "id": "m030",
    "modulo": 4,
-   "minuti": 120,
+   "minuti": 60,
    "titolo": "Cargo and Accessory Compartments",
    "voci": [
     {
      "item": 71,
      "chapter": "50",
      "subject": "Cargo and Accessory Compartments",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -856,7 +846,7 @@
    ]
   },
   {
-   "id": "m032",
+   "id": "m031",
    "modulo": 5,
    "minuti": 120,
    "titolo": "Standard Practices - Engines",
@@ -865,19 +855,19 @@
      "item": 72,
      "chapter": "70",
      "subject": "Standard Practices - Engines",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 73,
      "chapter": "70A",
      "subject": "constructional arrangement and operation (Installation Inlet, Compressors, Combustion Section, Turbine Section, Bearings and Seals, Lubrication Systems).",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 74,
      "chapter": "70B",
      "subject": "Engine Performance",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -887,22 +877,22 @@
    ]
   },
   {
-   "id": "m033",
+   "id": "m032",
    "modulo": 5,
-   "minuti": 180,
+   "minuti": 120,
    "titolo": "Powerplant",
    "voci": [
     {
      "item": 75,
      "chapter": "71",
      "subject": "Powerplant",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 76,
      "chapter": "72",
      "subject": "Engine Turbine/Turbo Prop/Ducted Fan/Unducted fan",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -911,7 +901,7 @@
    ]
   },
   {
-   "id": "m034",
+   "id": "m033",
    "modulo": 5,
    "minuti": 120,
    "titolo": "Engine Fuel and Control",
@@ -920,7 +910,7 @@
      "item": 77,
      "chapter": "73",
      "subject": "Engine Fuel and Control",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -928,16 +918,16 @@
    ]
   },
   {
-   "id": "m035",
+   "id": "m034",
    "modulo": 5,
-   "minuti": 180,
+   "minuti": 120,
    "titolo": "Air",
    "voci": [
     {
      "item": 78,
      "chapter": "75",
      "subject": "Air",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -945,16 +935,16 @@
    ]
   },
   {
-   "id": "m036",
+   "id": "m035",
    "modulo": 5,
-   "minuti": 180,
+   "minuti": 120,
    "titolo": "Engine controls",
    "voci": [
     {
      "item": 79,
      "chapter": "76",
      "subject": "Engine controls",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -962,7 +952,7 @@
    ]
   },
   {
-   "id": "m037",
+   "id": "m036",
    "modulo": 5,
    "minuti": 60,
    "titolo": "Exhaust",
@@ -971,7 +961,7 @@
      "item": 80,
      "chapter": "78",
      "subject": "Exhaust",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -979,40 +969,40 @@
    ]
   },
   {
-   "id": "m038",
+   "id": "m037",
    "modulo": 5,
-   "minuti": 180,
+   "minuti": 60,
    "titolo": "Oil",
    "voci": [
     {
      "item": 81,
      "chapter": "79",
      "subject": "Oil",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 82,
      "chapter": "80",
      "subject": "Starting",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 83,
      "chapter": "82",
      "subject": "Water Injections",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 84,
      "chapter": "83",
      "subject": "Accessory Gear Boxes",
-     "livello": "3"
+     "livello": "1"
     },
     {
      "item": 85,
      "chapter": "84",
      "subject": "Propulsion Augmentation",
-     "livello": "3"
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -1024,7 +1014,7 @@
    ]
   },
   {
-   "id": "m039",
+   "id": "m038",
    "modulo": 5,
    "minuti": 180,
    "titolo": "FADEC",
@@ -1048,7 +1038,7 @@
    ]
   },
   {
-   "id": "m040",
+   "id": "m039",
    "modulo": 5,
    "minuti": 120,
    "titolo": "Engine Indicating Systems",
@@ -1065,16 +1055,16 @@
    ]
   },
   {
-   "id": "m041",
+   "id": "m040",
    "modulo": 5,
-   "minuti": 180,
+   "minuti": 120,
    "titolo": "Auxiliary Power Units (APUs)",
    "voci": [
     {
      "item": 89,
      "chapter": "49",
      "subject": "Auxiliary Power Units (APUs)",
-     "livello": "3"
+     "livello": "2"
     }
    ],
    "chapters": [
@@ -1082,22 +1072,22 @@
    ]
   },
   {
-   "id": "m042",
+   "id": "m041",
    "modulo": 6,
-   "minuti": 360,
+   "minuti": 480,
    "titolo": "Radar",
    "voci": [
     {
      "item": 90,
      "chapter": "92",
      "subject": "Radar",
-     "livello": "2"
+     "livello": "3"
     },
     {
      "item": 91,
      "chapter": "93",
      "subject": "Surveillance",
-     "livello": "2"
+     "livello": "3"
     }
    ],
    "chapters": [
@@ -1106,22 +1096,22 @@
    ]
   },
   {
-   "id": "m043",
+   "id": "m042",
    "modulo": 6,
-   "minuti": 240,
+   "minuti": 480,
    "titolo": "Weapon System",
    "voci": [
     {
      "item": 92,
      "chapter": "94",
      "subject": "Weapon System",
-     "livello": "2"
+     "livello": "3"
     },
     {
      "item": 93,
      "chapter": "95",
      "subject": "Crew Escape and Safety (partially covered by 25 for Helicopters)",
-     "livello": "3"
+     "livello": "2"
     }
    ],
    "chapters": [
@@ -1130,7 +1120,7 @@
    ]
   },
   {
-   "id": "m044",
+   "id": "m043",
    "modulo": 6,
    "minuti": 120,
    "titolo": "Image Recording",
@@ -1147,16 +1137,16 @@
    ]
   },
   {
-   "id": "m045",
+   "id": "m044",
    "modulo": 6,
-   "minuti": 240,
+   "minuti": 420,
    "titolo": "Electronic Warfare",
    "voci": [
     {
      "item": 95,
      "chapter": "99",
      "subject": "Electronic Warfare",
-     "livello": "2"
+     "livello": "3"
     }
    ],
    "chapters": [
@@ -1164,7 +1154,7 @@
    ]
   },
   {
-   "id": "m046",
+   "id": "m045",
    "modulo": 7,
    "minuti": 180,
    "titolo": "Maintenance data",
@@ -1181,7 +1171,7 @@
    ]
   },
   {
-   "id": "m047",
+   "id": "m046",
    "modulo": 8,
    "minuti": 60,
    "titolo": "Electrical distribution power (AC& DC)",
@@ -1198,7 +1188,7 @@
    ]
   },
   {
-   "id": "m048",
+   "id": "m047",
    "modulo": 8,
    "minuti": 60,
    "titolo": "Hydraulic power supply",
@@ -1215,15 +1205,15 @@
    ]
   },
   {
-   "id": "m049",
+   "id": "m048",
    "modulo": 8,
    "minuti": 60,
-   "titolo": "Rototuner",
+   "titolo": "Rotor Tuner",
    "voci": [
     {
      "item": 99,
      "chapter": "AVES 2c",
-     "subject": "Rototuner",
+     "subject": "Rotor Tuner",
      "livello": "2"
     }
    ],
@@ -1232,7 +1222,7 @@
    ]
   },
   {
-   "id": "m050",
+   "id": "m049",
    "modulo": 8,
    "minuti": 60,
    "titolo": "Siap",
@@ -1249,7 +1239,7 @@
    ]
   },
   {
-   "id": "m051",
+   "id": "m050",
    "modulo": 8,
    "minuti": 60,
    "titolo": "Compressor Wash ring (P/N JMP/SHWR/D/0376/C800/BH)",

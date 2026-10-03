@@ -46,11 +46,24 @@ describe('mezzi e categorie', () => {
   it('i programmi del corso seguono mezzo e categoria', () => {
     const b13 = creato(corso());
     expect([b13.programma_teorico, b13.programma_pratico]).toEqual(['mtt-ch47f-b13', 'ptr-ch47f-b13']);
-    // programmi non ancora caricati: il corso si crea lo stesso e le pagine lo segnalano
     const b2 = creato(corso({ categoria: 'B2' }));
-    expect([b2.programma_teorico, b2.programma_pratico]).toEqual([null, null]);
+    expect([b2.programma_teorico, b2.programma_pratico]).toEqual(['mtt-ch47f-b2', 'ptr-ch47f-b2']);
     const c = creato(corso({ categoria: 'C' }));
-    expect(c.programma_pratico).toBeNull();
+    expect([c.programma_teorico, c.programma_pratico]).toEqual(['mtt-ch47f-c', null]);
+  });
+
+  it('tutti i corsi dei tre MDS hanno i loro programmi, coerenti tra teoria e pratica', () => {
+    for (const m of MDS)
+      for (const cat of m.categorie) {
+        const p = programmiPer(m.codice, cat);
+        expect(p.teorico, `${m.codice} ${cat} teorico`).toBeDefined();
+        expect(p.teorico!.materie.every((x) => x.minuti > 0)).toBe(true);
+        if (soloTeorica(cat)) continue;
+        expect(p.pratico, `${m.codice} ${cat} pratico`).toBeDefined();
+        // ogni task cade in un modulo del programma teorico dello stesso corso
+        const moduli = new Set(p.teorico!.moduli.map((x) => x.numero));
+        expect(p.pratico!.task.every((t) => moduli.has(t.modulo))).toBe(true);
+      }
   });
 
   it('rifiuta categorie non previste dal mezzo', () => {

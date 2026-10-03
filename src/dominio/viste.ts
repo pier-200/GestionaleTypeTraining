@@ -1,5 +1,6 @@
 import { calcolaReport, reportVuoto, requisitiMancanti, type Report } from './compliance';
-import { programmaPratico } from './programmi';
+import { statoTeorico, type StatoTeorico } from './pianificazione';
+import { programmaPratico, programmaTeorico } from './programmi';
 import type { Corso, Dati, ID, Istruttore, Lezione, Registrazione, RuoloCorso, Utente } from './tipi';
 
 /** Viste calcolate sui dati, condivise da interfaccia ed esportazioni. */
@@ -119,6 +120,26 @@ export function situazione(dati: Dati, corso: Corso | undefined, utente: Utente)
   const ultima = [...registrazioni].sort((a, b) => b.modificato_il.localeCompare(a.modificato_il))[0];
   return { utente, nome: nomeUtente(dati, utente.id), report, mancanti: requisitiMancanti(report), registrazioni, ultima };
 }
+
+export interface Avanzamento {
+  /** Parte teorica: programma, lezioni a calendario e già svolte (assente se il corso non la prevede). */
+  teoria?: StatoTeorico;
+  /** Parte pratica: situazione di ciascun frequentatore (per il frequentatore solo la propria). */
+  pratica?: Situazione[];
+}
+
+/** Riscontro di completamento delle due parti del corso, come le vede chi è collegato. */
+export function avanzamento(dati: Dati, corso: Corso, utente: Utente, ruolo: string | null, oggi: string): Avanzamento {
+  const teorico = programmaTeorico(corso.programma_teorico);
+  const allievi = ruolo === 'trainee' ? [utente] : frequentatori(dati, corso.id);
+  return {
+    teoria: teorico ? statoTeorico(teorico, lezioniVisibili(dati, corso.id, ruolo), oggi) : undefined,
+    pratica: programmaPratico(corso.programma_pratico) ? allievi.map((u) => situazione(dati, corso, u)) : undefined,
+  };
+}
+
+/** Percentuale media di task eseguiti (0 senza frequentatori). */
+export const mediaPratica = (s: readonly Situazione[]) => (s.length ? s.reduce((t, x) => t + x.report.totale.percentuale, 0) / s.length : 0);
 
 export const formatoData = (iso: string | null | undefined) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString('it-IT') : '—');
 export const formatoDataBreve = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });

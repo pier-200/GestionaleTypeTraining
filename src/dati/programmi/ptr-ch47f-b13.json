@@ -469,7 +469,7 @@
    "chapter": "09",
    "subject": "Towing and taxiing",
    "tipo": "SGH",
-   "descrizione": "Perform the helicopter’s servicing for towing (normal method) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Perform the helicopter's servicing for towing (normal method) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-09-11-01-00A-100A-A"
   },
   {
@@ -478,7 +478,7 @@
    "chapter": "10",
    "subject": "Parking/mooring, Storing and Return to Service",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s parking, mooring, storing and return to service procedures CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's parking, mooring, storing and return to service procedures CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-10-00-00-00A-100A-A AMM-CH-A-10-11-00-00A-000A-A"
   },
   {
@@ -487,7 +487,7 @@
    "chapter": "10",
    "subject": "Parking/mooring, Storing and Return to Service",
    "tipo": "SGH",
-   "descrizione": "Perform the helicopter’s servicing for attach tiedown lines from each rotor blade hardstand area CMM(EXP).1H-CH-47F-2.",
+   "descrizione": "Perform the helicopter's servicing for attach tiedown lines from each rotor blade hardstand area CMM(EXP).1H-CH-47F-2.",
    "riferimenti": "AMM-CH-A-10-20-01-00A-100A-A"
   },
   {
@@ -496,7 +496,7 @@
    "chapter": "11",
    "subject": "Placards and Markings",
    "tipo": "LOC",
-   "descrizione": "Locate helicopter’s placards CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate helicopter's placards CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-11-20-00-00A-257A-A"
   },
   {
@@ -523,7 +523,7 @@
    "chapter": "14",
    "subject": "Product loading and off loading",
    "tipo": "LOC",
-   "descrizione": "Locate helicopter’s internal cargo handling system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate helicopter's internal cargo handling system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-52-00-00A-040A-A"
   },
   {
@@ -541,7 +541,7 @@
    "chapter": "20",
    "subject": "Standard practices Airframe system",
    "tipo": "LOC",
-   "descrizione": "Locate the correct helicopter’s standard practice mechanical procedures CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the correct helicopter's standard practice mechanical procedures CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-20-00-00-00A-010A-A"
   },
   {
@@ -568,7 +568,7 @@
    "chapter": "18",
    "subject": "Vibration and Noise Analysis and attenuation",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s VIB ABSORB N186001 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's VIB ABSORB N186001 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-18-60-01-00A-421A-A"
   },
   {
@@ -586,7 +586,7 @@
    "chapter": "62",
    "subject": "Rotors",
    "tipo": "SGH",
-   "descrizione": "Perform cleaning of helicopter’s rotor blade shock absorber vent valve filter CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Perform cleaning of helicopter's rotor blade shock absorber vent valve filter CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-62-10-02-01A-250A-A"
   },
   {
@@ -595,7 +595,7 @@
    "chapter": "62",
    "subject": "Rotors",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s main rotor blades CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's main rotor blades CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-62-11-01-00A-720A-A AMM-CH-A-62-11-01-00A-520A-A AMM-CH-A-62-12-01-00A-720A-A AMM-CH-A-62-12-01-00A-520A-A"
   },
   {
@@ -604,7 +604,7 @@
    "chapter": "62",
    "subject": "Rotors",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s main rotor blades troubleshooting (fixed droop stop check) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's main rotor blades troubleshooting (fixed droop stop check) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-62-21-01-23A-280A-A AMM-CH-A-62-22-01-23A-280A-A"
   },
   {
@@ -613,7 +613,7 @@
    "chapter": "62A",
    "subject": "Rotors - Monitoring AndIndicating",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s main rotors components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's main rotors components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-62-20-01-00A-280A-A"
   },
   {
@@ -622,7 +622,7 @@
    "chapter": "62A",
    "subject": "Rotors - Monitoring And Indicating",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s rotor head pressure check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's rotor head pressure check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-62-20-01-00A-362A-A"
   },
   {
@@ -631,7 +631,7 @@
    "chapter": "62A",
    "subject": "Rotors - Monitoring And Indicating",
    "tipo": "SGH",
-   "descrizione": "Perform cleaning of the helicopter’s forward rotor blade shock absorber piston. CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Perform cleaning of the helicopter's forward rotor blade shock absorber piston. CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-62-11-02-01A-250A-A"
   },
   {
@@ -640,7 +640,7 @@
    "chapter": "62A",
    "subject": "Rotors - Monitoring And Indicating",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s rotor head assembly pitch bearing oil tank CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's rotor head assembly pitch bearing oil tank CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-62-21-01-10A-520A-A AMM-CH-A-62-21-01-10A-720A-A AMM-CH-A-62-22-01-10A-520A-A AMM-CH-A-62-22-01-10A-720A-A"
   },
   {
@@ -649,7 +649,7 @@
    "chapter": "62A",
    "subject": "Rotors - Monitoring And Indicating",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s blade track circuit breaker N621001 Fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's blade track circuit breaker N621001 Fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-62-10-01-00A-421A-A"
   },
   {
@@ -658,7 +658,7 @@
    "chapter": "63",
    "subject": "Rotors Drives",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s main rotor drive components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's main rotor drive components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-63-00-00-00A-040A-A AMM-CH-A-63-14-00-00A-040A-A"
   },
   {
@@ -667,7 +667,7 @@
    "chapter": "63",
    "subject": "Rotors Drives",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s forward transmission oil system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's forward transmission oil system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-63-21-00-00A-320A-A AMM-CH-A-63-14-00-00A-320A-A"
   },
   {
@@ -676,7 +676,7 @@
    "chapter": "63",
    "subject": "Rotors Drives",
    "tipo": "SGH",
-   "descrizione": "Rotor Brake System-Fill with Oil-Rotor Brake System-Bleed and prime",
+   "descrizione": "Rotor Brake System-Fill with Oil- Rotor Brake System-Bleed and prime",
    "riferimenti": "AMM-CH-A-12-10-63-04A-212A-A AMM-CH-A-63-14-00-00A-230A-A"
   },
   {
@@ -694,7 +694,7 @@
    "chapter": "63",
    "subject": "Rotor Drive",
    "tipo": "R/I",
-   "descrizione": "Rotor Brake Pressure Switch-Remove Procedure",
+   "descrizione": "Rotor Brake Pressure Switch- Remove Procedure",
    "riferimenti": "AMM-CH-A-63-14-02-01A-520A-A AMM-CH-A-63-14-02-01A-720A-A"
   },
   {
@@ -703,7 +703,7 @@
    "chapter": "63A",
    "subject": "Rotor Drives Monitoring and Indicating",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s main rotor drive monitoring and indicating components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's main rotor drive monitoring and indicating components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-63-40-00-00A-040A-A"
   },
   {
@@ -712,7 +712,7 @@
    "chapter": "63A",
    "subject": "Rotor Drives Monitoring and Indicating",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s main rotor drive oil temperature indicating operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's main rotor drive oil temperature indicating operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-63-40-00-00A-320A-A"
   },
   {
@@ -721,7 +721,7 @@
    "chapter": "63A",
    "subject": "Rotor Drives Monitoring and Indicating",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s forward transmission oil pressure transducer CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's forward transmission oil pressure transducer CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-63-41-04-00A-520A-A AMM-CH-A-63-41-04-00A-720A-A"
   },
   {
@@ -730,7 +730,7 @@
    "chapter": "63A",
    "subject": "Rotor Drives Monitoring and Indicating",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s Maintenance panel press lo indicator(s) N634107 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's Maintenance panel press lo indicator(s) N634107 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-63-41-07-00A-421A-A"
   },
   {
@@ -739,7 +739,7 @@
    "chapter": "67",
    "subject": "Rotors Flight Control",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s flight control system components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's flight control system components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-67-00-00-00A-040A-A"
   },
   {
@@ -748,7 +748,7 @@
    "chapter": "67",
    "subject": "Rotors Flight Control",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s digital automatic flight control system (DAFCS) operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's digital automatic flight control system (DAFCS) operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-67-10-00-00A-320A-A AMM-CH-A-67-30-00-00A-320A-A"
   },
   {
@@ -757,7 +757,7 @@
    "chapter": "67",
    "subject": "Rotors Flight Control",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s visual inspection swiveling and pivoting actuators CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's visual inspection swiveling and pivoting actuators CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-67-34-00-02A-310A-A"
   },
   {
@@ -766,7 +766,7 @@
    "chapter": "67",
    "subject": "Rotor Flight Controls",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s roll viscous damper connecting link CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's roll viscous damper connecting link CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-67-12-36-00A-520A-A AMM-CH-A-67-12-36-00A-720A-A"
   },
   {
@@ -775,7 +775,7 @@
    "chapter": "67",
    "subject": "Rotors Flight Control",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s flight controls will not move N671001 Fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's flight controls will not move N671001 Fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-67-10-01-00A-421A-A AMM-CH-A-67-10-01-00A-421A-A"
   },
   {
@@ -784,7 +784,7 @@
    "chapter": "53",
    "subject": "Fuselage",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s structure main sections CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's structure main sections CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-53-00-00-00A-010A-A"
   },
   {
@@ -793,7 +793,7 @@
    "chapter": "53",
    "subject": "Fuselage",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s forward transmission fixed fairing general visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's forward transmission fixed fairing general visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-53-16-01-00A-310A-A"
   },
   {
@@ -802,7 +802,7 @@
    "chapter": "54",
    "subject": "Nacelles/Pylons",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s aft pylon CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's aft pylon CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-54-50-00-00A-040A-A"
   },
   {
@@ -811,7 +811,7 @@
    "chapter": "56",
    "subject": "Windows and canopies",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s windows and canopies CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's windows and canopies CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-56-00-00-00A-010A-A"
   },
   {
@@ -820,7 +820,7 @@
    "chapter": "56",
    "subject": "Windows and canopies",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s windows and canopies troubleshooting procedure (leak check) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's windows and canopies troubleshooting procedure (leak check) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-56-00-00-00A-364A-A"
   },
   {
@@ -829,7 +829,7 @@
    "chapter": "52",
    "subject": "Doors",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s doors CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's doors CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-52-00-00-00A-010A-A"
   },
   {
@@ -847,7 +847,7 @@
    "chapter": "52",
    "subject": "Doors",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s upper cabin door general visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's upper cabin door general visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-52-13-01-00A-310A-A"
   },
   {
@@ -856,7 +856,7 @@
    "chapter": "21",
    "subject": "Air Conditioning",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s environmental distribution components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's environmental distribution components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-21-20-00-00A-040A-A AMM-CH-A-21-40-00-00A-040A-A"
   },
   {
@@ -865,7 +865,7 @@
    "chapter": "21",
    "subject": "Air Conditioning",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s heating system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's heating system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-21-40-00-00A-320A-A AMM-CH-A-21-40-00-00A-130A-A"
   },
   {
@@ -883,7 +883,7 @@
    "chapter": "21",
    "subject": "Air Conditioning",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s heater hot light N214003 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's heater hot light N214003 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-21-40-03-00A-421A-A"
   },
   {
@@ -892,7 +892,7 @@
    "chapter": "22",
    "subject": "Autoflight",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s digital automatic flight control system (DAFCS) components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's digital automatic flight control system (DAFCS) components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-22-00-00-00A-040A-A"
   },
   {
@@ -901,7 +901,7 @@
    "chapter": "24",
    "subject": "Electrical Power",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s electrical power components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's electrical power components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-24-20-00-00A-040A-A AMM-CH-A-24-30-00-00A-040A-A"
   },
   {
@@ -910,7 +910,7 @@
    "chapter": "24",
    "subject": "Electrical Power",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s electrical power (alternating current) operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's electrical power (alternating current) operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-24-20-00-00A-320A-A"
   },
   {
@@ -919,7 +919,7 @@
    "chapter": "24",
    "subject": "Electrical Power",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s No. 1 power distribution panel (PDP) visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's No. 1 power distribution panel (PDP) visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-24-90-01-00A-310A-A"
   },
   {
@@ -928,7 +928,7 @@
    "chapter": "24",
    "subject": "Electrical Power",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s No. 1 generator current transformer CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's No. 1 generator current transformer CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-24-21-02-00A-520A-A AMM-CH-A-24-21-02-00A-720A-A"
   },
   {
@@ -937,7 +937,7 @@
    "chapter": "24",
    "subject": "Electrical Power",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s “generator no.1 test OK with generator switch OFF N242006 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's 'generator no.1 test OK with generator switch OFF N242006 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-24-20-06-00A-421A-A"
   },
   {
@@ -946,7 +946,7 @@
    "chapter": "25",
    "subject": "Equipment and Furnishings",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s cargo compartment component CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's cargo compartment component CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-50-00-00A-040A-A AMM-CH-A-25-92-00-00A-040A-A"
   },
   {
@@ -955,7 +955,7 @@
    "chapter": "25",
    "subject": "Equipment and Furnishings",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s center cargo hook operational test CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's center cargo hook operational test CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-91-13-00A-340A-A AMM-CH-A-25-92-00-00A-320A-A"
   },
   {
@@ -964,7 +964,7 @@
    "chapter": "25",
    "subject": "Equipment and Furnishings",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s center cargo hook assembly visual examination CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's center cargo hook assembly visual examination CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-91-13-00A-310A-A"
   },
   {
@@ -973,7 +973,7 @@
    "chapter": "25",
    "subject": "Equipment and Furnishings",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s cargo hook load cell signal conditioner CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's cargo hook load cell signal conditioner CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-91-45-00A-520A-A AMM-CH-A-25-91-45-00A-720A-A AMM-CH-A-25-92-21-00A-520A-A AMM-CH-A-25-92-21-00A-720A-A"
   },
   {
@@ -982,7 +982,7 @@
    "chapter": "25A",
    "subject": "Electronic Equipment including emergency eq.",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s emergency equipment CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's emergency equipment CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-60-00-00A-040A-A"
   },
   {
@@ -991,7 +991,7 @@
    "chapter": "25A",
    "subject": "Electronic Equipment including emergency eq.",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s forward and aft cargo hook functional check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's forward and aft cargo hook functional check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM- CH-A-25-91-00-01A-340A-B"
   },
   {
@@ -1000,7 +1000,7 @@
    "chapter": "25A",
    "subject": "Electronic Equipment including emergency eq.",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s underwater acustic beacon system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's underwater acustic beacon system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-64-00-00A-320A-A"
   },
   {
@@ -1009,7 +1009,7 @@
    "chapter": "25A",
    "subject": "Electronic Equipment including emergency eq.",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s underwater acoustic beacon system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's underwater acoustic beacon system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-64-01-00A-520A-A"
   },
   {
@@ -1018,7 +1018,7 @@
    "chapter": "26",
    "subject": "Fire Protection",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s fire protection components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's fire protection components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-26-00-00-00A-040A-A"
   },
   {
@@ -1027,7 +1027,7 @@
    "chapter": "26",
    "subject": "Fire Protection",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s engine fire detection system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's engine fire detection system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-26-10-00-00A-320A-A"
   },
   {
@@ -1036,7 +1036,7 @@
    "chapter": "26",
    "subject": "Fire Protection",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s fire extinguisher bottle special inspections CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's fire extinguisher bottle special inspections CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-26-20-01-00A-283A-B"
   },
   {
@@ -1045,7 +1045,7 @@
    "chapter": "26",
    "subject": "Fire Protection",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s no. 1 engine fire detector control unit CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's no. 1 engine fire detector control unit CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-26-11-07-00A-520A-A AMM-CH-A-26-11-07-00A-520A-A"
   },
   {
@@ -1054,7 +1054,7 @@
    "chapter": "26",
    "subject": "Fire Protection",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s fire pull handle warning lights N261003 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's fire pull handle warning lights N261003 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-26-10-03-00A-421A-A"
   },
   {
@@ -1063,7 +1063,7 @@
    "chapter": "28",
    "subject": "Fuel Systems",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s fuel system components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's fuel system components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-28-00-00-00A-040A-A"
   },
   {
@@ -1072,7 +1072,7 @@
    "chapter": "28",
    "subject": "Fuel Systems",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s fuel distribution system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's fuel distribution system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-28-20-00-00A-320A-A"
   },
   {
@@ -1081,7 +1081,7 @@
    "chapter": "28",
    "subject": "Fuel Systems",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s single point method-Refuel-CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's single point method-Refuel- CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-12-10-28-00A-211A-A"
   },
   {
@@ -1090,7 +1090,7 @@
    "chapter": "28",
    "subject": "Fuel Systems",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s right fuel quantity signal conditioner CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's right fuel quantity signal conditioner CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-28-49-14-00A-520A-A AMM-CH-A-28-49-14-00A-720A-A"
   },
   {
@@ -1099,7 +1099,7 @@
    "chapter": "28",
    "subject": "Fuel Systems",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s fuel quantity indicator N284001 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's fuel quantity indicator N284001 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-28-40-01-00A-421A-A"
   },
   {
@@ -1108,7 +1108,7 @@
    "chapter": "28A",
    "subject": "Fuel Systems Monitoring and Indicating",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s fuel system monitoring and indicating components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's fuel system monitoring and indicating components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-28-40-00-00A-040A-A"
   },
   {
@@ -1117,7 +1117,7 @@
    "chapter": "28A",
    "subject": "Fuel Systems Monitoring and Indicating",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s fuel quantity system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's fuel quantity system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-28-40-00-00A-320A-A"
   },
   {
@@ -1126,7 +1126,7 @@
    "chapter": "29",
    "subject": "Hydraulic Power",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s hydraulic power components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's hydraulic power components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-29-00-00-00A-040A-A"
   },
   {
@@ -1135,7 +1135,7 @@
    "chapter": "29",
    "subject": "Hydraulic Power",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s flight control hydraulic system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's flight control hydraulic system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-29-11-00-00A-320A-A AMM-CH-A-29-30-00-00A-320A-A"
   },
   {
@@ -1144,7 +1144,7 @@
    "chapter": "29",
    "subject": "Hydraulic Power",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s release liquid pressure from utility hydraulic system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's release liquid pressure from utility hydraulic system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-12-10-29-00A-227A-A"
   },
   {
@@ -1153,7 +1153,7 @@
    "chapter": "29",
    "subject": "Hydraulic Power",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s flight control hydraulic sys accumulator gauge CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's flight control hydraulic sys accumulator gauge CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-29-11-12-00A-520A-A AMM-CH-A-29-11-12-00A-720A-A"
   },
   {
@@ -1162,7 +1162,7 @@
    "chapter": "29",
    "subject": "Hydraulic Power",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s hydraulic N.1 circuit breaker N291102 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's hydraulic N.1 circuit breaker N291102 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-29-11-02-00A-421A-A AMM-CH-A-29-11-18-00A-421A-A"
   },
   {
@@ -1171,7 +1171,7 @@
    "chapter": "29A",
    "subject": "Hydraulic Power Monitoring and Indicating",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s hydraulic indicating systems CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's hydraulic indicating systems CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-29-30-00-00A-040A-A"
   },
   {
@@ -1180,7 +1180,7 @@
    "chapter": "29A",
    "subject": "Hydraulic Power Monitoring and Indicating",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s utility hydraulic system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's utility hydraulic system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-29-13-00-00A-320A-A AMM-CH-A-29-13-25-00A-320A-A"
   },
   {
@@ -1189,7 +1189,7 @@
    "chapter": "29A",
    "subject": "Hydraulic Power Monitoring and Indicating",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s flight control hydraulic system temperature indicator CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's flight control hydraulic system temperature indicator CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-29-31-02-00A-520A-A AMM-CH-A-29-31-02-00A-720A-A"
   },
   {
@@ -1198,7 +1198,7 @@
    "chapter": "29A",
    "subject": "Hydraulic Power Monitoring and Indicating",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s hydraulics “FLT CONT” fault code N293004 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's hydraulics 'FLT CONT' fault code N293004 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-29-30-04-00A-421A-A AMM-CH-A-29-13-25-00A-421A-A"
   },
   {
@@ -1207,7 +1207,7 @@
    "chapter": "30",
    "subject": "Ice and Rain Protection",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s ice and rain protection system components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's ice and rain protection system components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-30-00-00-00A-040A-A"
   },
   {
@@ -1216,7 +1216,7 @@
    "chapter": "30",
    "subject": "Ice and Rain Protection",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s pitot tube and static port heating system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's pitot tube and static port heating system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-30-30-00-00A-320A-A"
   },
   {
@@ -1225,7 +1225,7 @@
    "chapter": "30",
    "subject": "Ice and Rain Protection",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s windshield wiper system visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's windshield wiper system visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-30-42-00-00A-310A-A"
   },
   {
@@ -1234,7 +1234,7 @@
    "chapter": "30",
    "subject": "Ice and Rain Protection",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s anti-ice pitot 1 htr circuit breaker N303001 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's anti-ice pitot 1 htr circuit breaker N303001 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-30-30-01-00A-421A-A"
   },
   {
@@ -1243,7 +1243,7 @@
    "chapter": "31",
    "subject": "Indicating/Recording Systems",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s cockpit instrument and control panels components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's cockpit instrument and control panels components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-10-00-00A-040A-A"
   },
   {
@@ -1252,7 +1252,7 @@
    "chapter": "31",
    "subject": "Indicating/Recording Systems",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s cruise guide indicating (CGI) system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's cruise guide indicating (CGI) system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-23-00-00A-320A-A"
   },
   {
@@ -1261,7 +1261,7 @@
    "chapter": "31",
    "subject": "Indicating/Recording Systems",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s center console visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's center console visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-15-01-00A-310A-A"
   },
   {
@@ -1270,7 +1270,7 @@
    "chapter": "31",
    "subject": "Indicating/Recording Systems",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s forward cruise guide link assembly CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's forward cruise guide link assembly CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-23-03-00A-520A-A AMM-CH-A-31-23-03-00A-720A-A"
   },
   {
@@ -1279,7 +1279,7 @@
    "chapter": "31",
    "subject": "Indicating/Recording Systems",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s the cruise guide circuit breaker does not stay closed N312301 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's the cruise guide circuit breaker does not stay closed N312301 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-23-01-00A-421A-A"
   },
   {
@@ -1288,7 +1288,7 @@
    "chapter": "31A",
    "subject": "Instrument System",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s maintenance panel components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's maintenance panel components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-16-00-00A-040A-A"
   },
   {
@@ -1297,7 +1297,7 @@
    "chapter": "31A",
    "subject": "Instrument System",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s maintenance panel power distribution system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's maintenance panel power distribution system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-16-00-00A-320A-A"
   },
   {
@@ -1306,7 +1306,7 @@
    "chapter": "31A",
    "subject": "Instrument System",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s center console access panels general visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's center console access panels general visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-15-01-01A-310A-A"
   },
   {
@@ -1315,7 +1315,7 @@
    "chapter": "31A",
    "subject": "Instrument System",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s maintenance panel CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's maintenance panel CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-16-01-00A-520A-A AMM-CH-A-31-16-01-00A-720A-A"
   },
   {
@@ -1324,7 +1324,7 @@
    "chapter": "31A",
    "subject": "Instrument System",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s hydraulics maint pnl lts circuit breaker does not stay closed N311602 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's hydraulics maint pnl lts circuit breaker does not stay closed N311602 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-31-16-02-00A-421A-A"
   },
   {
@@ -1333,7 +1333,7 @@
    "chapter": "32",
    "subject": "Landing Gear",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s landing gear components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's landing gear components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-00-00-00A-040A-A"
   },
   {
@@ -1342,7 +1342,7 @@
    "chapter": "32",
    "subject": "Landing Gear",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s power steering and swivel locks operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's power steering and swivel locks operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-50-00-00A-320A-A"
   },
   {
@@ -1351,7 +1351,7 @@
    "chapter": "32",
    "subject": "Landing Gear",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s upper drag link visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's upper drag link visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-10-06-00A-310A-A"
   },
   {
@@ -1360,7 +1360,7 @@
    "chapter": "32",
    "subject": "Landing Gear",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s forward landing gear wheel and tire assembly CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's forward landing gear wheel and tire assembly CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-41-01-00A-520A-A AMM-CH-A-32-42-01-00A-520A-A AMM-CH-A-32-41-01-00A-720A-A AMM-CH-A-32-42-01-00A-720A-A"
   },
   {
@@ -1369,7 +1369,7 @@
    "chapter": "32",
    "subject": "Landing Gear",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s parking brake handle did not stay out N324005 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's parking brake handle did not stay out N324005 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-40-05-00A-421A-A"
   },
   {
@@ -1378,7 +1378,7 @@
    "chapter": "32A",
    "subject": "Landing Gear Monitoring and Indicating",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s landing gear indicating components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's landing gear indicating components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-00-00-00A-040A-A"
   },
   {
@@ -1387,7 +1387,7 @@
    "chapter": "32A",
    "subject": "Landing Gear Monitoring and Indicating",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s proximity switch operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's proximity switch operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-61-00-00A-320A-A"
   },
   {
@@ -1396,7 +1396,7 @@
    "chapter": "32A",
    "subject": "Landing Gear Monitoring and Indicating",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s left proximity switch CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's left proximity switch CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-61-01-00A-520A-A AMM-CH-A-32-61-01-00A-720A-A"
   },
   {
@@ -1405,7 +1405,7 @@
    "chapter": "32A",
    "subject": "Landing Gear Monitoring and Indicating",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s left side wheels turn with pilot left brake pedal pushed N324001 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's left side wheels turn with pilot left brake pedal pushed N324001 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-32-40-01-00A-421A-A"
   },
   {
@@ -1414,7 +1414,7 @@
    "chapter": "33",
    "subject": "Lights",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s internal and external lighting system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's internal and external lighting system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-33-10-00-00A-130A-A AMM-CH-A-33-40-00-00A-040A-A"
   },
   {
@@ -1423,7 +1423,7 @@
    "chapter": "33",
    "subject": "Lights",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s navigation lighting operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's navigation lighting operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-33-40-00-00A-320A-A"
   },
   {
@@ -1432,7 +1432,7 @@
    "chapter": "33",
    "subject": "Lights",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s upper anticollision light and infrared (IR) visual examination CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's upper anticollision light and infrared (IR) visual examination CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-33-41-01-00A-310A-A"
   },
   {
@@ -1441,7 +1441,7 @@
    "chapter": "34",
    "subject": "Navigation",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s navigation components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's navigation components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-34-11-00-00A-040A-A AMM-CH-A-34-23-00-00A-040A-A AMM-CH-A-34-31-00-00A-040A-A AMM-CH-A-34-41-00-00A-040A-A AMM-CH-A-34-51-00-00A-040A-A AMM-CH-A-34-17-00-00A-040A-A AMM-CH-A-34-43-00-00A-040A-A AMM-CH-A-34-44-00-00A-040A-A AMM-CH-A-34-52-00-00A-040A-A AMM-CH-A-34-53-00-00A-040A-A AMM-CH-A-34-54-00-00A-040A-A AMM-CH-A-34-44-00-00A-040A-A"
   },
   {
@@ -1450,7 +1450,7 @@
    "chapter": "34",
    "subject": "Navigation",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s pitot/static system visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's pitot/static system visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-34-11-00-00A-310A-A"
   },
   {
@@ -1459,7 +1459,7 @@
    "chapter": "36",
    "subject": "Pneumatic",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine bleed band system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's engine bleed band system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-75-30-00-00A-040A-A"
   },
   {
@@ -1468,7 +1468,7 @@
    "chapter": "36",
    "subject": "Pneumatic",
    "tipo": "FOT",
-   "descrizione": "Execute operational test the helicopter’s engine interstage air-bleed band CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute operational test the helicopter's engine interstage air- bleed band CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 5 PARA 2-86"
   },
   {
@@ -1477,7 +1477,7 @@
    "chapter": "36",
    "subject": "Pneumatic",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s engine compressor bleed band CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Replace the helicopter's engine compressor bleed band CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 5 PARA 2-89 CHAPTER 5 PARA 2-91"
   },
   {
@@ -1486,7 +1486,7 @@
    "chapter": "36",
    "subject": "Pneumatic",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s engine DECU code “D1” troubleshooting CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's engine DECU code 'D1' troubleshooting CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "APPENDIX A"
   },
   {
@@ -1495,7 +1495,7 @@
    "chapter": "43",
    "subject": "Tactical Communications",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s VHF/UHF SATCOM radio transceiver system (SRT- 651/P) components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's VHF/UHF SATCOM radio transceiver system (SRT- 651/P) components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-43-10-00-00A-040A-A"
   },
   {
@@ -1504,7 +1504,7 @@
    "chapter": "43",
    "subject": "Tactical Communications",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s SRT-170 HF RADIO system operational check (BITE test) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's SRT-170 HF RADIO system operational check (BITE test) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-43-31-00-00A-320A-A"
   },
   {
@@ -1513,7 +1513,7 @@
    "chapter": "44",
    "subject": "Cabin System",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s digital interphone communication system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's digital interphone communication system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-43-54-00-00A-040A-A"
   },
   {
@@ -1522,7 +1522,7 @@
    "chapter": "46",
    "subject": "Information System",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s avionics management system (AMS) components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's avionics management system (AMS) components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-46-00-00-00A-040A-A"
   },
   {
@@ -1531,7 +1531,7 @@
    "chapter": "50",
    "subject": "Cargo and accessory compartments",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s troop seat in the cargo compartment components CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's troop seat in the cargo compartment components CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-25-21-00-00A-040A-A"
   },
   {
@@ -1540,7 +1540,7 @@
    "chapter": "50",
    "subject": "Cargo and accessory compartments",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s cargo ramp 5000 pound tiedown visual inspection CMM(EXP).1H-CH-47F-2 Execute operational check of",
+   "descrizione": "Execute the helicopter's cargo ramp 5000 pound tiedown visual inspection CMM(EXP).1H-CH-47F-2 Execute operational check of",
    "riferimenti": "AMM-CH-A-52-32-10-00A-310A-A"
   },
   {
@@ -1549,7 +1549,7 @@
    "chapter": "70",
    "subject": "Engines Standard Practices",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s engine preparation for service and storage CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's engine preparation for service and storage CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 3 PARA 01"
   },
   {
@@ -1558,7 +1558,7 @@
    "chapter": "70A",
    "subject": "Constructional Arrangement and Operation",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine major assemblies CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Locate the helicopter's engine major assemblies CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 1 PARA 02-6"
   },
   {
@@ -1567,7 +1567,7 @@
    "chapter": "70B",
    "subject": "Engine Performance",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s engine DECU code “A7” troubleshooting CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's engine DECU code 'A7' troubleshooting CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "APPENDIX A"
   },
   {
@@ -1576,7 +1576,7 @@
    "chapter": "71",
    "subject": "Powerplant",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s power plant CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's power plant CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-71-00-00-00A-040A-A"
   },
   {
@@ -1585,7 +1585,7 @@
    "chapter": "71",
    "subject": "Powerplant",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s engine No.1 power plant inlet screen assembly general visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's engine No.1 power plant inlet screen assembly general visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-71-61-02-00A-310A-B"
   },
   {
@@ -1594,7 +1594,7 @@
    "chapter": "71",
    "subject": "Powerplant",
    "tipo": "SGH",
-   "descrizione": "Execute adjustment the helicopter’s power plant link assembly CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute adjustment the helicopter's power plant link assembly CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-71-20-05-00A-271A-B"
   },
   {
@@ -1603,7 +1603,7 @@
    "chapter": "72",
    "subject": "Engine Turbine",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine components CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Locate the helicopter's engine components CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 1 PARA 02-1"
   },
   {
@@ -1612,7 +1612,7 @@
    "chapter": "73",
    "subject": "Engine Fuel and Control",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine hydromechanical assembly (HMA) CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Locate the helicopter's engine hydromechanical assembly (HMA) CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 1 PARA 02-41"
   },
   {
@@ -1621,7 +1621,7 @@
    "chapter": "73",
    "subject": "Engine Fuel and Control",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s engine main fuel filter assembly general visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's engine main fuel filter assembly general visual inspection CMM(EXP).1H- CH-47F-2",
    "riferimenti": "AMM-CH-A-73-10-04-00A-310A-B"
   },
   {
@@ -1630,7 +1630,7 @@
    "chapter": "73A",
    "subject": "FADEC/EECU",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine digital electronic control unit (DECU) CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Locate the helicopter's engine digital electronic control unit (DECU) CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 1 PARA 02-65"
   },
   {
@@ -1639,7 +1639,7 @@
    "chapter": "73A",
    "subject": "FADEC/EECU",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s engine full authority digital electronic control (FADEC) system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's engine full authority digital electronic control (FADEC) system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-76-10-00-00A-320A-A"
   },
   {
@@ -1648,7 +1648,7 @@
    "chapter": "73A",
    "subject": "FADEC/EECU",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s engine No.1 digital electronic control unit (DECU) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's engine No.1 digital electronic control unit (DECU) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-76-11-01-00A-520A-A AMM-CH-A-76-11-01-00A-720A-A"
   },
   {
@@ -1657,7 +1657,7 @@
    "chapter": "73A",
    "subject": "FADEC/EECU",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s fault code A6 (when it is shown on the No.1 DECU) troubleshooting CMM(EXP).1H-CH-47F-2 CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's fault code A6 (when it is shown on the No.1 DECU) troubleshooting CMM(EXP).1H-CH-47F-2 CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "AMM-CH-A-76-10-16-00A-421A-A APPENDIX A"
   },
   {
@@ -1666,7 +1666,7 @@
    "chapter": "74",
    "subject": "Ignition",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine ignition system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's engine ignition system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-74-10-00-00A-040A-A"
   },
   {
@@ -1675,7 +1675,7 @@
    "chapter": "74",
    "subject": "Ignition",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s engine mirror servicing of ignition unit CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's engine mirror servicing of ignition unit CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 5 PARA 02-24"
   },
   {
@@ -1684,7 +1684,7 @@
    "chapter": "75",
    "subject": "Air",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine air system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's engine air system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-75-00-00-00A-040A-A"
   },
   {
@@ -1693,7 +1693,7 @@
    "chapter": "75",
    "subject": "Air",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s engine No.1 inlet screen assembly CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's engine No.1 inlet screen assembly CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-71-61-02-00A-520A-A AMM-CH-A-71-61-02-00A-720A-A"
   },
   {
@@ -1702,7 +1702,7 @@
    "chapter": "75",
    "subject": "Air",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s engine DECU code “F7” troubleshooting CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's engine DECU code 'F7' troubleshooting CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "APPENDIX A"
   },
   {
@@ -1711,7 +1711,7 @@
    "chapter": "76",
    "subject": "Engine controls",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine full authority digital electronic control (FADEC) system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's engine full authority digital electronic control (FADEC) system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-76-10-00-00A-040A-A"
   },
   {
@@ -1720,7 +1720,7 @@
    "chapter": "76",
    "subject": "Engine controls",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s engine condition control quadrant assy functional check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's engine condition control quadrant assy functional check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-76-13-03-00A-340A-A"
   },
   {
@@ -1729,7 +1729,7 @@
    "chapter": "76",
    "subject": "Engine controls",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s engine primary and reversionary PLA potentiometer (F6) troubleshooting CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's engine primary and reversionary PLA potentiometer (F6) troubleshooting CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "APPENDIX A"
   },
   {
@@ -1738,7 +1738,7 @@
    "chapter": "77",
    "subject": "Engine Indicating",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine electrical system component CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Locate the helicopter's engine electrical system component CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 1 PARA 02-61"
   },
   {
@@ -1747,7 +1747,7 @@
    "chapter": "77",
    "subject": "Engine Indicating",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s engine gas producer (NG) indicating system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's engine gas producer (NG) indicating system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-77-10-00-00A-320A-A"
   },
   {
@@ -1756,7 +1756,7 @@
    "chapter": "77",
    "subject": "Engine Indicating",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s engine no. 1 torque circuit breaker N771004 fault isolation procedure CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's engine no. 1 torque circuit breaker N771004 fault isolation procedure CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-77-10-01-00A-421D-A"
   },
   {
@@ -1765,7 +1765,7 @@
    "chapter": "78",
    "subject": "Exhaust",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine exhaust system CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's engine exhaust system CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-78-00-00-00A-040A-A"
   },
   {
@@ -1774,7 +1774,7 @@
    "chapter": "78",
    "subject": "Exhaust",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s No.1 engine tailpipe assembly visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's No.1 engine tailpipe assembly visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM- CH-A-78-11-01-00A-310A-A"
   },
   {
@@ -1783,7 +1783,7 @@
    "chapter": "79",
    "subject": "Oil",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine lubrication system CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Locate the helicopter's engine lubrication system CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 1 PARA 02-44"
   },
   {
@@ -1792,7 +1792,7 @@
    "chapter": "79",
    "subject": "Oil",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s engine servicing oil system CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's engine servicing oil system CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 3 PARA 02-2"
   },
   {
@@ -1801,7 +1801,7 @@
    "chapter": "79",
    "subject": "Oil",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s engine dual chip detector CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Replace the helicopter's engine dual chip detector CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 5 PARA 02-95 CHAPTER 5 PARA 02-97"
   },
   {
@@ -1810,7 +1810,7 @@
    "chapter": "80",
    "subject": "Starting",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s engine starting and main fuel flow system CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Locate the helicopter's engine starting and main fuel flow system CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "CHAPTER 1 PARA 02-30"
   },
   {
@@ -1819,7 +1819,7 @@
    "chapter": "80",
    "subject": "Starting",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s engine hydraulic starting system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's engine hydraulic starting system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-80-10-00-00A-320A-A"
   },
   {
@@ -1828,7 +1828,7 @@
    "chapter": "80",
    "subject": "Starting",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s engine DECU code “FA” troubleshooting CMM(EP).2T.55/L/714/A–2",
+   "descrizione": "Execute the helicopter's engine DECU code 'FA' troubleshooting CMM(EP).2T.55/L/714/A'2",
    "riferimenti": "APPENDIX A"
   },
   {
@@ -1837,7 +1837,7 @@
    "chapter": "49",
    "subject": "Airborne Auxiliary Power (APU)",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s auxiliary power unit (APU) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's auxiliary power unit (APU) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-49-00-00-00A-040A-A"
   },
   {
@@ -1846,7 +1846,7 @@
    "chapter": "49",
    "subject": "Airborne Auxiliary Power (APU)",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s auxiliary power unit (APU) pre-operation CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's auxiliary power unit (APU) pre-operation CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-49-00-00-00A-120A-A"
   },
   {
@@ -1855,7 +1855,7 @@
    "chapter": "49",
    "subject": "Airborne Auxiliary Power (APU)",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s auxiliary power unit (APU) forward mount general visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's auxiliary power unit (APU) forward mount general visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-49-00-03-00A-310A-A"
   },
   {
@@ -1864,7 +1864,7 @@
    "chapter": "49",
    "subject": "Airborne Auxiliary Power (APU)",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s fault procedures APU thermocouple fail bite indication “•○•○•” CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's fault procedures APU thermocouple fail bite indication ''''''' CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-49-00-10-00A-421A-A"
   },
   {
@@ -1873,7 +1873,7 @@
    "chapter": "93",
    "subject": "Surveillance",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s laser obstacle avoidance and monitoring (LOAM)and the helicopter’s weather radar system (WXR) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's laser obstacle avoidance and monitoring (LOAM)and the helicopter's weather radar system (WXR) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-93-60-00-00A-040A-A"
   },
   {
@@ -1882,7 +1882,7 @@
    "chapter": "93",
    "subject": "Surveillance",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s laser obstacle avoidance and monitoring (LOAM) operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's laser obstacle avoidance and monitoring (LOAM) operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-93-60-00-00A-320A-A"
   },
   {
@@ -1891,7 +1891,7 @@
    "chapter": "93",
    "subject": "Surveillance",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s electro-optical infrared (EOIR) visual inspection CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's electro- optical infrared (EOIR) visual inspection CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-93-50-01-00A-280A-A"
   },
   {
@@ -1900,7 +1900,7 @@
    "chapter": "93",
    "subject": "Surveillance",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s laser obstacle avoidance and monitoring (LOAM) warning Unit (WU) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's laser obstacle avoidance and monitoring (LOAM) warning Unit (WU) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-93-60-03-00A-520A-A AMM-CH-A-93-60-03-00A-720A-A"
   },
   {
@@ -1909,7 +1909,7 @@
    "chapter": "94",
    "subject": "Weapon System",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s weapon system CMM(EP).11-MGMK3/M3M-2",
+   "descrizione": "Locate the helicopter's weapon system CMM(EP).11-MGMK3/M3M-2",
    "riferimenti": "CHAPTER 1"
   },
   {
@@ -1918,7 +1918,7 @@
    "chapter": "94",
    "subject": "Weapon System",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s weapon system safety checks CMM(EP).11-MGMK3/M3M-2",
+   "descrizione": "Execute the helicopter's weapon system safety checks CMM(EP).11-MGMK3/M3M-2",
    "riferimenti": "CHAPTER 4 PARA 4.2"
   },
   {
@@ -1927,7 +1927,7 @@
    "chapter": "94",
    "subject": "Weapon System",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s weapon system cleaning and lubrication before firing CMM(EP).11-MGMK3/M3M-2",
+   "descrizione": "Execute the helicopter's weapon system cleaning and lubrication before firing CMM(EP).11-MGMK3/M3M-2",
    "riferimenti": "CHAPTER 8 PARA 8.2"
   },
   {
@@ -1945,7 +1945,7 @@
    "chapter": "95",
    "subject": "Crew Escape and Safety",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s jettisonable doors CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's jettisonable doors CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-52-00-00-00A-010A-A"
   },
   {
@@ -1954,7 +1954,7 @@
    "chapter": "95",
    "subject": "Crew Escape and Safety",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s copilot's jettisonable door manual test CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's copilot's jettisonable door manual test CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-52-12-01-00A-341A-A"
   },
   {
@@ -1963,7 +1963,7 @@
    "chapter": "95",
    "subject": "Crew Escape and Safety",
    "tipo": "SGH",
-   "descrizione": "Execute \"Adjustment, alignment and calibratation\" of the helicopter’s Jettisonable Door Assembly CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute \"Adjustment, alignment and calibratation\" of the helicopter's Jettisonable Door Assembly CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-52-10-00-00A-270A-A"
   },
   {
@@ -1972,7 +1972,7 @@
    "chapter": "95",
    "subject": "Crew Escape and Safety",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s pilot's jettisonable door assembly CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's pilot's jettisonable door assembly CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-52-11-01-00A-520A-A AMM-CH-A-52-11-01-00A-720A-A"
   },
   {
@@ -1981,7 +1981,7 @@
    "chapter": "95",
    "subject": "Crew Escape and Safety",
    "tipo": "TS",
-   "descrizione": "Execute the helicopter’s cargo ramp and door system general fault description CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's cargo ramp and door system general fault description CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-52-32-00-00A-410A-A"
   },
   {
@@ -1990,7 +1990,7 @@
    "chapter": "97",
    "subject": "Image Recording",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s digital video flash airborne recorder component (DVFAR-II) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's digital video flash airborne recorder component (DVFAR-II) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-93-31-00-00A-040A-A"
   },
   {
@@ -1999,7 +1999,7 @@
    "chapter": "97",
    "subject": "Image Recording",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s digital video recorder (DVFAR-II) operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's digital video recorder (DVFAR-II) operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-93-31-00-00A-320A-A"
   },
   {
@@ -2008,7 +2008,7 @@
    "chapter": "97",
    "subject": "Image Recording",
    "tipo": "SGH",
-   "descrizione": "Execute the helicopter’s electro optical infra-red turret window clean operation CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's electro optical infra-red turret window clean operation CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-12-30-93-00A-250A-A"
   },
   {
@@ -2017,7 +2017,7 @@
    "chapter": "97",
    "subject": "Image Recording",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s digital video recorder (DVFAR-II) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's digital video recorder (DVFAR-II) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-93-31-01-00A-520A-A AMM-CH-A-93-31-01-00A-720A-A"
   },
   {
@@ -2026,7 +2026,7 @@
    "chapter": "99",
    "subject": "Electronic warfare",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s integrated auto-protection system (SIAP) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's integrated auto-protection system (SIAP) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-99-00-00-00A-040A-A"
   },
   {
@@ -2035,7 +2035,7 @@
    "chapter": "99",
    "subject": "Electronic warfare",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s laser warning (LWR) system operational check CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's laser warning (LWR) system operational check CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-99-80-00-00A-320A-A"
   },
   {
@@ -2044,7 +2044,7 @@
    "chapter": "99",
    "subject": "Electronic warfare",
    "tipo": "FOT",
-   "descrizione": "Execute the helicopter’s enhanced countermeasure dispensing system (ECDS-2) normal operation CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Execute the helicopter's enhanced countermeasure dispensing system (ECDS-2) normal operation CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-99-31-00-00A-130A-A"
   },
   {
@@ -2053,7 +2053,7 @@
    "chapter": "99",
    "subject": "Electronic warfare",
    "tipo": "R/I",
-   "descrizione": "Replace the helicopter’s TWD (Threat Warning Display) CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Replace the helicopter's TWD (Threat Warning Display) CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-99-13-10-00A-520A-A AMM-CH-A-99-13-10-00A-720A-A"
   },
   {
@@ -2062,7 +2062,7 @@
    "chapter": "AVES 1",
    "subject": "Maintenance data",
    "tipo": "LOC",
-   "descrizione": "Locate the helicopter’s components and specifies the calendar retirement lives CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Locate the helicopter's components and specifies the calendar retirement lives CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-05-10-00-02A-000A-A"
   },
   {
@@ -2089,7 +2089,7 @@
    "chapter": "AVES 2b",
    "subject": "Hydraulic Power Supply",
    "tipo": "R/I",
-   "descrizione": "Install the helicopter’s hydraulic test stand for drain liquid and release pressure from HSRC CMM(EXP).1H-CH-47F-2",
+   "descrizione": "Install the helicopter's hydraulic test stand for drain liquid and release pressure from HSRC CMM(EXP).1H-CH-47F-2",
    "riferimenti": "AMM-CH-A-12-10-29-00A-220A-A"
   },
   {
@@ -2107,7 +2107,7 @@
    "chapter": "AVES 2d",
    "subject": "Siap",
    "tipo": "LOC",
-   "descrizione": "Identify “SIAP” test components 185-0082/03 TM-M008A_rev4 AER.31-ELT804-1/2/4",
+   "descrizione": "Identify 'SIAP' test components 185-0082/03 TM-M008A_rev4 AER.31-ELT804-1/2/4",
    "riferimenti": "185-0082/03 TM-M008A_rev4 AER.31-ELT804-1/2/4"
   },
   {
@@ -2116,7 +2116,7 @@
    "chapter": "AVES 3",
    "subject": "Compressor Wash Ring",
    "tipo": "LOC",
-   "descrizione": "Identify cleaning and rising engine’s compressor components JMP/SHWR/D/0376/C800/BH",
+   "descrizione": "Identify cleaning and rising engine's compressor components JMP/SHWR/D/0376/C800/BH",
    "riferimenti": "JMP/SHWR/D/0376/C800/BH"
   }
  ]

@@ -7,9 +7,7 @@ Collegamenti da distribuire:
 
 | Link | A chi |
 |---|---|
-| `https://pier-200.github.io/GestionaleTypeTraining/?app=mtt` | parte teorica (MTT) |
-| `https://pier-200.github.io/GestionaleTypeTraining/?app=ptt` | parte pratica (PTT) |
-| `https://pier-200.github.io/GestionaleTypeTraining/` | Training Manager e direttori (tutto) |
+| `https://pier-200.github.io/GestionaleTypeTraining/` | tutti (un'unica applicazione, pagine secondo il ruolo) |
 | `https://pier-200.github.io/GestionaleTypeTraining/?demo` | prova con dati finti |
 
 In alternativa a Supabase si può usare un **repository GitHub privato** (sezione B). L'archivio si sceglie in

@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from 'react';
 import { ActionIcon, Drawer, Select, Tooltip } from '@mantine/core';
 import { IconDots, IconLogout, IconRefresh, IconSwitchHorizontal } from '@tabler/icons-react';
-import { corsiDi } from '../dominio/motore';
+import { corsiDi, oggiISO } from '../dominio/motore';
 import { ETICHETTA_RUOLO } from '../dominio/tipi';
-import { nomeUtente } from '../dominio/viste';
-import { applicativo, link, menuPer, NOME_APPLICATIVO, ricordaCorso, useCorso, useFrequentatore, useRuoloCorso, type Voce } from './navigazione';
+import { avanzamento, mediaPratica, nomeUtente } from '../dominio/viste';
+import { link, menuPer, ricordaCorso, useCorso, useFrequentatore, useRuoloCorso, type Voce } from './navigazione';
 import { naviga, usePosizione } from './router';
 import { useStato } from './stato';
 
@@ -18,29 +18,42 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
   const frequentatore = useFrequentatore();
   const [altro, setAltro] = useState(false);
   if (!utente || !dati || !backend) return null;
-  const app = applicativo();
-  const menu = menuPer(utente, corso, ruolo, app);
+  const menu = menuPer(utente, corso, ruolo);
   const f = frequentatore?.id;
   const href = (v: Voce) => link(v.a, corso, v.frequentatore ? f : null);
   const corrente = (v: Voce) => (percorso === v.a || (percorso === '/' && v.a === primaVoce?.a) ? ('page' as const) : undefined);
   const aggiornamento = backend.tipo === 'supabase' ? 'In tempo reale' : backend.tipo === 'github' ? 'Controllo ogni 30 s' : 'Dati in questo browser';
   const corsi = corsiDi(dati, utente);
 
-  const gruppi: [string, Voce[]][] =
-    utente.ruolo === 'trainee'
-      ? [
-          ['Parte pratica · PTT', menu.pratica],
-          ['Parte teorica · MTT', menu.teoria],
-          ['Corso', menu.corso],
-          ['', menu.altro],
-        ]
-      : [
-          ['Corso', menu.corso],
-          ['Parte teorica · MTT', menu.teoria],
-          ['Parte pratica · PTT', menu.pratica],
-          ['Registri · AER(EP).P-147', menu.registri],
-          ['', menu.altro],
-        ];
+  /** Riscontro sempre visibile: quanto è svolto della teoria e quanto è eseguito della pratica. */
+  const avanza = () => {
+    if (!corso) return null;
+    const { teoria, pratica } = avanzamento(dati, corso, utente, ruolo, oggiISO());
+    const righe: [string, number, string][] = [];
+    if (teoria) righe.push(['MTT', teoria.totale.minuti ? (teoria.svolti / teoria.totale.minuti) * 100 : 0, 'ore di teoria svolte']);
+    if (pratica) righe.push(['PTT', mediaPratica(pratica), ruolo === 'trainee' ? 'task eseguiti' : 'task eseguiti in media']);
+    return (
+      <a className="avanza" href={link('/quadro', corso)} aria-label="Avanzamento del corso">
+        {righe.map(([sigla, p, cosa]) => (
+          <span key={sigla} className="avanza-riga" title={`${sigla}: ${Math.round(p)}% ${cosa}`}>
+            <span>{sigla}</span>
+            <span className="avanza-barra">
+              <span style={{ width: `${Math.min(100, p)}%` }} />
+            </span>
+            <span>{Math.round(p)}%</span>
+          </span>
+        ))}
+      </a>
+    );
+  };
+
+  const gruppi: [string, Voce[]][] = [
+    ['Corso', menu.corso],
+    ['Parte teorica · MTT', menu.teoria],
+    ['Parte pratica · PTT · logbook', menu.pratica],
+    ['Registri · AER(EP).P-147', menu.registri],
+    ['', menu.altro],
+  ];
   const primaVoce = menu.ordinate[0];
   const inBasso = menu.ordinate.slice(0, 3);
   const inAltro = gruppi.flatMap(([, v]) => v).filter((v) => !inBasso.includes(v));
@@ -76,9 +89,9 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
       <nav className="indice" aria-label="Indice delle pagine">
         <div className="marchio">
           <div className="marchio-sigla">
-            <span>{app === 'tutto' ? 'TT' : app.toUpperCase()}</span>
+            <span>TT</span>
           </div>
-          <div className="marchio-nome">Gestionale Type Training · {NOME_APPLICATIVO[app]}</div>
+          <div className="marchio-nome">Gestionale Type Training</div>
         </div>
         {corso && (
           <div className="indice-corso">
@@ -87,6 +100,7 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
             <div className="debole" style={{ fontSize: '0.8125rem', lineHeight: 1.3 }}>
               {corso.nome}
             </div>
+            {avanza()}
             {corsi.length > 1 && (
               <a className="etichetta" href="#/corsi" style={{ display: 'inline-flex', gap: 6, alignItems: 'center', marginTop: 8 }}>
                 <IconSwitchHorizontal size={14} /> Cambia corso
@@ -116,7 +130,7 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
       <div style={{ minWidth: 0 }}>
         <header className="barra">
           <a href="#/" className="marchio-sigla solo-mobile" style={{ fontSize: '1.375rem', textDecoration: 'none' }} aria-label="Pagina iniziale">
-            <span>{app === 'tutto' ? 'TT' : app.toUpperCase()}</span>
+            <span>TT</span>
           </a>
           <div className="barra-titolo">
             <strong>{titolo}</strong>

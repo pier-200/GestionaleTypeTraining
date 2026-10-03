@@ -1,26 +1,26 @@
-"""Importa il programma pratico (PTR) dall'Excel ufficiale.
+"""Importa i programmi pratici (PTR) dagli Excel ufficiali.
 
-    py -3.11 scripts/import_catalogo.py [percorso.xlsx] [id-programma]
+    py -3.11 scripts/import_catalogo.py ["docs/sorgenti/Programmi Type Training/CH-47F - PTR - B1.3.xlsx" ...]
 
-Legge `docs/sorgenti/PTR_B1.3_CH-47F.xlsx` (colonne ID, MODULE, CH, SUBJECT,
-TASK TYPE, TASK DESCRIPTION, OPERATION PERFORMED) e genera
-`src/dati/programmi/<id>.json`, il catalogo dei task usato dall'applicazione.
-I programmi restano nell'applicazione (non nel database), così aggiungerne uno
-nuovo è solo un file in più. Va rieseguito solo se cambia l'edizione del documento.
+Senza argomenti importa tutti i file "<MDS> - PTR - <categoria>.xlsx" della cartella
+`docs/sorgenti/Programmi Type Training` (colonne ID, CH, SUBJECT, Task Type, Description Task).
+Il file non riporta il modulo: lo si ricava dal programma teorico (MTT) dello stesso MDS e
+categoria, cercando la voce con lo stesso chapter e il soggetto più simile (un chapter può
+comparire in più moduli, es. 06 "Dimensions/Areas" nel modulo 1 e "Zonal identification" nel 3).
+Genera `src/dati/programmi/<id>.json`, il catalogo dei task usato dall'applicazione.
 """
 
 import json
-import re
 import sys
 from collections import Counter, OrderedDict
+from difflib import SequenceMatcher
 from pathlib import Path
 
 import openpyxl
 
-RADICE = Path(__file__).resolve().parent.parent
-SORGENTE = Path(sys.argv[1]) if len(sys.argv) > 1 else RADICE / "docs/sorgenti/PTR_B1.3_CH-47F.xlsx"
-ID = sys.argv[2] if len(sys.argv) > 2 else "ptr-ch47f-b13"
-# ordine e codici del Compliance Report (4.1); MEL è previsto ma senza task per il CH-47F
+from import_programma_mtt import CARTELLA, RADICE, codice_chapter, descrivi, leggi_mtt, pulisci
+
+# ordine e codici del Compliance Report (4.1)
 TASK_TYPE = OrderedDict(
     [
         ("LOC", "Location Identification of system components"),
@@ -31,46 +31,58 @@ TASK_TYPE = OrderedDict(
         ("TS", "Troubleshooting"),
     ]
 )
+ALIAS_TIPO = {"RI": "R/I"}
+# motore del mezzo per il Compliance Report (non è negli Excel): aggiungere UC-228 e VC-180A
+MOTORE = {"CH-47F": "55-L714A"}
 # moduli della norma AER(EP).P-66 (i successivi sono specifici AVES)
 MODULI_P66 = {1, 2, 3, 4, 5, 6}
 
 
-def pulisci(testo):
-    return re.sub(r"\s+", " ", str(testo or "")).strip()
+def modulo_del_task(ch, subject, voci, precedente):
+    """Modulo dal MTT: stesso chapter e soggetto più simile; poi chapter "padre" (AVES 1a → AVES 1); poi il task precedente."""
+    simile = lambda v: SequenceMatcher(None, v["subject"].lower(), subject.lower()).ratio()
+    candidati = [v for v in voci if v["chapter"] == ch] or [v for v in voci if ch.startswith(v["chapter"]) or v["chapter"].startswith(ch)]
+    if candidati:
+        return max(candidati, key=simile)["modulo"]
+    assert precedente, f"Chapter {ch} assente dal programma teorico"
+    print(f"  chapter {ch} assente dal MTT: modulo {precedente} come il task precedente")
+    return precedente
 
 
-def codice_chapter(valore):
-    return f"{valore:02d}" if isinstance(valore, int) else pulisci(valore)
+def importa(percorso):
+    d = descrivi(percorso)
+    mtt = Path(percorso).with_name(Path(percorso).name.replace(" - PTR - ", " - MTT - "))
+    _, _, voci = leggi_mtt(mtt)
+    righe = list(openpyxl.load_workbook(percorso, read_only=True).active.iter_rows(values_only=True))
+    intestazione = [pulisci(c).upper() for c in righe[0][:5]]
+    assert intestazione == ["ID", "CH", "SUBJECT", "TASK TYPE", "DESCRIPTION TASK"], f"Intestazione inattesa: {intestazione}"
 
-
-def main():
-    foglio = openpyxl.load_workbook(SORGENTE, read_only=True).active
-    righe = list(foglio.iter_rows(values_only=True))
-    intestazione = [pulisci(c).upper() for c in righe[0]]
-    atteso = ["ID", "MODULE", "CH", "SUBJECT", "TASK TYPE", "TASK DESCRIPTION", "OPERATION PERFORMED"]
-    assert intestazione[:7] == atteso, f"Intestazione inattesa: {intestazione}"
+    # l'Excel nuovo non ha più la colonna dei riferimenti AMM: si conservano quelli già importati
+    uscita = RADICE / f"src/dati/programmi/{d['id']}.json"
+    precedente = json.loads(uscita.read_text(encoding="utf-8")) if uscita.exists() else {}
+    vecchi = {t["id"]: t for t in precedente.get("task", [])}
 
     task, soggetti, chapter = [], {}, OrderedDict()
     for r in righe[1:]:
         if r[0] is None:
             continue
-        tipo = pulisci(r[4])
+        tipo = ALIAS_TIPO.get(pulisci(r[3]).upper(), pulisci(r[3]).upper())
         assert tipo in TASK_TYPE, f"Task type sconosciuto: {tipo}"
-        ch = codice_chapter(r[2])
-        modulo = int(r[1])
-        if ch in chapter:
-            assert chapter[ch] == modulo, f"Chapter {ch} in più moduli"
-        chapter[ch] = modulo
-        soggetti.setdefault(ch, Counter())[pulisci(r[3])] += 1
+        ch, subject = codice_chapter(r[1]), pulisci(r[2])
+        modulo = modulo_del_task(ch, subject, voci, task[-1]["modulo"] if task else None)
+        chapter.setdefault(ch, modulo)  # un chapter diviso tra due moduli resta sotto il primo
+        soggetti.setdefault(ch, Counter())[subject] += 1
+        id_ = int(r[0])
+        vecchio = vecchi.get(id_)
         task.append(
             {
-                "id": int(r[0]),
+                "id": id_,
                 "modulo": modulo,
                 "chapter": ch,
-                "subject": pulisci(r[3]),
+                "subject": subject,
                 "tipo": tipo,
-                "descrizione": pulisci(r[5]),
-                "riferimenti": pulisci(r[6]),
+                "descrizione": pulisci(r[4]),
+                "riferimenti": vecchio["riferimenti"] if vecchio and vecchio["chapter"] == ch else "",
             }
         )
 
@@ -82,30 +94,23 @@ def main():
         return max(soggetti[ch].items(), key=lambda kv: (kv[1], len(kv[0])))[0]
 
     catalogo = {
-        "id": ID,
+        "id": d["id"],
         "tipo": "pratico",
-        "nome": "PTR CH-47F Cat. B1.3",
-        "documento": "T1 Military Type Training CH-47F Cat. B1.3 – Allegato 1, ed. 00.01 del 4 dicembre 2025 (Approved DAAA)",
-        "aeromobile": "CH-47F",
-        "motore": "55-L714A",
-        "categoria": "B1.3",
-        "taskType": [{"codice": c, "descrizione": d} for c, d in TASK_TYPE.items()],
-        "moduli": [
-            {"numero": m, "p66": m in MODULI_P66}
-            for m in sorted(set(chapter.values()))
-        ],
+        "nome": f"PTR {d['mds']} Cat. {d['categoria']}",
+        "documento": precedente.get("documento") or f"T1 Military Type Training {d['mds']} Cat. {d['categoria']} – Practical Training Record (PTR)",
+        "aeromobile": d["mds"],
+        "motore": MOTORE.get(d["mds"]) or precedente.get("motore", ""),
+        "categoria": d["categoria"],
+        "taskType": [{"codice": c, "descrizione": t} for c, t in TASK_TYPE.items()],
+        "moduli": [{"numero": m, "p66": m in MODULI_P66} for m in sorted({t["modulo"] for t in task})],
         "chapter": [{"codice": ch, "titolo": titolo(ch), "modulo": m} for ch, m in chapter.items()],
         "task": task,
     }
-    (RADICE / "src/dati/programmi").mkdir(parents=True, exist_ok=True)
-    (RADICE / f"src/dati/programmi/{ID}.json").write_text(json.dumps(catalogo, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-
-    per_tipo = Counter(t["tipo"] for t in task)
-    per_modulo = Counter(t["modulo"] for t in task)
-    print(f"{len(task)} task, {len(chapter)} chapter, {len(per_modulo)} moduli")
-    print("per task type:", dict(per_tipo))
-    print("per modulo:", dict(sorted(per_modulo.items())))
+    uscita.parent.mkdir(parents=True, exist_ok=True)
+    uscita.write_text(json.dumps(catalogo, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"{d['id']}: {len(task)} task, {len(chapter)} chapter, per modulo {dict(sorted(Counter(t['modulo'] for t in task).items()))}, per tipo {dict(Counter(t['tipo'] for t in task))}")
 
 
 if __name__ == "__main__":
-    main()
+    for f in sys.argv[1:] or sorted(CARTELLA.glob("* - PTR - *.xlsx")):
+        importa(f)

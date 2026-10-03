@@ -1,0 +1,2186 @@
+{
+ "id": "ptr-vc180a-b11",
+ "tipo": "pratico",
+ "nome": "PTR VC-180A Cat. B1.1",
+ "documento": "T1 Military Type Training VC-180A Cat. B1.1 – Practical Training Record (PTR)",
+ "aeromobile": "VC-180A",
+ "motore": "",
+ "categoria": "B1.1",
+ "taskType": [
+  {
+   "codice": "LOC",
+   "descrizione": "Location Identification of system components"
+  },
+  {
+   "codice": "FOT",
+   "descrizione": "Functional / Operational Test"
+  },
+  {
+   "codice": "SGH",
+   "descrizione": "Servicing / Ground Handling"
+  },
+  {
+   "codice": "R/I",
+   "descrizione": "Removal / Installation"
+  },
+  {
+   "codice": "MEL",
+   "descrizione": "Minimum Equipment List items requiring maintenance procedure"
+  },
+  {
+   "codice": "TS",
+   "descrizione": "Troubleshooting"
+  }
+ ],
+ "moduli": [
+  {
+   "numero": 1,
+   "p66": true
+  },
+  {
+   "numero": 2,
+   "p66": true
+  },
+  {
+   "numero": 3,
+   "p66": true
+  },
+  {
+   "numero": 4,
+   "p66": true
+  },
+  {
+   "numero": 5,
+   "p66": true
+  },
+  {
+   "numero": 7,
+   "p66": false
+  },
+  {
+   "numero": 8,
+   "p66": false
+  }
+ ],
+ "chapter": [
+  {
+   "codice": "05",
+   "titolo": "Time limits Maintenance checks",
+   "modulo": 1
+  },
+  {
+   "codice": "06",
+   "titolo": "Dimensions/Areas",
+   "modulo": 1
+  },
+  {
+   "codice": "07",
+   "titolo": "Lifting and Shoring",
+   "modulo": 1
+  },
+  {
+   "codice": "08",
+   "titolo": "Leveling and Weighing",
+   "modulo": 1
+  },
+  {
+   "codice": "09",
+   "titolo": "Towing and Taxiing",
+   "modulo": 1
+  },
+  {
+   "codice": "10",
+   "titolo": "Parking/mooring, Storing and Return to Service",
+   "modulo": 1
+  },
+  {
+   "codice": "11",
+   "titolo": "Placards and Markings",
+   "modulo": 1
+  },
+  {
+   "codice": "12",
+   "titolo": "Servicing",
+   "modulo": 1
+  },
+  {
+   "codice": "20",
+   "titolo": "Standard practices Airframe system",
+   "modulo": 1
+  },
+  {
+   "codice": "51",
+   "titolo": "Standard practices and structures general",
+   "modulo": 2
+  },
+  {
+   "codice": "53",
+   "titolo": "Fuselage",
+   "modulo": 2
+  },
+  {
+   "codice": "54",
+   "titolo": "Nacelles",
+   "modulo": 2
+  },
+  {
+   "codice": "55",
+   "titolo": "Stabilizers",
+   "modulo": 2
+  },
+  {
+   "codice": "56",
+   "titolo": "Windows and canopies",
+   "modulo": 2
+  },
+  {
+   "codice": "57",
+   "titolo": "Wings",
+   "modulo": 2
+  },
+  {
+   "codice": "27A",
+   "titolo": "Sys. operation: Electrical/Fly by Wire",
+   "modulo": 2
+  },
+  {
+   "codice": "52",
+   "titolo": "Doors",
+   "modulo": 2
+  },
+  {
+   "codice": "21",
+   "titolo": "Air Conditioning",
+   "modulo": 3
+  },
+  {
+   "codice": "21A",
+   "titolo": "Air Supply",
+   "modulo": 3
+  },
+  {
+   "codice": "21B",
+   "titolo": "Pressurization",
+   "modulo": 3
+  },
+  {
+   "codice": "21C",
+   "titolo": "Safety and warning device",
+   "modulo": 3
+  },
+  {
+   "codice": "22",
+   "titolo": "Autoflight",
+   "modulo": 3
+  },
+  {
+   "codice": "23",
+   "titolo": "Communications",
+   "modulo": 3
+  },
+  {
+   "codice": "24",
+   "titolo": "Electrical Power",
+   "modulo": 3
+  },
+  {
+   "codice": "25",
+   "titolo": "Equipment and Furnishings",
+   "modulo": 3
+  },
+  {
+   "codice": "25A",
+   "titolo": "Electronic Equipment including emergency eq.",
+   "modulo": 3
+  },
+  {
+   "codice": "26",
+   "titolo": "Fire Protection",
+   "modulo": 3
+  },
+  {
+   "codice": "27",
+   "titolo": "Flight Controls",
+   "modulo": 3
+  },
+  {
+   "codice": "28",
+   "titolo": "Fuel Systems",
+   "modulo": 3
+  },
+  {
+   "codice": "28A",
+   "titolo": "Fuel Systems Monitoring and Indicating",
+   "modulo": 3
+  },
+  {
+   "codice": "29",
+   "titolo": "Hydraulic Power",
+   "modulo": 3
+  },
+  {
+   "codice": "29A",
+   "titolo": "Hydraulic Power Monitoring and Indicating",
+   "modulo": 3
+  },
+  {
+   "codice": "30",
+   "titolo": "Ice and Rain Protection",
+   "modulo": 3
+  },
+  {
+   "codice": "31",
+   "titolo": "Indicating/Recording Systems",
+   "modulo": 3
+  },
+  {
+   "codice": "31A",
+   "titolo": "Instrument System",
+   "modulo": 3
+  },
+  {
+   "codice": "32",
+   "titolo": "Landing Gear",
+   "modulo": 3
+  },
+  {
+   "codice": "32A",
+   "titolo": "Landing Gear Monitoring and Indicating",
+   "modulo": 3
+  },
+  {
+   "codice": "33",
+   "titolo": "Lights",
+   "modulo": 3
+  },
+  {
+   "codice": "34",
+   "titolo": "Navigation",
+   "modulo": 3
+  },
+  {
+   "codice": "35",
+   "titolo": "Oxygen",
+   "modulo": 3
+  },
+  {
+   "codice": "36",
+   "titolo": "Pneumatic",
+   "modulo": 3
+  },
+  {
+   "codice": "36A",
+   "titolo": "Pneumatic ' Monitoring and indicating",
+   "modulo": 3
+  },
+  {
+   "codice": "70",
+   "titolo": "Engines Standard Practices",
+   "modulo": 4
+  },
+  {
+   "codice": "71",
+   "titolo": "Powerplant",
+   "modulo": 4
+  },
+  {
+   "codice": "72",
+   "titolo": "Engine Turbine",
+   "modulo": 4
+  },
+  {
+   "codice": "73",
+   "titolo": "Engine Fuel and Control",
+   "modulo": 4
+  },
+  {
+   "codice": "74",
+   "titolo": "Ignition",
+   "modulo": 4
+  },
+  {
+   "codice": "75",
+   "titolo": "Air",
+   "modulo": 4
+  },
+  {
+   "codice": "76",
+   "titolo": "Engine controls",
+   "modulo": 4
+  },
+  {
+   "codice": "77",
+   "titolo": "Engine Indicating",
+   "modulo": 4
+  },
+  {
+   "codice": "78",
+   "titolo": "Exhaust",
+   "modulo": 4
+  },
+  {
+   "codice": "79",
+   "titolo": "Oil",
+   "modulo": 4
+  },
+  {
+   "codice": "80",
+   "titolo": "Starting",
+   "modulo": 4
+  },
+  {
+   "codice": "61",
+   "titolo": "Propellers",
+   "modulo": 5
+  },
+  {
+   "codice": "61A",
+   "titolo": "Propeller Construction",
+   "modulo": 5
+  },
+  {
+   "codice": "61B",
+   "titolo": "Propeller Pitch Control",
+   "modulo": 5
+  },
+  {
+   "codice": "61C",
+   "titolo": "Propeller Synchronizing",
+   "modulo": 5
+  },
+  {
+   "codice": "61F",
+   "titolo": "Propeller Maintenance",
+   "modulo": 5
+  },
+  {
+   "codice": "AVES 1a",
+   "titolo": "Maintenance data",
+   "modulo": 7
+  },
+  {
+   "codice": "AVES 1b",
+   "titolo": "Ordinary activities of Linea",
+   "modulo": 7
+  },
+  {
+   "codice": "AVES 1c",
+   "titolo": "Maintenance records",
+   "modulo": 7
+  },
+  {
+   "codice": "AVES 1d",
+   "titolo": "Airworthiness records",
+   "modulo": 7
+  },
+  {
+   "codice": "AVES 2a",
+   "titolo": "Ground Support Equipment",
+   "modulo": 8
+  },
+  {
+   "codice": "AVES 2b",
+   "titolo": "Ground Power unit 400",
+   "modulo": 8
+  },
+  {
+   "codice": "AVES 3",
+   "titolo": "Special Tools and Test Equipment Aircraft",
+   "modulo": 8
+  },
+  {
+   "codice": "AVES 4",
+   "titolo": "Special Tools and Test Equipment TPE",
+   "modulo": 8
+  },
+  {
+   "codice": "AVES 5",
+   "titolo": "Nitrogen Replenishment CRA 310",
+   "modulo": 8
+  }
+ ],
+ "task": [
+  {
+   "id": 1,
+   "modulo": 1,
+   "chapter": "05",
+   "subject": "Time limits Maintenance checks",
+   "tipo": "LOC",
+   "descrizione": "Identify 200 FH inspection schedule CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 2,
+   "modulo": 1,
+   "chapter": "06",
+   "subject": "Dimensions/Areas",
+   "tipo": "LOC",
+   "descrizione": "Identify the index number of oil filler access panels CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 3,
+   "modulo": 1,
+   "chapter": "07",
+   "subject": "Lifting and Shoring",
+   "tipo": "LOC",
+   "descrizione": "Locate the jackipoints. CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 4,
+   "modulo": 1,
+   "chapter": "08",
+   "subject": "Leveling and Weighing",
+   "tipo": "LOC",
+   "descrizione": "Identify reference marks for aircraft levelling on jacks CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 5,
+   "modulo": 1,
+   "chapter": "08",
+   "subject": "Leveling and Weighing",
+   "tipo": "SGH",
+   "descrizione": "Perform aircraft levelling on jacks CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 6,
+   "modulo": 1,
+   "chapter": "09",
+   "subject": "Towing and Taxiing",
+   "tipo": "LOC",
+   "descrizione": "Identify the steering disconnecting pin CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 7,
+   "modulo": 1,
+   "chapter": "09",
+   "subject": "Towing and Taxiing",
+   "tipo": "SGH",
+   "descrizione": "Maintenance practice taxing material and aircraft handling CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 8,
+   "modulo": 1,
+   "chapter": "10",
+   "subject": "Parking/mooring, Storing and Return to Service",
+   "tipo": "LOC",
+   "descrizione": "Identify he grounding point of the aircraft. CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 9,
+   "modulo": 1,
+   "chapter": "10",
+   "subject": "Parking/mooring, Storing and Return to Service",
+   "tipo": "SGH",
+   "descrizione": "Perform the mooring aircraft operation CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 10,
+   "modulo": 1,
+   "chapter": "11",
+   "subject": "Placards and Markings",
+   "tipo": "LOC",
+   "descrizione": "Locate the aircraft placards. CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 11,
+   "modulo": 1,
+   "chapter": "12",
+   "subject": "Servicing",
+   "tipo": "LOC",
+   "descrizione": "Locate the aircraft servicing points CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 12,
+   "modulo": 1,
+   "chapter": "12",
+   "subject": "Servicing",
+   "tipo": "SGH",
+   "descrizione": "Perform the exterior cleaning of the aircraft CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 13,
+   "modulo": 1,
+   "chapter": "20",
+   "subject": "Standard practices Airframe system",
+   "tipo": "LOC",
+   "descrizione": "Identify static wick positions CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 14,
+   "modulo": 1,
+   "chapter": "20",
+   "subject": "Standard practices Airframe system",
+   "tipo": "SGH",
+   "descrizione": "Perform a general visual inspection to the drain ports and the cleanliness of drain holes CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 15,
+   "modulo": 2,
+   "chapter": "51",
+   "subject": "Standard practices and structures general",
+   "tipo": "LOC",
+   "descrizione": "Identify the main structure aircraft classification components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 16,
+   "modulo": 2,
+   "chapter": "51",
+   "subject": "Standard practices and structures general",
+   "tipo": "SGH",
+   "descrizione": "Perform the NLG doors skin contour variation servicing (steps) CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 17,
+   "modulo": 2,
+   "chapter": "53",
+   "subject": "Fuselage",
+   "tipo": "LOC",
+   "descrizione": "Identify the forward fuselage CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 18,
+   "modulo": 2,
+   "chapter": "53",
+   "subject": "Fuselage",
+   "tipo": "TS",
+   "descrizione": "Troubleshoot the landing/taxing light assembly for contour variation out of limit CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 19,
+   "modulo": 2,
+   "chapter": "54",
+   "subject": "Nacelles",
+   "tipo": "LOC",
+   "descrizione": "Identify Upper nacelle panel 410 AT (left Engine) CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 20,
+   "modulo": 2,
+   "chapter": "55",
+   "subject": "Stabilizers",
+   "tipo": "LOC",
+   "descrizione": "Identify Horizontal stabilizer CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 21,
+   "modulo": 2,
+   "chapter": "56",
+   "subject": "Windows and canopies",
+   "tipo": "LOC",
+   "descrizione": "Identify the aircraft windshield CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 22,
+   "modulo": 2,
+   "chapter": "56",
+   "subject": "Windows and canopies",
+   "tipo": "TS",
+   "descrizione": "Evaluate the windows damage limitation CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 23,
+   "modulo": 2,
+   "chapter": "57",
+   "subject": "Wings",
+   "tipo": "LOC",
+   "descrizione": "Identify the forward wing of the aircraft CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 24,
+   "modulo": 2,
+   "chapter": "27A",
+   "subject": "Flight Control Surfaces (All)",
+   "tipo": "LOC",
+   "descrizione": "Identify the Rudder CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 25,
+   "modulo": 2,
+   "chapter": "27A",
+   "subject": "Flight Control Surfaces (All)",
+   "tipo": "TS",
+   "descrizione": "Check the aileron system hard to move CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 26,
+   "modulo": 2,
+   "chapter": "52",
+   "subject": "Doors",
+   "tipo": "LOC",
+   "descrizione": "Identify emergency exit door CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 27,
+   "modulo": 2,
+   "chapter": "52",
+   "subject": "Doors",
+   "tipo": "FOT",
+   "descrizione": "Cabin door lower lock pin extension functional check CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 28,
+   "modulo": 2,
+   "chapter": "52",
+   "subject": "Doors",
+   "tipo": "SGH",
+   "descrizione": "Clean and lubricate the lockpin guide holes of baggage compartment CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 29,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "LOC",
+   "descrizione": "Identify the environmental control systems components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 30,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "FOT",
+   "descrizione": "Execute the avionics cooling blower functional test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 31,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "SGH",
+   "descrizione": "Perform Air cycle machine oil refill CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 32,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "MEL",
+   "descrizione": "Automatic Temperature Control System failure 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 33,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "TS",
+   "descrizione": "Perform troubleshooting for BLEED warning light 'ON' CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 34,
+   "modulo": 3,
+   "chapter": "21A",
+   "subject": "Air Supply",
+   "tipo": "LOC",
+   "descrizione": "Identify flight compartment diffusers CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 35,
+   "modulo": 3,
+   "chapter": "21A",
+   "subject": "Air Supply",
+   "tipo": "FOT",
+   "descrizione": "Execute Air distribuition blower operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 36,
+   "modulo": 3,
+   "chapter": "21B",
+   "subject": "Pressurization",
+   "tipo": "LOC",
+   "descrizione": "Identify the pressurization control ejector CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 37,
+   "modulo": 3,
+   "chapter": "21B",
+   "subject": "Pressurization",
+   "tipo": "FOT",
+   "descrizione": "Perform the pressurization control system ' operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 38,
+   "modulo": 3,
+   "chapter": "21B",
+   "subject": "Pressurization",
+   "tipo": "MEL",
+   "descrizione": "Pressurization Control ' Manual failure 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 39,
+   "modulo": 3,
+   "chapter": "21B",
+   "subject": "Pressurization",
+   "tipo": "TS",
+   "descrizione": "Perform troubleshooting for automatic pressurization control fail CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 40,
+   "modulo": 3,
+   "chapter": "21C",
+   "subject": "Safety and warning device",
+   "tipo": "LOC",
+   "descrizione": "Identify the Barometric Cabin Switch Device CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 41,
+   "modulo": 3,
+   "chapter": "21C",
+   "subject": "Safety and warning device",
+   "tipo": "SGH",
+   "descrizione": "Cleaning cabin temperature sensor (Hamilton) CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 42,
+   "modulo": 3,
+   "chapter": "22",
+   "subject": "Autoflight",
+   "tipo": "LOC",
+   "descrizione": "Identify the Autopilot Computer system components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 43,
+   "modulo": 3,
+   "chapter": "22",
+   "subject": "Autoflight",
+   "tipo": "MEL",
+   "descrizione": "Autopilot System failure 1C-P180 AVANTI-1MMEL)",
+   "riferimenti": ""
+  },
+  {
+   "id": 44,
+   "modulo": 3,
+   "chapter": "23",
+   "subject": "Communications",
+   "tipo": "LOC",
+   "descrizione": "Identify the Cockpit Voice Recorder Unit CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 45,
+   "modulo": 3,
+   "chapter": "23",
+   "subject": "Communications",
+   "tipo": "SGH",
+   "descrizione": "Perform ground handling static wick fwd flaps control CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 46,
+   "modulo": 3,
+   "chapter": "23",
+   "subject": "Communications",
+   "tipo": "MEL",
+   "descrizione": "Communications Equipment (VHF) failure 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 47,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "LOC",
+   "descrizione": "Identify the battery system components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 48,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "FOT",
+   "descrizione": "AC Generation ' Operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 49,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "SGH",
+   "descrizione": "Apply external power to the aircraft CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 50,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Generator Control Unit CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 51,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "MEL",
+   "descrizione": "Inverter failure 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 52,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "TS",
+   "descrizione": "Inverter caution light on troubleshooting CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 53,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "LOC",
+   "descrizione": "Identify Equipment and Furnishing components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 54,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "LOC",
+   "descrizione": "Identify the Wast Water Tank CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 55,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "LOC",
+   "descrizione": "Identify the Green Marks for Cargo configuration CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 56,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "FOT",
+   "descrizione": "Perform operational test Lavatory compartment CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 57,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "FOT",
+   "descrizione": "Perform Toilet operational Test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 58,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "SGH",
+   "descrizione": "Perform the cleaning of glare shield CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 59,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "SGH",
+   "descrizione": "Perform Waste water Tank discharge CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 60,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "SGH",
+   "descrizione": "Perform Cleaning Baggage compartment CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 61,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "R/I",
+   "descrizione": "Perform Remove and Installation Ambulance configuration Option 12 CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 62,
+   "modulo": 3,
+   "chapter": "25A",
+   "subject": "Electronic Equipment including emergency eq.",
+   "tipo": "LOC",
+   "descrizione": "Identify Emergency Equipment components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 63,
+   "modulo": 3,
+   "chapter": "25A",
+   "subject": "Electronic Equipment including emergency eq.",
+   "tipo": "FOT",
+   "descrizione": "Perform ELT8 transmitter Operational Test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 64,
+   "modulo": 3,
+   "chapter": "25A",
+   "subject": "Electronic Equipment including emergency eq.",
+   "tipo": "SGH",
+   "descrizione": "Perform ELT8 servicing CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 65,
+   "modulo": 3,
+   "chapter": "25A",
+   "subject": "Electronic Equipment including emergency eq.",
+   "tipo": "R/I",
+   "descrizione": "Remove and Install ELT8 CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 66,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "LOC",
+   "descrizione": "Identify the Engine Fire Bottle CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 67,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "FOT",
+   "descrizione": "Perform Fire detector Operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 68,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "SGH",
+   "descrizione": "Check the Portable Fire extinguisher weight CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 69,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "R/I",
+   "descrizione": "Remove and Install Engine fire bottle CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 70,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "TS",
+   "descrizione": "Fire detection system doesn't work properly CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 71,
+   "modulo": 3,
+   "chapter": "27",
+   "subject": "Flight Controls",
+   "tipo": "LOC",
+   "descrizione": "Identify aircraft Flight controls CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 72,
+   "modulo": 3,
+   "chapter": "27",
+   "subject": "Flight Controls",
+   "tipo": "FOT",
+   "descrizione": "Perform Aileron control system functional test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 73,
+   "modulo": 3,
+   "chapter": "27",
+   "subject": "Flight Controls",
+   "tipo": "SGH",
+   "descrizione": "Perform servicing Main wing outboard flap screw jacks CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 74,
+   "modulo": 3,
+   "chapter": "27",
+   "subject": "Flight Controls",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Flap Electronic Control Unit CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 75,
+   "modulo": 3,
+   "chapter": "27",
+   "subject": "Flight Controls",
+   "tipo": "MEL",
+   "descrizione": "Pitch Trim Indicator failure 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 76,
+   "modulo": 3,
+   "chapter": "27",
+   "subject": "Flight Controls",
+   "tipo": "TS",
+   "descrizione": "Flap Sync caution light On during operation CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 77,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "LOC",
+   "descrizione": "Identify the Trim Indicator CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 78,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "FOT",
+   "descrizione": "Perform operational test for the MID Interlock Circuit CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 79,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "SGH",
+   "descrizione": "Cleaning of Flap Position Indicator CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 80,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Pitch trim position indicator CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 81,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "MEL",
+   "descrizione": "Trim Tab Indicator Failure 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 82,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "LOC",
+   "descrizione": "Identify the Fuel Cross feed switch on the Fuel panel CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 83,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "FOT",
+   "descrizione": "Perform Pressure-Refueling Pilot Valve test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 84,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "SGH",
+   "descrizione": "Perform Aircraft pressure fuel refill CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 85,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Firewall shut-off valve CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 86,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "MEL",
+   "descrizione": "Low fuel level caution light failure 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 87,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "TS",
+   "descrizione": "LH Fuel Press caution light still ON with pump switch in MAIN position CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 88,
+   "modulo": 3,
+   "chapter": "28A",
+   "subject": "Fuel Systems Monitoring and Indicating",
+   "tipo": "LOC",
+   "descrizione": "Identify the Fuel Quantity Indication CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 89,
+   "modulo": 3,
+   "chapter": "28A",
+   "subject": "Fuel Systems Monitoring and Indicating",
+   "tipo": "FOT",
+   "descrizione": "Perform the Indicating system checks CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 90,
+   "modulo": 3,
+   "chapter": "29",
+   "subject": "Hydraulic Power",
+   "tipo": "LOC",
+   "descrizione": "Identify the Hydraulic Power components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 91,
+   "modulo": 3,
+   "chapter": "29",
+   "subject": "Hydraulic Power",
+   "tipo": "FOT",
+   "descrizione": "Perform Hydraulic power operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 92,
+   "modulo": 3,
+   "chapter": "29",
+   "subject": "Hydraulic Power",
+   "tipo": "SGH",
+   "descrizione": "Perform Hydraulic package draining CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 93,
+   "modulo": 3,
+   "chapter": "29",
+   "subject": "Hydraulic Power",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Hydraulic Pressure control unit CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 94,
+   "modulo": 3,
+   "chapter": "29",
+   "subject": "Hydraulic Power",
+   "tipo": "TS",
+   "descrizione": "Troubleshooting for low level of hydraulic fluid CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 95,
+   "modulo": 3,
+   "chapter": "29A",
+   "subject": "Hydraulic Power Monitoring and Indicating",
+   "tipo": "LOC",
+   "descrizione": "Identify Hydraulic pressure indicator CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 96,
+   "modulo": 3,
+   "chapter": "29A",
+   "subject": "Hydraulic Power Monitoring and Indicating",
+   "tipo": "FOT",
+   "descrizione": "Perform the SYSTEM TEST of hydraulic system CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 97,
+   "modulo": 3,
+   "chapter": "29A",
+   "subject": "Hydraulic Power Monitoring and Indicating",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Optical level sensor on the Hydraulic Power Package CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 98,
+   "modulo": 3,
+   "chapter": "29A",
+   "subject": "Hydraulic Power Monitoring and Indicating",
+   "tipo": "TS",
+   "descrizione": "Execute troubleshooting for NO Hydraulic power pressure display with Hyd switch ON CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 99,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "LOC",
+   "descrizione": "Identify Ice and Rain Protection component systems CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 100,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "FOT",
+   "descrizione": "Perform Main wing anti-ice system ' operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 101,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "SGH",
+   "descrizione": "Apply a film of rain repellant on airplane windshield (rain protection) CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 102,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "MEL",
+   "descrizione": "Pitot Heater inoperative 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 103,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "TS",
+   "descrizione": "With the Forward Wing Anti-Ice System ON Green Advisory Caption show OFF CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 104,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "LOC",
+   "descrizione": "Identify Indicating/Recording System components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 105,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "FOT",
+   "descrizione": "Perform GROUND TEST/REFUEL Panel ' Operational Test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 106,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "SGH",
+   "descrizione": "Perform GROUND TEST/REFUEL Panel 'cleaning CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 107,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "R/I",
+   "descrizione": "Remove and install MFDI indicator CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 108,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "MEL",
+   "descrizione": "Electrical digital clock fail 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 109,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "TS",
+   "descrizione": "Digital clock failure troubleshooting CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 110,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument System",
+   "tipo": "LOC",
+   "descrizione": "Identify Instrument System components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 111,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument System",
+   "tipo": "FOT",
+   "descrizione": "Perform Multifunction Display Operational Test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 112,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument System",
+   "tipo": "SGH",
+   "descrizione": "Perform Indicating Instrument cleaning CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 113,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument System",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Magnetic Compass Instrument CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 114,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument System",
+   "tipo": "TS",
+   "descrizione": "Performing Ground Test /refuelling panel Sys test L/R ENG OIL red lights do not illuminate CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 115,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "LOC",
+   "descrizione": "Identify Landing Gear components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 116,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "FOT",
+   "descrizione": "Perform Steering operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 117,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "SGH",
+   "descrizione": "Perform LDG lubrication CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 118,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Nose Gear Wheel CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 119,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "MEL",
+   "descrizione": "Parking brake 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 120,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "TS",
+   "descrizione": "Nose landing gear door doesn't close properly CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 121,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "LOC",
+   "descrizione": "Identify Landing Gear Monitoring and Indicating components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 122,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "FOT",
+   "descrizione": "Perform the LDG Warning Test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 123,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "R/I",
+   "descrizione": "Remove and install MLG weight switch CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 124,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "MEL",
+   "descrizione": "Hydraulic Fluid Low annunciator 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 125,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "TS",
+   "descrizione": "Nose Red Unsafe annunciator light remain 'ON'with LDG retract CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 126,
+   "modulo": 3,
+   "chapter": "33",
+   "subject": "Lights",
+   "tipo": "LOC",
+   "descrizione": "Identify the Landing/Taxi Lights Panel (110B) CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 127,
+   "modulo": 3,
+   "chapter": "33",
+   "subject": "Lights",
+   "tipo": "FOT",
+   "descrizione": "Perform The Aligning Test on Landing and Taxi Light CMM(EP).1C-P180AVANTI-1",
+   "riferimenti": ""
+  },
+  {
+   "id": 128,
+   "modulo": 3,
+   "chapter": "33",
+   "subject": "Lights",
+   "tipo": "SGH",
+   "descrizione": "Cleaning wing tip lights CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 129,
+   "modulo": 3,
+   "chapter": "33",
+   "subject": "Lights",
+   "tipo": "MEL",
+   "descrizione": "Cabin light 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 130,
+   "modulo": 3,
+   "chapter": "34",
+   "subject": "Navigation",
+   "tipo": "LOC",
+   "descrizione": "Identify Navigation components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 131,
+   "modulo": 3,
+   "chapter": "34",
+   "subject": "Navigation",
+   "tipo": "SGH",
+   "descrizione": "Perform Emergency Power Unit charge cycle on Stand-by Gyro Horizon CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 132,
+   "modulo": 3,
+   "chapter": "34",
+   "subject": "Navigation",
+   "tipo": "MEL",
+   "descrizione": "Vertical speed indicator 1C-P180 AVANTI-1MMEL",
+   "riferimenti": ""
+  },
+  {
+   "id": 133,
+   "modulo": 3,
+   "chapter": "35",
+   "subject": "Oxygen",
+   "tipo": "LOC",
+   "descrizione": "Identify the Filling Valve of the Oxygen System CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 134,
+   "modulo": 3,
+   "chapter": "35",
+   "subject": "Oxygen",
+   "tipo": "FOT",
+   "descrizione": "Perform the High Oxygen pressure Functional Test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 135,
+   "modulo": 3,
+   "chapter": "35",
+   "subject": "Oxygen",
+   "tipo": "SGH",
+   "descrizione": "Perform Oxygen system refilling CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 136,
+   "modulo": 3,
+   "chapter": "35",
+   "subject": "Oxygen",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Cabin Altitude Switch CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 137,
+   "modulo": 3,
+   "chapter": "36",
+   "subject": "Pneumatic",
+   "tipo": "LOC",
+   "descrizione": "Identify door seal CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 138,
+   "modulo": 3,
+   "chapter": "36",
+   "subject": "Pneumatic",
+   "tipo": "FOT",
+   "descrizione": "Perform Bleed Air ducts Leak Test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 139,
+   "modulo": 3,
+   "chapter": "36",
+   "subject": "Pneumatic",
+   "tipo": "R/I",
+   "descrizione": "Replace the Accumulator of the Door Seal Inflation System CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 140,
+   "modulo": 3,
+   "chapter": "36",
+   "subject": "Pneumatic",
+   "tipo": "TS",
+   "descrizione": "Perfom troubleshooting to a door seal failure CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 141,
+   "modulo": 3,
+   "chapter": "36A",
+   "subject": "Pneumatic ' Monitoring and indicating",
+   "tipo": "LOC",
+   "descrizione": "Identify Pressure switch door seal CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 142,
+   "modulo": 3,
+   "chapter": "36A",
+   "subject": "Pneumatic ' Monitoring and indicating",
+   "tipo": "FOT",
+   "descrizione": "Perform Door seal inflation System Operational Test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 143,
+   "modulo": 3,
+   "chapter": "36A",
+   "subject": "Pneumatic ' Monitoring and indicating",
+   "tipo": "SGH",
+   "descrizione": "Cleaning pressure switch for door seal system CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 144,
+   "modulo": 3,
+   "chapter": "36A",
+   "subject": "Pneumatic ' Monitoring and indicating",
+   "tipo": "R/I",
+   "descrizione": "Remove and replace Pressure regulator CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 145,
+   "modulo": 3,
+   "chapter": "36A",
+   "subject": "Pneumatic ' Monitoring and indicating",
+   "tipo": "TS",
+   "descrizione": "Perfom troubleshooting to a Door seal Amber Caution Light Failure CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 146,
+   "modulo": 4,
+   "chapter": "70",
+   "subject": "Engines Standard Practices",
+   "tipo": "SGH",
+   "descrizione": "Cleaning of Engine parts CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 147,
+   "modulo": 4,
+   "chapter": "71",
+   "subject": "Powerplant",
+   "tipo": "LOC",
+   "descrizione": "Identify Rear Firewall CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 148,
+   "modulo": 4,
+   "chapter": "71",
+   "subject": "Powerplant",
+   "tipo": "FOT",
+   "descrizione": "Perform Feathering Testing check CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 149,
+   "modulo": 4,
+   "chapter": "71",
+   "subject": "Powerplant",
+   "tipo": "SGH",
+   "descrizione": "Perform Dry motoring Run ' servicing, preservation, lubrication CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 150,
+   "modulo": 4,
+   "chapter": "72",
+   "subject": "Engine Turbine",
+   "tipo": "LOC",
+   "descrizione": "Identify Engine components CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 151,
+   "modulo": 4,
+   "chapter": "73",
+   "subject": "Engine Fuel and Control",
+   "tipo": "LOC",
+   "descrizione": "Identify the Accumulator of Fuel Purge System CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 152,
+   "modulo": 4,
+   "chapter": "73",
+   "subject": "Engine Fuel and Control",
+   "tipo": "FOT",
+   "descrizione": "Perform fuel flow indicator operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 153,
+   "modulo": 4,
+   "chapter": "74",
+   "subject": "Ignition",
+   "tipo": "LOC",
+   "descrizione": "Identify the Engine Ignition system components CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 154,
+   "modulo": 4,
+   "chapter": "74",
+   "subject": "Ignition",
+   "tipo": "FOT",
+   "descrizione": "Perform the Ignition Unit ' operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 155,
+   "modulo": 4,
+   "chapter": "75",
+   "subject": "Air",
+   "tipo": "LOC",
+   "descrizione": "Identify Engine Air inlet CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 156,
+   "modulo": 4,
+   "chapter": "75",
+   "subject": "Air",
+   "tipo": "R/I",
+   "descrizione": "Remove and install Compressor bleed valve CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 157,
+   "modulo": 4,
+   "chapter": "75",
+   "subject": "Air",
+   "tipo": "TS",
+   "descrizione": "Compressor Bleed valve doesn't work properly CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 158,
+   "modulo": 4,
+   "chapter": "76",
+   "subject": "Engine controls",
+   "tipo": "LOC",
+   "descrizione": "Identify the Engine Power Control Levers CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 159,
+   "modulo": 4,
+   "chapter": "76",
+   "subject": "Engine controls",
+   "tipo": "FOT",
+   "descrizione": "Perform the Power Control Cam switches operational check CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 160,
+   "modulo": 4,
+   "chapter": "76",
+   "subject": "Engine controls",
+   "tipo": "TS",
+   "descrizione": "Propeller fail to reach reverse position CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 161,
+   "modulo": 4,
+   "chapter": "77",
+   "subject": "Engine Indicating",
+   "tipo": "LOC",
+   "descrizione": "Identify Engine indicating Instrument CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 162,
+   "modulo": 4,
+   "chapter": "77",
+   "subject": "Engine Indicating",
+   "tipo": "FOT",
+   "descrizione": "Perform Indicator operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 163,
+   "modulo": 4,
+   "chapter": "77",
+   "subject": "Engine Indicating",
+   "tipo": "TS",
+   "descrizione": "Tachometer indicator doesn't work properly CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 164,
+   "modulo": 4,
+   "chapter": "78",
+   "subject": "Exhaust",
+   "tipo": "LOC",
+   "descrizione": "Identify the engine Exhaust Stacks CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 165,
+   "modulo": 4,
+   "chapter": "79",
+   "subject": "Oil",
+   "tipo": "LOC",
+   "descrizione": "Identify Oil filter CMM(EP).2T-PT6A-66-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 166,
+   "modulo": 4,
+   "chapter": "79",
+   "subject": "Oil",
+   "tipo": "SGH",
+   "descrizione": "Perform Oil Temperature and pressure Indicator operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 167,
+   "modulo": 4,
+   "chapter": "79",
+   "subject": "Oil",
+   "tipo": "R/I",
+   "descrizione": "Replace Oil pressure transducer CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 168,
+   "modulo": 4,
+   "chapter": "80",
+   "subject": "Starting",
+   "tipo": "LOC",
+   "descrizione": "Identify Start switch CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 169,
+   "modulo": 4,
+   "chapter": "80",
+   "subject": "Starting",
+   "tipo": "FOT",
+   "descrizione": "Perform start switch check CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 170,
+   "modulo": 4,
+   "chapter": "80",
+   "subject": "Starting",
+   "tipo": "TS",
+   "descrizione": "Engine Fail to start CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 171,
+   "modulo": 5,
+   "chapter": "61",
+   "subject": "Propellers",
+   "tipo": "LOC",
+   "descrizione": "Identify Propeller CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 172,
+   "modulo": 5,
+   "chapter": "61",
+   "subject": "Propellers",
+   "tipo": "FOT",
+   "descrizione": "Perform Autofeather System operational test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 173,
+   "modulo": 5,
+   "chapter": "61",
+   "subject": "Propellers",
+   "tipo": "SGH",
+   "descrizione": "Perform Propeller cleaning CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 174,
+   "modulo": 5,
+   "chapter": "61",
+   "subject": "Propellers",
+   "tipo": "R/I",
+   "descrizione": "Replace auto feather high and low pressure switch CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 175,
+   "modulo": 5,
+   "chapter": "61",
+   "subject": "Propellers",
+   "tipo": "TS",
+   "descrizione": "Propeller doesn't reach Max Speed - 2000 RPM CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 176,
+   "modulo": 5,
+   "chapter": "61A",
+   "subject": "Propeller Construction",
+   "tipo": "LOC",
+   "descrizione": "Identify propeller Blades CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 177,
+   "modulo": 5,
+   "chapter": "61A",
+   "subject": "Propeller Construction",
+   "tipo": "SGH",
+   "descrizione": "Perform blade surface cleaning CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 178,
+   "modulo": 5,
+   "chapter": "61B",
+   "subject": "Propeller Pitch Control",
+   "tipo": "LOC",
+   "descrizione": "Identify Propeller governor CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 179,
+   "modulo": 5,
+   "chapter": "61B",
+   "subject": "Propeller Pitch Control",
+   "tipo": "FOT",
+   "descrizione": "Perform Propeller governor operational check CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 180,
+   "modulo": 5,
+   "chapter": "61B",
+   "subject": "Propeller Pitch Control",
+   "tipo": "R/I",
+   "descrizione": "Remove and install carbon block CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 181,
+   "modulo": 5,
+   "chapter": "61B",
+   "subject": "Propeller Pitch Control",
+   "tipo": "TS",
+   "descrizione": "Propeller doesn't goes in Feather position CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 182,
+   "modulo": 5,
+   "chapter": "61C",
+   "subject": "Propeller Synchronizing",
+   "tipo": "LOC",
+   "descrizione": "Identify Synchrophaser control box CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 183,
+   "modulo": 5,
+   "chapter": "61C",
+   "subject": "Propeller Synchronizing",
+   "tipo": "FOT",
+   "descrizione": "Perform Synchrophaser test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 184,
+   "modulo": 5,
+   "chapter": "61C",
+   "subject": "Propeller Synchronizing",
+   "tipo": "TS",
+   "descrizione": "Synchrophase doesn't work properly CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 185,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "LOC",
+   "descrizione": "Identify propeller dynamic balance points CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 186,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "FOT",
+   "descrizione": "Perform autofeather high and low pressure switch 'functional test CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 187,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "SGH",
+   "descrizione": "Perform Propeller assembly lubrication CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 188,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "R/I",
+   "descrizione": "Remove and install tachometer generator (Np) CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 189,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "TS",
+   "descrizione": "Evaluate propeller damage CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 190,
+   "modulo": 7,
+   "chapter": "AVES 1a",
+   "subject": "Maintenance data",
+   "tipo": "LOC",
+   "descrizione": "Identify 600 FH inspection tasks CMM(EP).1C-VC-180A-2/6",
+   "riferimenti": ""
+  },
+  {
+   "id": 191,
+   "modulo": 7,
+   "chapter": "AVES 1b",
+   "subject": "Ordinary activities of Linea",
+   "tipo": "SGH",
+   "descrizione": "Perform pressure refueling procedure CMM(EP).1C-P180AVANTI-1",
+   "riferimenti": ""
+  },
+  {
+   "id": 192,
+   "modulo": 7,
+   "chapter": "AVES 1c",
+   "subject": "Maintenance records",
+   "tipo": "LOC",
+   "descrizione": "Identify LOG BOOK aircraft AER.00-1-24 AER.00-1-49",
+   "riferimenti": ""
+  },
+  {
+   "id": 193,
+   "modulo": 7,
+   "chapter": "AVES 1d",
+   "subject": "Airworthiness records",
+   "tipo": "SGH",
+   "descrizione": "Fill in booklet mod. DP5069. AER.00-1-24 AER.00-1-4",
+   "riferimenti": ""
+  },
+  {
+   "id": 194,
+   "modulo": 8,
+   "chapter": "AVES 2a",
+   "subject": "Ground Support Equipment",
+   "tipo": "LOC",
+   "descrizione": "Identify the GSE CMM.35-GSE715/TG-4",
+   "riferimenti": ""
+  },
+  {
+   "id": 195,
+   "modulo": 8,
+   "chapter": "AVES 2b",
+   "subject": "Ground Power unit 400",
+   "tipo": "LOC",
+   "descrizione": "Identify the GPU OM-2100",
+   "riferimenti": ""
+  },
+  {
+   "id": 196,
+   "modulo": 8,
+   "chapter": "AVES 3",
+   "subject": "Special Tools and Test Equipment Aircraft",
+   "tipo": "LOC",
+   "descrizione": "Identify towing bar CMM(EP).1C-EC/VC-180A/VC-180B-20",
+   "riferimenti": ""
+  },
+  {
+   "id": 197,
+   "modulo": 8,
+   "chapter": "AVES 4",
+   "subject": "Special Tools and Test Equipment TPE",
+   "tipo": "LOC",
+   "descrizione": "Identify Puller, Oil Filter Housing CMM(EP).1C-EC/VC-180A/VC-180B-20",
+   "riferimenti": ""
+  },
+  {
+   "id": 198,
+   "modulo": 8,
+   "chapter": "AVES 5",
+   "subject": "Nitrogen Replenishment CRA 310",
+   "tipo": "LOC",
+   "descrizione": "Identify nitrogen trolley GB 966-200-000",
+   "riferimenti": ""
+  }
+ ]
+}

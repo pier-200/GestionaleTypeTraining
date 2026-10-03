@@ -15,3 +15,5 @@ docs/sorgenti/
 supabase/.temp/
 .impeccable/cattura2.mjs
 .impeccable/aggiorna-esempio.mjs
+.impeccable/quadro.mjs
+__pycache__/

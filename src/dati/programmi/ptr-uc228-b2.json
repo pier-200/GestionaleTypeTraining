@@ -1,0 +1,1602 @@
+{
+ "id": "ptr-uc228-b2",
+ "tipo": "pratico",
+ "nome": "PTR UC-228 Cat. B2",
+ "documento": "T1 Military Type Training UC-228 Cat. B2 – Practical Training Record (PTR)",
+ "aeromobile": "UC-228",
+ "motore": "",
+ "categoria": "B2",
+ "taskType": [
+  {
+   "codice": "LOC",
+   "descrizione": "Location Identification of system components"
+  },
+  {
+   "codice": "FOT",
+   "descrizione": "Functional / Operational Test"
+  },
+  {
+   "codice": "SGH",
+   "descrizione": "Servicing / Ground Handling"
+  },
+  {
+   "codice": "R/I",
+   "descrizione": "Removal / Installation"
+  },
+  {
+   "codice": "MEL",
+   "descrizione": "Minimum Equipment List items requiring maintenance procedure"
+  },
+  {
+   "codice": "TS",
+   "descrizione": "Troubleshooting"
+  }
+ ],
+ "moduli": [
+  {
+   "numero": 1,
+   "p66": true
+  },
+  {
+   "numero": 2,
+   "p66": true
+  },
+  {
+   "numero": 3,
+   "p66": true
+  },
+  {
+   "numero": 4,
+   "p66": true
+  },
+  {
+   "numero": 5,
+   "p66": true
+  },
+  {
+   "numero": 6,
+   "p66": true
+  },
+  {
+   "numero": 7,
+   "p66": false
+  },
+  {
+   "numero": 8,
+   "p66": false
+  }
+ ],
+ "chapter": [
+  {
+   "codice": "00",
+   "titolo": "Air vehicle general",
+   "modulo": 1
+  },
+  {
+   "codice": "05",
+   "titolo": "Time limits Maintenance checks",
+   "modulo": 1
+  },
+  {
+   "codice": "06",
+   "titolo": "Dimensions/Areas",
+   "modulo": 1
+  },
+  {
+   "codice": "07",
+   "titolo": "Lifting and Shoring",
+   "modulo": 1
+  },
+  {
+   "codice": "08",
+   "titolo": "Levelling and weighing",
+   "modulo": 1
+  },
+  {
+   "codice": "09",
+   "titolo": "Towing and taxiing",
+   "modulo": 1
+  },
+  {
+   "codice": "10",
+   "titolo": "Parking/mooring, Storing and Return to Service",
+   "modulo": 1
+  },
+  {
+   "codice": "11",
+   "titolo": "Placards and Markings",
+   "modulo": 1
+  },
+  {
+   "codice": "12",
+   "titolo": "Servicing",
+   "modulo": 1
+  },
+  {
+   "codice": "20",
+   "titolo": "Standard practices Airframe system",
+   "modulo": 1
+  },
+  {
+   "codice": "52",
+   "titolo": "Doors",
+   "modulo": 2
+  },
+  {
+   "codice": "21",
+   "titolo": "Air Conditioning",
+   "modulo": 3
+  },
+  {
+   "codice": "21A",
+   "titolo": "Air Supply",
+   "modulo": 3
+  },
+  {
+   "codice": "21C",
+   "titolo": "Safety and warning devices",
+   "modulo": 3
+  },
+  {
+   "codice": "22",
+   "titolo": "Autoflight",
+   "modulo": 3
+  },
+  {
+   "codice": "23",
+   "titolo": "Communications",
+   "modulo": 3
+  },
+  {
+   "codice": "24",
+   "titolo": "Electrical Power",
+   "modulo": 3
+  },
+  {
+   "codice": "25",
+   "titolo": "Equipment and Furnishings",
+   "modulo": 3
+  },
+  {
+   "codice": "25A",
+   "titolo": "Electronic Equipment including emergency eq.",
+   "modulo": 3
+  },
+  {
+   "codice": "26",
+   "titolo": "Fire Protection",
+   "modulo": 3
+  },
+  {
+   "codice": "27",
+   "titolo": "Flight Controls",
+   "modulo": 3
+  },
+  {
+   "codice": "27A",
+   "titolo": "Sys. operation: Electrical/Fly by Wire",
+   "modulo": 3
+  },
+  {
+   "codice": "28",
+   "titolo": "Fuel Systems",
+   "modulo": 3
+  },
+  {
+   "codice": "28A",
+   "titolo": "Fuel Systems Monitoring and Indicating",
+   "modulo": 3
+  },
+  {
+   "codice": "29",
+   "titolo": "Hydraulic Power",
+   "modulo": 3
+  },
+  {
+   "codice": "29A",
+   "titolo": "Hydraulic Power Monitoring and Indicating",
+   "modulo": 3
+  },
+  {
+   "codice": "30",
+   "titolo": "Ice and Rain Protection",
+   "modulo": 3
+  },
+  {
+   "codice": "31",
+   "titolo": "Indicating/Recording Systems",
+   "modulo": 3
+  },
+  {
+   "codice": "31A",
+   "titolo": "Instrument Systems",
+   "modulo": 3
+  },
+  {
+   "codice": "32",
+   "titolo": "Landing Gear",
+   "modulo": 3
+  },
+  {
+   "codice": "32A",
+   "titolo": "Landing Gear Monitoring and Indicating",
+   "modulo": 3
+  },
+  {
+   "codice": "33",
+   "titolo": "Lights",
+   "modulo": 3
+  },
+  {
+   "codice": "34",
+   "titolo": "Navigation",
+   "modulo": 3
+  },
+  {
+   "codice": "35",
+   "titolo": "Oxygen",
+   "modulo": 3
+  },
+  {
+   "codice": "43",
+   "titolo": "Tactical Communications",
+   "modulo": 3
+  },
+  {
+   "codice": "70A",
+   "titolo": "Constructional Arrangement and Operation",
+   "modulo": 4
+  },
+  {
+   "codice": "73",
+   "titolo": "Engine Fuel and Control",
+   "modulo": 4
+  },
+  {
+   "codice": "74",
+   "titolo": "Ignition",
+   "modulo": 4
+  },
+  {
+   "codice": "77",
+   "titolo": "Engine Indicating",
+   "modulo": 4
+  },
+  {
+   "codice": "61",
+   "titolo": "Propeller/Propulsion",
+   "modulo": 5
+  },
+  {
+   "codice": "61A",
+   "titolo": "Propeller Contruction",
+   "modulo": 5
+  },
+  {
+   "codice": "61F",
+   "titolo": "Propeller Maintenance",
+   "modulo": 5
+  },
+  {
+   "codice": "93",
+   "titolo": "Surveillance",
+   "modulo": 6
+  },
+  {
+   "codice": "AVES 1a",
+   "titolo": "Maintenance data",
+   "modulo": 7
+  },
+  {
+   "codice": "AVES 1b",
+   "titolo": "Ordinary activities of Linea",
+   "modulo": 7
+  },
+  {
+   "codice": "AVES 1c",
+   "titolo": "Maintenance records",
+   "modulo": 7
+  },
+  {
+   "codice": "AVES 1d",
+   "titolo": "Airworthiness records",
+   "modulo": 7
+  },
+  {
+   "codice": "AVES 2a",
+   "titolo": "Ground Support Equipment",
+   "modulo": 8
+  },
+  {
+   "codice": "AVES 2b",
+   "titolo": "Ground Power Unit-400",
+   "modulo": 8
+  },
+  {
+   "codice": "AVES 3",
+   "titolo": "Special Tools and Test Equipment Aircraft",
+   "modulo": 8
+  },
+  {
+   "codice": "AVES 4",
+   "titolo": "Special Tools and Test Equipment TPE",
+   "modulo": 8
+  },
+  {
+   "codice": "AVES 5",
+   "titolo": "Nitrogen Replenishment CRA 310",
+   "modulo": 8
+  }
+ ],
+ "task": [
+  {
+   "id": 1,
+   "modulo": 1,
+   "chapter": "00",
+   "subject": "Air vehicle general",
+   "tipo": "LOC",
+   "descrizione": "Identify the forward baggage compartment (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 2,
+   "modulo": 1,
+   "chapter": "00",
+   "subject": "Air vehicle general",
+   "tipo": "SGH",
+   "descrizione": "Lubrication of Quick Release Fasteners of Panels 311-2 (ref. CMM(EP).1C-UC228-",
+   "riferimenti": ""
+  },
+  {
+   "id": 3,
+   "modulo": 1,
+   "chapter": "05",
+   "subject": "Time limits Maintenance checks",
+   "tipo": "LOC",
+   "descrizione": "Identify the scheduled Daily Inspection (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 4,
+   "modulo": 1,
+   "chapter": "06",
+   "subject": "Dimensions/Areas",
+   "tipo": "LOC",
+   "descrizione": "Locate zone number of right windshield (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 5,
+   "modulo": 1,
+   "chapter": "07",
+   "subject": "Lifting and Shoring",
+   "tipo": "LOC",
+   "descrizione": "Identify jacking points (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 6,
+   "modulo": 1,
+   "chapter": "08",
+   "subject": "Levelling and weighing",
+   "tipo": "LOC",
+   "descrizione": "Identify the supports of straight edge (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 7,
+   "modulo": 1,
+   "chapter": "08",
+   "subject": "Levelling and weighing",
+   "tipo": "SGH",
+   "descrizione": "Perform Level aircraft (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 8,
+   "modulo": 1,
+   "chapter": "09",
+   "subject": "Towing and taxiing",
+   "tipo": "LOC",
+   "descrizione": "Identify the tow bar attaching point (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 9,
+   "modulo": 1,
+   "chapter": "09",
+   "subject": "Towing and taxiing",
+   "tipo": "SGH",
+   "descrizione": "Moving the airplane manually (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 10,
+   "modulo": 1,
+   "chapter": "10",
+   "subject": "Parking/mooring, Storing and Return to Service",
+   "tipo": "LOC",
+   "descrizione": "Locate mooring points. (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 11,
+   "modulo": 1,
+   "chapter": "10",
+   "subject": "Parking/mooring, Storing and Return to Service",
+   "tipo": "SGH",
+   "descrizione": "Perform mooring operation (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 12,
+   "modulo": 1,
+   "chapter": "11",
+   "subject": "Placards and Markings",
+   "tipo": "LOC",
+   "descrizione": "Locate the aircraft placards (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 13,
+   "modulo": 1,
+   "chapter": "12",
+   "subject": "Servicing",
+   "tipo": "LOC",
+   "descrizione": "Identify the Pressure refuelling equipment (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 14,
+   "modulo": 1,
+   "chapter": "12",
+   "subject": "Servicing",
+   "tipo": "SGH",
+   "descrizione": "Perform the Draining of Vent Tank (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 15,
+   "modulo": 1,
+   "chapter": "20",
+   "subject": "Standard practices Airframe system",
+   "tipo": "LOC",
+   "descrizione": "Locate the aircraft danger zones (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 16,
+   "modulo": 1,
+   "chapter": "20",
+   "subject": "Standard practices Airframe system",
+   "tipo": "SGH",
+   "descrizione": "Perform conversion data( Lbs vs liters) (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 17,
+   "modulo": 2,
+   "chapter": "52",
+   "subject": "Doors",
+   "tipo": "LOC",
+   "descrizione": "Identify the Emergency Exit (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 18,
+   "modulo": 2,
+   "chapter": "52",
+   "subject": "Doors",
+   "tipo": "SGH",
+   "descrizione": "Lubricate hinges of Door 312-1 (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 19,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "LOC",
+   "descrizione": "Identify the Air Conditioning System Components (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 20,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "FOT",
+   "descrizione": "Perfom the Enviromental System Operational Test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 21,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "SGH",
+   "descrizione": "Perform Re-oiling Cold Air Unit (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 22,
+   "modulo": 3,
+   "chapter": "21",
+   "subject": "Air Conditioning",
+   "tipo": "TS",
+   "descrizione": "Cabin temp caution light ON (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 23,
+   "modulo": 3,
+   "chapter": "21A",
+   "subject": "Air Supply",
+   "tipo": "LOC",
+   "descrizione": "Identify the Thermal Duct (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 24,
+   "modulo": 3,
+   "chapter": "21A",
+   "subject": "Air Supply",
+   "tipo": "FOT",
+   "descrizione": "Perform Bleed Air Operational check (ref. CMM.1C-DO-228/212-1)",
+   "riferimenti": ""
+  },
+  {
+   "id": 25,
+   "modulo": 3,
+   "chapter": "21C",
+   "subject": "Safety and warning devices",
+   "tipo": "LOC",
+   "descrizione": "Identify cabin temp warning light (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 26,
+   "modulo": 3,
+   "chapter": "21C",
+   "subject": "Safety and warning devices",
+   "tipo": "SGH",
+   "descrizione": "Perform Cleaning connector cabin temp sensor (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 27,
+   "modulo": 3,
+   "chapter": "22",
+   "subject": "Autoflight",
+   "tipo": "LOC",
+   "descrizione": "Identify the Flight Director Mode Controller (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 28,
+   "modulo": 3,
+   "chapter": "22",
+   "subject": "Autoflight",
+   "tipo": "FOT",
+   "descrizione": "Perform Functional Self Test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 29,
+   "modulo": 3,
+   "chapter": "22",
+   "subject": "Autoflight",
+   "tipo": "SGH",
+   "descrizione": "Perform Autopilot Computers and display cleaning (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 30,
+   "modulo": 3,
+   "chapter": "22",
+   "subject": "Autoflight",
+   "tipo": "R/I",
+   "descrizione": "Replace Pitch Servo (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 31,
+   "modulo": 3,
+   "chapter": "22",
+   "subject": "Autoflight",
+   "tipo": "TS",
+   "descrizione": "Slipping Clutches Servo Actuators out of adjustment value (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 32,
+   "modulo": 3,
+   "chapter": "23",
+   "subject": "Communications",
+   "tipo": "LOC",
+   "descrizione": "Locate VHF/FM Comm transceiver (ART-132A) (ref. CMM.1C-DO228/212-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 33,
+   "modulo": 3,
+   "chapter": "23",
+   "subject": "Communications",
+   "tipo": "FOT",
+   "descrizione": "Perform communication test (ART-132A) (ref. CMM.1C-DO228/212-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 34,
+   "modulo": 3,
+   "chapter": "23",
+   "subject": "Communications",
+   "tipo": "FOT",
+   "descrizione": "Intercommunication system operational test AS3100 (ref. CMM.1C-DO228/212-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 35,
+   "modulo": 3,
+   "chapter": "23",
+   "subject": "Communications",
+   "tipo": "R/I",
+   "descrizione": "Replace VHF 1 Comm Transceiver (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 36,
+   "modulo": 3,
+   "chapter": "23",
+   "subject": "Communications",
+   "tipo": "TS",
+   "descrizione": "VHF 1 Comm 'HOT' FAIL (ref. CMM.1C-DO228/212-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 37,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "LOC",
+   "descrizione": "Identify the Main batteries (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 38,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "FOT",
+   "descrizione": "Perform functional test AC Generation (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 39,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "SGH",
+   "descrizione": "Perform connection of External power and power ON (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 40,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "R/I",
+   "descrizione": "Replace Main batteries (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 41,
+   "modulo": 3,
+   "chapter": "24",
+   "subject": "Electrical Power",
+   "tipo": "TS",
+   "descrizione": "Inverter caution light on (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 42,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "LOC",
+   "descrizione": "Identify the sun visors (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 43,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "LOC",
+   "descrizione": "Identify the Header Tank (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 44,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "FOT",
+   "descrizione": "Perform Toilet with Wash Basin operational test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 45,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "FOT",
+   "descrizione": "Check Toilet flush cycle (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 46,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "SGH",
+   "descrizione": "Perform Waste Tank Servicing (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 47,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "SGH",
+   "descrizione": "Replenishment of header tank (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 48,
+   "modulo": 3,
+   "chapter": "25",
+   "subject": "Equipment and Furnishings",
+   "tipo": "R/I",
+   "descrizione": "Replace passenger seats (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 49,
+   "modulo": 3,
+   "chapter": "25A",
+   "subject": "Electronic Equipment including emergency eq.",
+   "tipo": "LOC",
+   "descrizione": "Identify the ELT ON-ARM Switch (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 50,
+   "modulo": 3,
+   "chapter": "25A",
+   "subject": "Electronic Equipment including emergency eq.",
+   "tipo": "FOT",
+   "descrizione": "Perform operational test ELT System (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 51,
+   "modulo": 3,
+   "chapter": "25A",
+   "subject": "Electronic Equipment including emergency eq.",
+   "tipo": "SGH",
+   "descrizione": "Perform Cleaning of Panel Cover ELT Transmitter (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 52,
+   "modulo": 3,
+   "chapter": "25A",
+   "subject": "Electronic Equipment including emergency eq.",
+   "tipo": "R/I",
+   "descrizione": "Removal of ELT Transmitter (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 53,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "LOC",
+   "descrizione": "Identify the engine fire detector elements (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 54,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "FOT",
+   "descrizione": "Perform the operation test of fire detection (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 55,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "SGH",
+   "descrizione": "Check the cabin fire extinguisher bottle weight (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 56,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "R/I",
+   "descrizione": "Install the cabin fire extinguisher bracket (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 57,
+   "modulo": 3,
+   "chapter": "26",
+   "subject": "Fire Protection",
+   "tipo": "TS",
+   "descrizione": "No lamps ON in the FIRE EXT TEST button (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 58,
+   "modulo": 3,
+   "chapter": "27",
+   "subject": "Flight Controls",
+   "tipo": "LOC",
+   "descrizione": "Identify the LH and RH aileron (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 59,
+   "modulo": 3,
+   "chapter": "27",
+   "subject": "Flight Controls",
+   "tipo": "FOT",
+   "descrizione": "Perform Elevator functional check (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 60,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "LOC",
+   "descrizione": "Identify the Flap Indicator (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 61,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "FOT",
+   "descrizione": "Travel Time Check of Dual Shaft Trim Actuator (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 62,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "R/I",
+   "descrizione": "Removal of Asymmetry Control Unit (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 63,
+   "modulo": 3,
+   "chapter": "27A",
+   "subject": "Sys. operation: Electrical/Fly by Wire",
+   "tipo": "TS",
+   "descrizione": "Flaps doesn't move (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 64,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "LOC",
+   "descrizione": "Identify the vent tank drain fitting (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 65,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "FOT",
+   "descrizione": "Perform operational test of Low Pressure Cock (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 66,
+   "modulo": 3,
+   "chapter": "28",
+   "subject": "Fuel Systems",
+   "tipo": "SGH",
+   "descrizione": "Perform the Draining water of Fuel Tank (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 67,
+   "modulo": 3,
+   "chapter": "28A",
+   "subject": "Fuel Systems Monitoring and Indicating",
+   "tipo": "LOC",
+   "descrizione": "Identify the instrument quantity fuel (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 68,
+   "modulo": 3,
+   "chapter": "28A",
+   "subject": "Fuel Systems Monitoring and Indicating",
+   "tipo": "FOT",
+   "descrizione": "Perform Low level fuel warning check (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 69,
+   "modulo": 3,
+   "chapter": "28A",
+   "subject": "Fuel Systems Monitoring and Indicating",
+   "tipo": "R/I",
+   "descrizione": "Replace the Fuel Control Unit ref. CMM(EP).1C-UC228-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 70,
+   "modulo": 3,
+   "chapter": "28A",
+   "subject": "Fuel Systems Monitoring and Indicating",
+   "tipo": "TS",
+   "descrizione": "Fuel Quantity Caution Light ON out of tolerance ref. CMM(EP).1C-UC228-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 71,
+   "modulo": 3,
+   "chapter": "29",
+   "subject": "Hydraulic Power",
+   "tipo": "LOC",
+   "descrizione": "Identify hydraulic reservoir (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 72,
+   "modulo": 3,
+   "chapter": "29",
+   "subject": "Hydraulic Power",
+   "tipo": "FOT",
+   "descrizione": "Perform Hydraulic Power Functional Test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 73,
+   "modulo": 3,
+   "chapter": "29",
+   "subject": "Hydraulic Power",
+   "tipo": "SGH",
+   "descrizione": "Perform Replenishment of the Main hydraulic system reservoir (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 74,
+   "modulo": 3,
+   "chapter": "29A",
+   "subject": "Hydraulic Power Monitoring and Indicating",
+   "tipo": "LOC",
+   "descrizione": "Identify the pressure indicator (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 75,
+   "modulo": 3,
+   "chapter": "29A",
+   "subject": "Hydraulic Power Monitoring and Indicating",
+   "tipo": "FOT",
+   "descrizione": "Hydraulic fluid check light (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 76,
+   "modulo": 3,
+   "chapter": "29A",
+   "subject": "Hydraulic Power Monitoring and Indicating",
+   "tipo": "R/I",
+   "descrizione": "Replace the Pressure Indicator (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 77,
+   "modulo": 3,
+   "chapter": "29A",
+   "subject": "Hydraulic Power Monitoring and Indicating",
+   "tipo": "TS",
+   "descrizione": "No pressure indication with hydraulic switch ON (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 78,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "LOC",
+   "descrizione": "Identify the DE-ICE Boots (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 79,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "FOT",
+   "descrizione": "Perform operational test Airfoil (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 80,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "SGH",
+   "descrizione": "Perform Cleaning and coating of de-icers boots (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 81,
+   "modulo": 3,
+   "chapter": "30",
+   "subject": "Ice and Rain Protection",
+   "tipo": "TS",
+   "descrizione": "IN-LET RH caution light ON (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 82,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "LOC",
+   "descrizione": "Locate the Flight Data Recorder (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 83,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "FOT",
+   "descrizione": "Performs the operational test of the central warning system (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 84,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "SGH",
+   "descrizione": "Perform Cleaning of Recording Control Panel (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 85,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "R/I",
+   "descrizione": "Removal and install the vertical accelerometer (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 86,
+   "modulo": 3,
+   "chapter": "31",
+   "subject": "Indicating/Recording Systems",
+   "tipo": "TS",
+   "descrizione": "Fail of the Flight Data Recorder Test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 87,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument Systems",
+   "tipo": "LOC",
+   "descrizione": "Locate the Multi Function Display (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 88,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument Systems",
+   "tipo": "FOT",
+   "descrizione": "Perform the Multi Function Display Test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 89,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument Systems",
+   "tipo": "SGH",
+   "descrizione": "Perform the cleaning of Instrument Panel (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 90,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument Systems",
+   "tipo": "R/I",
+   "descrizione": "Replace of Flight Data Recorder (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 91,
+   "modulo": 3,
+   "chapter": "31A",
+   "subject": "Instrument Systems",
+   "tipo": "TS",
+   "descrizione": "Flying hours counter fail (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 92,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "LOC",
+   "descrizione": "Identify the Steering Actuator (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 93,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "FOT",
+   "descrizione": "Perform Steering functional test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 94,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "SGH",
+   "descrizione": "Perform charge of brake accumulator (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 95,
+   "modulo": 3,
+   "chapter": "32",
+   "subject": "Landing Gear",
+   "tipo": "R/I",
+   "descrizione": "Removal / Installation of the landing gear wheel (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 96,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "LOC",
+   "descrizione": "Locate the three green annunciators (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 97,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "FOT",
+   "descrizione": "Perform the landing gear warning test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 98,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "R/I",
+   "descrizione": "Replace the landing gear lever (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 99,
+   "modulo": 3,
+   "chapter": "32A",
+   "subject": "Landing Gear Monitoring and Indicating",
+   "tipo": "TS",
+   "descrizione": "Right green light off (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 100,
+   "modulo": 3,
+   "chapter": "33",
+   "subject": "Lights",
+   "tipo": "LOC",
+   "descrizione": "Identify the surface light (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 101,
+   "modulo": 3,
+   "chapter": "33",
+   "subject": "Lights",
+   "tipo": "FOT",
+   "descrizione": "Perform Operational test of the external lights (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 102,
+   "modulo": 3,
+   "chapter": "33",
+   "subject": "Lights",
+   "tipo": "SGH",
+   "descrizione": "Perform Cleaning of landing lights glass cover (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 103,
+   "modulo": 3,
+   "chapter": "33",
+   "subject": "Lights",
+   "tipo": "R/I",
+   "descrizione": "Replace the landing lights ref. CMM(EP).1C-UC228-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 104,
+   "modulo": 3,
+   "chapter": "34",
+   "subject": "Navigation",
+   "tipo": "LOC",
+   "descrizione": "Identify the Reference Speed Deviation indicator (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 105,
+   "modulo": 3,
+   "chapter": "34",
+   "subject": "Navigation",
+   "tipo": "FOT",
+   "descrizione": "Perform Stall Warning System operational test ref. CMM(EP).1C-UC228-2",
+   "riferimenti": ""
+  },
+  {
+   "id": 106,
+   "modulo": 3,
+   "chapter": "34",
+   "subject": "Navigation",
+   "tipo": "SGH",
+   "descrizione": "Perform press pitot drain valve to drain condensation (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 107,
+   "modulo": 3,
+   "chapter": "34",
+   "subject": "Navigation",
+   "tipo": "R/I",
+   "descrizione": "Replace the Vertical Gyro n'1 (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 108,
+   "modulo": 3,
+   "chapter": "34",
+   "subject": "Navigation",
+   "tipo": "TS",
+   "descrizione": "Horizontal Situation Indicator Compass 'Flag in view' (fault) (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 109,
+   "modulo": 3,
+   "chapter": "35",
+   "subject": "Oxygen",
+   "tipo": "FOT",
+   "descrizione": "Perform Functional Check central oxygen supply system (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 110,
+   "modulo": 3,
+   "chapter": "35",
+   "subject": "Oxygen",
+   "tipo": "SGH",
+   "descrizione": "Perform Cleaning central oxygen supply system (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 111,
+   "modulo": 3,
+   "chapter": "43",
+   "subject": "Tactical Communications",
+   "tipo": "LOC",
+   "descrizione": "Identify the UHF COMM Transceiver (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 112,
+   "modulo": 3,
+   "chapter": "43",
+   "subject": "Tactical Communications",
+   "tipo": "FOT",
+   "descrizione": "Perform UHF COMM Op.Test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 113,
+   "modulo": 3,
+   "chapter": "43",
+   "subject": "Tactical Communications",
+   "tipo": "R/I",
+   "descrizione": "Replace UHF COMM (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 114,
+   "modulo": 3,
+   "chapter": "43",
+   "subject": "Tactical Communications",
+   "tipo": "TS",
+   "descrizione": "UHF COMM power supply OFF (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 115,
+   "modulo": 4,
+   "chapter": "70A",
+   "subject": "Constructional Arrangement and Operation",
+   "tipo": "LOC",
+   "descrizione": "Identify the engine components (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 116,
+   "modulo": 4,
+   "chapter": "73",
+   "subject": "Engine Fuel and Control",
+   "tipo": "LOC",
+   "descrizione": "Identify Fuel Shutoff Valve (ref. CMM-2T-TPE331/5/5A-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 117,
+   "modulo": 4,
+   "chapter": "74",
+   "subject": "Ignition",
+   "tipo": "LOC",
+   "descrizione": "Identify ignition system (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 118,
+   "modulo": 4,
+   "chapter": "74",
+   "subject": "Ignition",
+   "tipo": "FOT",
+   "descrizione": "Perform the automatic ignition system operational test (on ground) (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 119,
+   "modulo": 4,
+   "chapter": "77",
+   "subject": "Engine Indicating",
+   "tipo": "LOC",
+   "descrizione": "Identify the RPM Indicator (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 120,
+   "modulo": 4,
+   "chapter": "77",
+   "subject": "Engine Indicating",
+   "tipo": "FOT",
+   "descrizione": "Perform Compensator resistor functional check (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 121,
+   "modulo": 4,
+   "chapter": "77",
+   "subject": "Engine Indicating",
+   "tipo": "TS",
+   "descrizione": "RPM Indicator fail(s) (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 122,
+   "modulo": 5,
+   "chapter": "61",
+   "subject": "Propeller/Propulsion",
+   "tipo": "LOC",
+   "descrizione": "Identify the spinner (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 123,
+   "modulo": 5,
+   "chapter": "61A",
+   "subject": "Propeller Contruction",
+   "tipo": "LOC",
+   "descrizione": "Identify the spinner bulkhead (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 124,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "LOC",
+   "descrizione": "Identify The Pitch Mechanism (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 125,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "FOT",
+   "descrizione": "Perform Propeller Track check (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 126,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "SGH",
+   "descrizione": "Lubrication of Propeller Blade Bearings (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 127,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "R/I",
+   "descrizione": "Install Dynamic Balance Test Equipment (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 128,
+   "modulo": 5,
+   "chapter": "61F",
+   "subject": "Propeller Maintenance",
+   "tipo": "TS",
+   "descrizione": "Fail of unfedering electric pump (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 129,
+   "modulo": 6,
+   "chapter": "93",
+   "subject": "Surveillance",
+   "tipo": "LOC",
+   "descrizione": "Locate IFF Transponder SIT-421/A (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 130,
+   "modulo": 6,
+   "chapter": "93",
+   "subject": "Surveillance",
+   "tipo": "FOT",
+   "descrizione": "Perform IFF Transponder Oper.Test (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 131,
+   "modulo": 6,
+   "chapter": "93",
+   "subject": "Surveillance",
+   "tipo": "R/I",
+   "descrizione": "Replace IFF Transponder SIT-421/A (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 132,
+   "modulo": 6,
+   "chapter": "93",
+   "subject": "Surveillance",
+   "tipo": "TS",
+   "descrizione": "IFF Transponder doesn't work properly (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 133,
+   "modulo": 7,
+   "chapter": "AVES 1a",
+   "subject": "Maintenance data",
+   "tipo": "LOC",
+   "descrizione": "Identify Special Inspection after lightning strike (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 134,
+   "modulo": 7,
+   "chapter": "AVES 1b",
+   "subject": "Ordinary activities of Linea",
+   "tipo": "SGH",
+   "descrizione": "External Washing of the Airplane. (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 135,
+   "modulo": 7,
+   "chapter": "AVES 1c",
+   "subject": "Maintenance records",
+   "tipo": "LOC",
+   "descrizione": "Identify compliance with technical prescription model 746-1. (ref. AER.00-1-24)",
+   "riferimenti": ""
+  },
+  {
+   "id": 136,
+   "modulo": 7,
+   "chapter": "AVES 1d",
+   "subject": "Airworthiness records",
+   "tipo": "SGH",
+   "descrizione": "Close the parts of the booklet mod. DP5069. (AER.00-1-49)",
+   "riferimenti": ""
+  },
+  {
+   "id": 137,
+   "modulo": 8,
+   "chapter": "AVES 2a",
+   "subject": "Ground Support Equipment",
+   "tipo": "LOC",
+   "descrizione": "Identify the GSE Ref.CMM.35-GSE715/TG-4",
+   "riferimenti": ""
+  },
+  {
+   "id": 138,
+   "modulo": 8,
+   "chapter": "AVES 2b",
+   "subject": "Ground Power Unit-400",
+   "tipo": "LOC",
+   "descrizione": "Identify the GPU Ref.OM-2100",
+   "riferimenti": ""
+  },
+  {
+   "id": 139,
+   "modulo": 8,
+   "chapter": "AVES 3",
+   "subject": "Special Tools and Test Equipment Aircraft",
+   "tipo": "LOC",
+   "descrizione": "Identify the Control Surface Gust Lock Transceiver (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 140,
+   "modulo": 8,
+   "chapter": "AVES 4",
+   "subject": "Special Tools and Test Equipment TPE",
+   "tipo": "LOC",
+   "descrizione": "Identify the test harness assy (ref. CMM(EP).1C-UC228-2)",
+   "riferimenti": ""
+  },
+  {
+   "id": 141,
+   "modulo": 8,
+   "chapter": "AVES 5",
+   "subject": "Nitrogen Replenishment CRA 310",
+   "tipo": "LOC",
+   "descrizione": "Identify the CRA 310 GB 966-200-000",
+   "riferimenti": ""
+  }
+ ]
+}

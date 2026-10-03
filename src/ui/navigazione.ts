@@ -6,6 +6,7 @@ import {
   IconChalkboard,
   IconClipboardCheck,
   IconClipboardList,
+  IconGauge,
   IconId,
   IconPresentationAnalytics,
   IconUserOff,
@@ -22,23 +23,6 @@ import { corsiDi, ruoloNelCorso } from '../dominio/motore';
 import type { Corso, Dati, Utente } from '../dominio/tipi';
 import { usePosizione } from './router';
 import { useStato } from './stato';
-
-/**
- * Due applicativi dalla stessa pubblicazione: `?app=mtt` (parte teorica) e `?app=ptt` (parte pratica).
- * Senza parametro si vede tutto: è il collegamento del Training Manager.
- */
-export type Applicativo = 'mtt' | 'ptt' | 'tutto';
-
-export function applicativo(): Applicativo {
-  const v = new URLSearchParams(window.location.search).get('app');
-  return v === 'mtt' || v === 'ptt' ? v : 'tutto';
-}
-
-export const NOME_APPLICATIVO: Record<Applicativo, string> = {
-  mtt: 'MTT · parte teorica',
-  ptt: 'PTT · parte pratica',
-  tutto: 'Type Training',
-};
 
 export interface Voce {
   a: string;
@@ -76,7 +60,8 @@ const REGISTRI: Voce[] = [
   { a: '/certificati', etichetta: 'Registro dei certificati', breve: 'Certificati', icona: IconCertificate },
 ];
 
-export const CORSO: Voce = { a: '/corso', etichetta: 'Corso e iscritti', breve: 'Corso', icona: IconTable };
+export const QUADRO: Voce = { a: '/quadro', etichetta: 'Avanzamento del corso', breve: 'Corso', icona: IconGauge };
+export const CORSO: Voce = { a: '/corso', etichetta: 'Corso e iscritti', breve: 'Iscritti', icona: IconTable };
 export const CORSI: Voce = { a: '/corsi', etichetta: 'Corsi', breve: 'Corsi', icona: IconSchool };
 export const ACCOUNT: Voce = { a: '/account', etichetta: 'Account', breve: 'Account', icona: IconUserShield };
 export const GENERALITA: Voce = { a: '/generalita', etichetta: 'Generality and Purpose', breve: 'Generality', icona: IconBook2, parte: 'ptt' };
@@ -89,24 +74,22 @@ export interface Menu {
   /** Solo Training Manager. */
   registri: Voce[];
   altro: Voce[];
-  /** Voci nell'ordine in cui appaiono (il frequentatore trova prima il proprio logbook). */
+  /** Voci nell'ordine in cui appaiono. */
   ordinate: Voce[];
 }
 
-/** Voci di menu per il ruolo nel corso e per l'applicativo aperto. */
-export function menuPer(utente: Utente, corso: Corso | undefined, ruolo: string | null, app: Applicativo): Menu {
+/** Voci di menu per il ruolo nel corso: le parti teorica e pratica compaiono se il corso le prevede. */
+export function menuPer(utente: Utente, corso: Corso | undefined, ruolo: string | null): Menu {
   const staff = ruolo === 'admin' || ruolo === 'direttore' || ruolo === 'instructor';
-  const mostra = (v: Voce) =>
-    (app === 'tutto' || !v.parte || v.parte === app) && (!v.parte || (v.parte === 'mtt' ? corso?.programma_teorico : corso?.programma_pratico)) && (!v.staff || staff);
+  const mostra = (v: Voce) => (!v.parte || (v.parte === 'mtt' ? corso?.programma_teorico : corso?.programma_pratico)) && (!v.staff || staff);
   const menu = {
-    corso: [...(utente.ruolo === 'admin' ? [CORSI] : []), ...(corso && staff ? [CORSO] : [])],
+    corso: [...(corso ? [QUADRO] : []), ...(utente.ruolo === 'admin' ? [CORSI] : []), ...(corso && staff ? [CORSO] : [])],
     teoria: TEORIA.filter(mostra),
     pratica: PRATICA.filter(mostra),
-    registri: utente.ruolo === 'admin' && app === 'tutto' ? REGISTRI : [],
+    registri: utente.ruolo === 'admin' ? REGISTRI : [],
     altro: [...(mostra(GENERALITA) ? [GENERALITA] : []), ...(utente.ruolo === 'admin' ? [ACCOUNT] : []), PROFILO],
   };
-  const parti = utente.ruolo === 'trainee' ? [menu.pratica, menu.teoria] : [menu.teoria, menu.pratica];
-  return { ...menu, ordinate: [...parti.flat(), ...menu.corso, ...menu.registri, ...menu.altro] };
+  return { ...menu, ordinate: [...menu.corso, ...menu.teoria, ...menu.pratica, ...menu.registri, ...menu.altro] };
 }
 
 const CHIAVE_CORSO = 'ptt:corso';
@@ -167,9 +150,8 @@ export function useRuoloCorso(): string | null {
   return ruoloNelCorso(dati, utente, corso?.id);
 }
 
-/** Collegamento a una pagina mantenendo corso, frequentatore e applicativo. */
+/** Collegamento a una pagina mantenendo corso e frequentatore. */
 export function link(percorso: string, corso: Corso | undefined, f?: string | null, extra = '') {
-  // l'applicativo sta in `?app=` fuori dall'hash: resta da sé in tutti i collegamenti
   const q = [corso ? `c=${corso.id}` : '', f ? `f=${f}` : '', extra].filter(Boolean).join('&');
   return `#${percorso}${q ? `?${q}` : ''}`;
 }

@@ -1,10 +1,7 @@
-import mttCh47fB13 from '../dati/programmi/mtt-ch47f-b13.json';
-import ptrCh47fB13 from '../dati/programmi/ptr-ch47f-b13.json';
-
 /**
  * Programmi di corso, generati dagli Excel ufficiali (scripts/import_catalogo.py e
  * scripts/import_programma_mtt.py). Restano nell'applicazione, non nel database:
- * per aggiungere un corso nuovo basta un file in più in src/dati/programmi.
+ * ogni file in src/dati/programmi viene caricato da solo.
  */
 
 // --- programma pratico (PTR): catalogo dei task del logbook ------------------
@@ -68,8 +65,9 @@ export interface ProgrammaTeorico {
   materie: Materia[];
 }
 
-export const PROGRAMMI_PRATICI: ProgrammaPratico[] = [ptrCh47fB13 as ProgrammaPratico];
-export const PROGRAMMI_TEORICI: ProgrammaTeorico[] = [mttCh47fB13 as ProgrammaTeorico];
+const FILE = Object.values(import.meta.glob<ProgrammaPratico | ProgrammaTeorico>('../dati/programmi/*.json', { eager: true, import: 'default' }));
+export const PROGRAMMI_PRATICI = FILE.filter((p): p is ProgrammaPratico => p.tipo === 'pratico');
+export const PROGRAMMI_TEORICI = FILE.filter((p): p is ProgrammaTeorico => p.tipo === 'teorico');
 
 export const programmaPratico = (id: string | null | undefined) => PROGRAMMI_PRATICI.find((p) => p.id === id);
 export const programmaTeorico = (id: string | null | undefined) => PROGRAMMI_TEORICI.find((p) => p.id === id);
@@ -124,6 +122,12 @@ export function indice(p: ProgrammaPratico): Indice {
     indici.set(p.id, i);
   }
   return i;
+}
+
+/** Titolo breve di un modulo: la parte italiana tra parentesi ("HELICOPTERS (Elicottero)" → "Elicottero"). */
+export function titoloBreveModulo(titolo: string) {
+  const t = /\(([^)]+)\)/.exec(titolo)?.[1] ?? titolo;
+  return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
 }
 
 export const materiaDi = (p: ProgrammaTeorico, id: string) => p.materie.find((m) => m.id === id);

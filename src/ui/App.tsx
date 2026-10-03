@@ -18,12 +18,13 @@ import { Logbook } from './pagine/Logbook';
 import { Materie } from './pagine/Materie';
 import { Rapportino } from './pagine/Rapportino';
 import { FormPassword, Profilo } from './pagine/Profilo';
+import { Quadro } from './pagine/Quadro';
 import { Registro } from './pagine/Registro';
 import { Report } from './pagine/Report';
 import { Settimana } from './pagine/Settimana';
 import { Tavola } from './pagine/Tavola';
 import { Teoria } from './pagine/Teoria';
-import { applicativo, menuPer, useCorso, useRuoloCorso } from './navigazione';
+import { menuPer, useCorso, useRuoloCorso } from './navigazione';
 import { usePosizione } from './router';
 import { useStato } from './stato';
 
@@ -37,6 +38,7 @@ interface Pagina {
 
 const PAGINE: Record<string, Pagina> = {
   '/corsi': { titolo: 'Corsi', pagina: Corsi },
+  '/quadro': { titolo: 'Avanzamento del corso', pagina: Quadro, corso: true },
   '/corso': { titolo: 'Corso e iscritti', pagina: Corso, corso: true },
   '/settimana': { titolo: 'Programma settimanale', pagina: Settimana, corso: true },
   '/rapportino': { titolo: 'Rapportino presenze', pagina: Rapportino, corso: true },
@@ -129,8 +131,7 @@ export function App() {
     );
   }
 
-  const app = applicativo();
-  const menu = menuPer(utente, corso, ruolo, app);
+  const menu = menuPer(utente, corso, ruolo);
   const prima = menu.ordinate[0];
   const scelta = corsiDi(dati, utente).length !== 1 && !corso;
   const voce = percorso === '/' ? (scelta ? PAGINE['/corsi'] : PAGINE[prima?.a ?? '/corsi']) : PAGINE[percorso];

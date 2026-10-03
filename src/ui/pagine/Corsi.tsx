@@ -24,7 +24,7 @@ export function Corsi() {
 
   const apri = (c: Corso) => {
     ricordaCorso(c.id);
-    naviga(link(c.programma_teorico ? '/settimana' : '/distinta', c).slice(1));
+    naviga(link('/quadro', c).slice(1));
   };
 
   return (

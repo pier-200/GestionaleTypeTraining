@@ -41,6 +41,8 @@ export interface RigaMateria {
   materia: Materia;
   pianificati: number;
   residui: number;
+  /** Minuti già svolti (lezioni fino a oggi; 0 se non si indica la data). */
+  svolti: number;
 }
 
 export interface RigaModulo {
@@ -49,6 +51,7 @@ export interface RigaModulo {
   minuti: number;
   pianificati: number;
   residui: number;
+  svolti: number;
 }
 
 export interface StatoTeorico {
@@ -66,15 +69,19 @@ export function statoTeorico(programma: ProgrammaTeorico, lezioni: readonly Lezi
   // le lezioni di recupero ripetono materie già a programma: non scalano le ore da svolgere
   const utili = lezioni.filter((l) => l.tipo === 'lezione');
   const perMateria = new Map<string, number>();
-  for (const l of utili) perMateria.set(l.materia, (perMateria.get(l.materia) ?? 0) + l.minuti);
+  const svoltiPerMateria = new Map<string, number>();
+  for (const l of utili) {
+    perMateria.set(l.materia, (perMateria.get(l.materia) ?? 0) + l.minuti);
+    if (oggi && l.data <= oggi) svoltiPerMateria.set(l.materia, (svoltiPerMateria.get(l.materia) ?? 0) + l.minuti);
+  }
   const materie = programma.materie.map((materia) => {
     const pianificati = Math.min(perMateria.get(materia.id) ?? 0, materia.minuti);
-    return { materia, pianificati, residui: materia.minuti - pianificati };
+    return { materia, pianificati, residui: materia.minuti - pianificati, svolti: Math.min(svoltiPerMateria.get(materia.id) ?? 0, materia.minuti) };
   });
   const moduli = programma.moduli.map((m) => {
     const righe = materie.filter((r) => r.materia.modulo === m.numero);
     const pianificati = righe.reduce((s, r) => s + r.pianificati, 0);
-    return { numero: m.numero, titolo: m.titolo, minuti: m.minuti, pianificati, residui: m.minuti - pianificati };
+    return { numero: m.numero, titolo: m.titolo, minuti: m.minuti, pianificati, residui: m.minuti - pianificati, svolti: righe.reduce((s, r) => s + r.svolti, 0) };
   });
   const minuti = programma.moduli.reduce((s, m) => s + m.minuti, 0);
   const pianificati = materie.reduce((s, r) => s + r.pianificati, 0);

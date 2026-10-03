@@ -3,7 +3,7 @@
 import { chromium } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
-const basi = ['icona', 'icona-mtt', 'icona-ptt'];
+const basi = ['icona'];
 const font = readFileSync('node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2').toString('base64');
 const browser = await chromium.launch({ channel: 'msedge' });
 const page = await browser.newPage();

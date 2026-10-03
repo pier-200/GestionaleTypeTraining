@@ -12,11 +12,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { preparaApplicativo } from './applicativo';
 import { App } from './ui/App';
 import { tema } from './ui/tema';
-
-preparaApplicativo();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -27,7 +24,7 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
-// PWA: installazione come app "PTT" (il service worker serve solo in produzione)
+// PWA: installazione come app "Type Training" (il service worker serve solo in produzione)
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => void navigator.serviceWorker.register('./sw.js'));
 }

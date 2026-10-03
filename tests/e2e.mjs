@@ -124,6 +124,10 @@ await page.getByLabel('Surname (cognome)').fill('Villa');
 await page.getByLabel('Date of birth').fill('1999-04-12');
 await page.getByLabel('Place of birth').fill('Rieti');
 await page.getByRole('button', { name: 'Salva personal data' }).click();
+// si entra nell'avanzamento del corso, con teoria e pratica affiancate
+await page.locator('.quadro-parti').waitFor();
+assert.equal(await page.locator('.quadro-parti .parte').count(), 2, 'avanzamento con le due parti');
+await page.goto(`${BASE}#/tavola`);
 await page.locator('.cartiglio').waitFor();
 assert.ok(await page.locator('.cartiglio').getByText('Serg. Marco Villa').isVisible(), 'cartiglio del nuovo frequentatore');
 

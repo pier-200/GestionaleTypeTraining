@@ -1,19 +1,20 @@
 # Gestionale Type Training
 
-Gestione completa dei corsi **Type Training CH-47F Cat. B1.3**: parte **teorica (MTT)** con programma settimanale e
-parte **pratica (PTT)** con il logbook del Practical Training Record. Più corsi in parallelo, ciascuno con i propri
-frequentatori, istruttori e programmi.
+Gestione completa dei corsi **Type Training** per CH-47F, UC-228 e VC-180A: parte **teorica (MTT)** con programma
+settimanale e parte **pratica (PTT)** con il logbook del Practical Training Record. Più corsi in parallelo, ciascuno con
+i propri frequentatori, istruttori e programmi.
 
-**Applicativi pubblicati** (stessa app, tre collegamenti):
+**Un'unica applicazione** per tutti: ognuno vede le pagine del proprio ruolo.
 
-| Link | A chi | Cosa mostra |
-|---|---|---|
-| https://pier-200.github.io/GestionaleTypeTraining/?app=mtt | frequentatori e istruttori | solo la parte teorica: programma settimanale, situazione della teoria |
-| https://pier-200.github.io/GestionaleTypeTraining/?app=ptt | frequentatori e istruttori | solo la parte pratica: logbook, Compliance Report, istruttori, dati |
-| https://pier-200.github.io/GestionaleTypeTraining/ | Training Manager e direttori | tutto: corsi, iscritti, account, teoria e pratica |
-| https://pier-200.github.io/GestionaleTypeTraining/?demo | chiunque | prova con la situazione esempio, dati solo nel browser |
+| Link | Cosa mostra |
+|---|---|
+| https://pier-200.github.io/GestionaleTypeTraining/ | l'applicazione (si installa sul cellulare come app **TT**) |
+| https://pier-200.github.io/GestionaleTypeTraining/?demo | prova con la situazione esempio, dati solo nel browser |
 
-Ogni collegamento si installa sul cellulare come app a sé (**MTT**, **PTT**, **TT**) con icona e nome propri.
+Aperto un corso si entra in **Avanzamento del corso**: parte teorica e parte pratica affiancate, modulo per modulo
+(ore svolte sul programma MTT; task eseguiti sul PTR, con la soglia del 50%). Le due barre MTT/PTT restano sempre
+visibili nel riquadro del corso. Da lì si passa alla gestione separata della teoria (settimana, rapportino, assenze)
+e della pratica (logbook, tavola, Compliance Report).
 
 Specifica iniziale: [PROGETTO_Logbook_PTT.md](PROGETTO_Logbook_PTT.md).
 
@@ -101,13 +102,16 @@ Voci di menu riservate al Training Manager, nella sezione «Registri · AER(EP).
 
 I programmi stanno nell'applicazione, in `src/dati/programmi/`, e si scelgono per ogni corso:
 
+Gli Excel ufficiali stanno in `docs/sorgenti/Programmi Type Training/` (fuori da git), con nome
+`<MDS> - MTT|PTR - <categoria>.xlsx`. Per rigenerare tutti i programmi:
+
 ```bash
-py -3.11 scripts/import_catalogo.py "<PTR.xlsx>" <id-programma>        # parte pratica
-py -3.11 scripts/import_programma_mtt.py "<MTT.xlsx>" <id-programma>   # parte teorica
+npm run programmi    # prima tutti gli MTT, poi tutti i PTR
 ```
 
-Ogni file porta con sé mezzo e categoria: appena è in `src/dati/programmi/` i corsi di quel MDS e di quella categoria
-lo usano da soli (le categorie C solo il teorico).
+Il PTR non riporta il modulo: lo script lo ricava dal MTT dello stesso MDS e categoria (stesso chapter, soggetto più
+simile). Ogni file in `src/dati/programmi/` viene caricato da solo e i corsi di quel MDS e categoria lo usano (le
+categorie C solo il teorico). Oggi ci sono tutti i 9 corsi: CH-47F B1.3/B2/C, UC-228 B1.1/B2/C, VC-180A B1.1/B2/C.
 
 ## Stampa del Compliance Report
 
@@ -161,7 +165,7 @@ scripts/layout_compliance.py   posizioni dei valori nel modulo PDF      scripts/
 supabase/functions/gestione-utenti   creazione e modifica account (Edge Function)
 src/dominio/    programmi, compliance, pianificazione, presenze, motore dei comandi (permessi), viste
 src/backend/    archivi demo, github, supabase                          src/esporta.ts  Excel e CSV
-src/ui/         interfaccia: guscio, pagine MTT e PTT, stile «tavola tecnica»
+src/ui/         interfaccia: guscio, avanzamento del corso, pagine MTT e PTT, stile «tavola tecnica»
 tests/          dominio, pianificazione e presenze, schema SQL, end-to-end (demo e archivio GitHub)
 ```
 
