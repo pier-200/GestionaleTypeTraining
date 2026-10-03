@@ -248,7 +248,7 @@ export function Settimana() {
             </Badge>
           )}
         </Group>
-        <div className="conto-scalare">
+        <div className="conto-scalare mtt">
           <span className="etichetta">Restano</span>
           <b className="cifre">{ore(stato.totale.residui)}</b>
           <span className="debole">di {ore(stato.totale.minuti)}</span>

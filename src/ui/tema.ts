@@ -1,31 +1,32 @@
 import { createTheme, type MantineColorsTuple } from '@mantine/core';
 
-/** Tema "tavola tecnica": inchiostro su foglio, angoli vivi, lettering condensato. */
+/** Tema "app tascabile": verde per la teoria e le azioni, arancio per la pratica, angoli morbidi, pulsanti a pillola. */
 
-const inchiostro: MantineColorsTuple = ['#eef1f4', '#d9dee4', '#b3bcc6', '#8a97a5', '#667586', '#4a5561', '#36414d', '#26313c', '#16202b', '#0c131a'];
-const rosso: MantineColorsTuple = ['#fdeceb', '#f8d0cd', '#f0a39d', '#e6746c', '#dc4d43', '#d2352b', '#c22f25', '#a2261e', '#821e18', '#621612'];
-const giallo: MantineColorsTuple = ['#fefbe6', '#fcf3bd', '#f9ea91', '#f6e063', '#f4d84a', '#f2d22e', '#d9ba1f', '#a88f14', '#77650b', '#473c04'];
+const verde: MantineColorsTuple = ['#e8f6f1', '#d3ece3', '#a6d9c7', '#76c5aa', '#50b493', '#38a986', '#2f9e83', '#1d7a63', '#156553', '#0a4f40'];
+const testo: MantineColorsTuple = ['#eef3f1', '#d8e2de', '#b5c6c0', '#8fa6a0', '#6c7f79', '#4b605a', '#334a44', '#25403a', '#18302b', '#0e1f1b'];
+const arancio: MantineColorsTuple = ['#fff4e2', '#fde9cc', '#f9d29b', '#f6ba66', '#f2a541', '#f09829', '#ee911a', '#d37d0c', '#bc6f03', '#9a5a06'];
+const rosso: MantineColorsTuple = ['#fdeeea', '#fae3dd', '#f2bcae', '#ea927d', '#e36f55', '#de593c', '#c4472f', '#a83a25', '#8c2f1e', '#6f2416'];
+// superfici del tema scuro di Mantine, allineate ai token di stili.css
+const dark: MantineColorsTuple = ['#e2eeea', '#a7bbb4', '#82968f', '#3a5149', '#283a34', '#1c2b26', '#16231f', '#0e1816', '#0a1210', '#060c0a'];
 
 export const tema = createTheme({
-  primaryColor: 'inchiostro',
-  primaryShade: 8,
-  colors: { inchiostro, rosso, giallo },
-  black: '#16202b',
-  white: '#fbfcfa',
-  fontFamily: 'Barlow, "Segoe UI", system-ui, sans-serif',
-  fontFamilyMonospace: '"Barlow Condensed", Barlow, sans-serif',
-  headings: { fontFamily: '"Barlow Condensed", Barlow, sans-serif', fontWeight: '600' },
-  defaultRadius: 0,
-  radius: { xs: '1px', sm: '2px', md: '2px', lg: '3px', xl: '4px' },
-  fontSizes: { xs: '0.8125rem', sm: '0.9375rem', md: '1rem', lg: '1.125rem', xl: '1.3125rem' },
+  primaryColor: 'verde',
+  primaryShade: { light: 6, dark: 4 },
+  colors: { verde, testo, arancio, rosso, dark },
+  black: '#18302b',
+  white: '#ffffff',
+  fontFamily: 'Figtree, "Segoe UI", system-ui, sans-serif',
+  headings: { fontFamily: 'Figtree, "Segoe UI", system-ui, sans-serif', fontWeight: '800' },
+  defaultRadius: 'md',
+  radius: { xs: '6px', sm: '10px', md: '12px', lg: '16px', xl: '20px' },
+  fontSizes: { xs: '0.75rem', sm: '0.875rem', md: '1rem', lg: '1.1875rem', xl: '1.625rem' },
   cursorType: 'pointer',
   focusRing: 'auto',
   components: {
-    Button: { defaultProps: { radius: 0 } },
-    Input: { defaultProps: { radius: 0 } },
+    Button: { defaultProps: { radius: 'xl' } },
+    ActionIcon: { defaultProps: { radius: 'xl' } },
     InputWrapper: { defaultProps: { inputWrapperOrder: ['label', 'input', 'description', 'error'] } },
-    Drawer: { defaultProps: { radius: 0 } },
-    Modal: { defaultProps: { radius: 0, centered: true } },
-    Tooltip: { defaultProps: { withArrow: true, color: 'inchiostro.8' } },
+    Modal: { defaultProps: { centered: true, radius: 'lg' } },
+    Tooltip: { defaultProps: { withArrow: true, color: 'testo.8' } },
   },
 });

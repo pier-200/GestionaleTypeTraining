@@ -99,7 +99,7 @@ export function Certificati() {
                     </td>
                     <td style={{ minWidth: 180 }}>
                       <strong>{nomeUtente(dati, c.user_id)}</strong>
-                      <div className="debole" style={{ fontSize: '0.8125rem' }}>
+                      <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                         {c.mds} {c.categoria}
                       </div>
                     </td>

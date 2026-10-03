@@ -118,7 +118,7 @@ function ReportDi({ f, corso }: { f: Utente; corso: Corso }) {
       </div>
       <div className="cr-titolo">
         Practical Training Record
-        <span className="debole" style={{ fontSize: '0.75rem', fontWeight: 500, fontFamily: 'Barlow, sans-serif' }}>
+        <span className="debole" style={{ fontSize: 'var(--fs-xs)', fontWeight: 500 }}>
           (Detail of practical experience)
         </span>
       </div>
@@ -207,7 +207,7 @@ function ReportDi({ f, corso }: { f: Utente; corso: Corso }) {
         />
         <div className="cr-blocco" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 48 }}>
           {['Place', 'Date', 'Approval signature'].map((x) => (
-            <div key={x} style={{ borderTop: '1px dotted var(--inchiostro)', paddingTop: 4, textAlign: 'center', fontStyle: 'italic' }} className="debole">
+            <div key={x} style={{ borderTop: '1px dotted var(--testo)', paddingTop: 4, textAlign: 'center', fontStyle: 'italic' }} className="debole">
               {x}
             </div>
           ))}

@@ -104,7 +104,7 @@ export function Assenze() {
                             <tr key={m.materia.id}>
                               <td style={{ minWidth: 220 }}>
                                 <strong>{m.materia.titolo}</strong>
-                                <div className="debole" style={{ fontSize: '0.8125rem' }}>
+                                <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                                   M{m.materia.modulo} · {chapterMateria(m.materia)}
                                 </div>
                               </td>

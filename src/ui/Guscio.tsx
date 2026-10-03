@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { ActionIcon, Drawer, Select, Tooltip } from '@mantine/core';
-import { IconDots, IconLogout, IconRefresh, IconSwitchHorizontal } from '@tabler/icons-react';
+import { ActionIcon, Drawer, Select, Tooltip, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import { IconDots, IconLogout, IconMoon, IconRefresh, IconSun, IconSwitchHorizontal } from '@tabler/icons-react';
 import { corsiDi, oggiISO } from '../dominio/motore';
 import { ETICHETTA_RUOLO } from '../dominio/tipi';
 import { avanzamento, mediaPratica, nomeUtente } from '../dominio/viste';
@@ -17,6 +17,8 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
   const ruolo = useRuoloCorso();
   const frequentatore = useFrequentatore();
   const [altro, setAltro] = useState(false);
+  const { setColorScheme } = useMantineColorScheme();
+  const scuro = useComputedColorScheme('light') === 'dark';
   if (!utente || !dati || !backend) return null;
   const menu = menuPer(utente, corso, ruolo);
   const f = frequentatore?.id;
@@ -35,7 +37,7 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
     return (
       <a className="avanza" href={link('/quadro', corso)} aria-label="Avanzamento del corso">
         {righe.map(([sigla, p, cosa]) => (
-          <span key={sigla} className="avanza-riga" title={`${sigla}: ${Math.round(p)}% ${cosa}`}>
+          <span key={sigla} className={`avanza-riga ${sigla === 'MTT' ? 'mtt' : ''}`} title={`${sigla}: ${Math.round(p)}% ${cosa}`}>
             <span>{sigla}</span>
             <span className="avanza-barra">
               <span style={{ width: `${Math.min(100, p)}%` }} />
@@ -66,11 +68,15 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
       </a>
     ));
 
+  // corso sempre in vista nella barra: menu a tendina se sono più d'uno, altrimenti il codice
   const selettoreCorso =
     corsi.length > 1 ? (
       <Select
+        className="barra-corso"
         size="xs"
+        radius="xl"
         aria-label="Corso"
+        placeholder="Scegli il corso"
         value={corso?.id ?? null}
         onChange={(id) => {
           if (!id) return;
@@ -80,16 +86,20 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
         data={corsi.map((c) => ({ value: c.id, label: c.codice }))}
         allowDeselect={false}
         comboboxProps={{ withinPortal: true }}
-        styles={{ input: { fontFamily: 'var(--condensato)', fontWeight: 600 } }}
+        styles={{ input: { fontWeight: 700 } }}
       />
+    ) : corso ? (
+      <a className="barra-corso barra-corso-fisso" href={link('/quadro', corso)} title={corso.nome}>
+        {corso.codice}
+      </a>
     ) : null;
 
   return (
     <div className="guscio">
       <nav className="indice" aria-label="Indice delle pagine">
         <div className="marchio">
-          <div className="marchio-sigla">
-            <span>TT</span>
+          <div className="marchio-sigla" aria-hidden>
+            TT
           </div>
           <div className="marchio-nome">Gestionale Type Training</div>
         </div>
@@ -97,7 +107,7 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
           <div className="indice-corso">
             <span className="etichetta">Corso</span>
             <div style={{ fontWeight: 600, lineHeight: 1.25 }}>{corso.codice}</div>
-            <div className="debole" style={{ fontSize: '0.8125rem', lineHeight: 1.3 }}>
+            <div className="debole" style={{ fontSize: 'var(--fs-s)', lineHeight: 1.3 }}>
               {corso.nome}
             </div>
             {avanza()}
@@ -129,19 +139,24 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
 
       <div style={{ minWidth: 0 }}>
         <header className="barra">
-          <a href="#/" className="marchio-sigla solo-mobile" style={{ fontSize: '1.375rem', textDecoration: 'none' }} aria-label="Pagina iniziale">
-            <span>TT</span>
+          <a href="#/" className="marchio-sigla solo-mobile" aria-label="Pagina iniziale">
+            TT
           </a>
           <div className="barra-titolo">
             <strong>{titolo}</strong>
-            <span className="debole" style={{ fontSize: '0.8125rem' }}>
+            <span className="debole" style={{ fontSize: 'var(--fs-s)' }}>
               {corso ? corso.codice : ETICHETTA_RUOLO[utente.ruolo]}
               {frequentatore && ['/tavola', '/logbook', '/report', '/istruttori', '/dati'].includes(percorso) ? ` · ${nomeUtente(dati, frequentatore.id)}` : ''}
             </span>
           </div>
-          <div className="solo-mobile">{selettoreCorso}</div>
+          {selettoreCorso}
+          <Tooltip label={scuro ? 'Tema chiaro' : 'Tema scuro'}>
+            <ActionIcon variant="subtle" color="testo" size="lg" onClick={() => setColorScheme(scuro ? 'light' : 'dark')} aria-label={scuro ? 'Passa al tema chiaro' : 'Passa al tema scuro'}>
+              {scuro ? <IconSun size={20} stroke={1.8} /> : <IconMoon size={20} stroke={1.8} />}
+            </ActionIcon>
+          </Tooltip>
           <Tooltip label={`${aggiornamento} · aggiornato alle ${ora(aggiornatoAlle)}`}>
-            <ActionIcon variant="subtle" size="lg" onClick={() => void ricarica()} aria-label="Aggiorna i dati">
+            <ActionIcon variant="subtle" color="testo" size="lg" onClick={() => void ricarica()} aria-label="Aggiorna i dati">
               <IconRefresh size={20} stroke={1.6} />
             </ActionIcon>
           </Tooltip>

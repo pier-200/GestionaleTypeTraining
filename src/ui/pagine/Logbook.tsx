@@ -107,7 +107,7 @@ function LogbookDi({ f, corso }: { f: Utente; corso: Corso }) {
                   </div>
                   <div>
                     <dt>Ultima modifica</dt>
-                    <dd className="debole" style={{ fontWeight: 400, fontSize: '0.875rem' }}>
+                    <dd className="debole" style={{ fontWeight: 400, fontSize: 'var(--fs-s)' }}>
                       {formatoIstante(r.modificato_il)} · {nomeUtente(dati, r.modificato_da)}
                     </dd>
                   </div>

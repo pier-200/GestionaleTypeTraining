@@ -133,7 +133,7 @@ export function Rapportino() {
             Oggi
           </Button>
         </Group>
-        <div className="conto-scalare">
+        <div className="conto-scalare mtt">
           <span className="etichetta">Orario standard</span>
           <div>
             <b className="cifre">

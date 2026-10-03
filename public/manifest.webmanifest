@@ -1,14 +1,14 @@
 {
   "name": "Gestionale Type Training",
   "short_name": "TT",
-  "description": "Corsi Type Training CH-47F: parte teorica (MTT) e parte pratica (PTT)",
+  "description": "Corsi Type Training CH-47F, UC-228 e VC-180A: parte teorica (MTT) e parte pratica (PTT)",
   "lang": "it",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f6f7f4",
-  "theme_color": "#16202b",
+  "background_color": "#eef3f1",
+  "theme_color": "#18302b",
   "icons": [
     {
       "src": "./icona.svg",

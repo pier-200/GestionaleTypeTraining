@@ -72,7 +72,7 @@ export function FormAnagrafica({ f, sola, dopo }: { f: Utente; sola: boolean; do
           </Button>
         )}
         {a && (
-          <span className="debole" style={{ fontSize: '0.8125rem' }}>
+          <span className="debole" style={{ fontSize: 'var(--fs-s)' }}>
             Ultimo aggiornamento {formatoData(a.updated_at)}
           </span>
         )}
@@ -113,7 +113,7 @@ export function FormTraining({ corso, userIds, sola, dopo }: { corso: Corso; use
             <dd>{t?.location || '—'}</dd>
           </div>
         </dl>
-        <p className="debole" style={{ fontSize: '0.8125rem', gridColumn: '1 / -1', margin: '8px 0 0' }}>
+        <p className="debole" style={{ fontSize: 'var(--fs-s)', gridColumn: '1 / -1', margin: '8px 0 0' }}>
           Dati inseriti dal Training Manager.
         </p>
       </div>

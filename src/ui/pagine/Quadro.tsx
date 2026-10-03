@@ -32,7 +32,7 @@ export function Quadro() {
       />
 
       <div className="quadro-parti">
-        <section className="parte">
+        <section className="parte-corso mtt">
           <header className="parte-testa">
             <span className="tag-parte mtt">MTT · parte teorica</span>
             <h2 className="titolo-sezione">{teorico?.nome ?? 'Programma teorico da caricare'}</h2>
@@ -40,13 +40,7 @@ export function Quadro() {
           {teoria && teorico ? (
             <>
               <div className="parte-cifre">
-                <div>
-                  <span className="etichetta">Svolto</span>
-                  <div className="numero-monumentale">
-                    {formatoPercentuale(perc(teoria.svolti, teoria.totale.minuti)).replace('%', '')}
-                    <small>%</small>
-                  </div>
-                </div>
+                <Ciambella eseguiti={teoria.svolti} previsti={teoria.totale.minuti} dimensione={104} descrizione="delle ore di teoria svolte" />
                 <dl className="scheda-numeri">
                   <div>
                     <dt>Ore svolte</dt>
@@ -91,7 +85,7 @@ export function Quadro() {
           )}
         </section>
 
-        <section className="parte">
+        <section className="parte-corso">
           <header className="parte-testa">
             <span className="tag-parte ptt">PTT · parte pratica · logbook</span>
             <h2 className="titolo-sezione">{pratico?.nome ?? (soloTeorica(corso.categoria) ? 'Non prevista' : 'Programma pratico da caricare')}</h2>
@@ -109,13 +103,7 @@ export function Quadro() {
           ) : (
             <>
               <div className="parte-cifre">
-                <div>
-                  <span className="etichetta">Media eseguiti</span>
-                  <div className="numero-monumentale">
-                    {formatoPercentuale(Math.round(mediaPratica(pratica) * 10) / 10).replace('%', '')}
-                    <small>%</small>
-                  </div>
-                </div>
+                <Ciambella eseguiti={mediaPratica(pratica)} previsti={100} dimensione={104} descrizione="medio dei task eseguiti" />
                 <dl className="scheda-numeri">
                   <div>
                     <dt>Conformi</dt>
@@ -139,7 +127,7 @@ export function Quadro() {
                     <Quota
                       key={m.numero}
                       nome={`Modulo ${m.numero}`}
-                      sotto={`${titoloModulo(m.numero)} · conformi ${conformi}/${righe.length}`}
+                      sotto={`${titoloModulo(m.numero)} · ${conformi}/${righe.length} ok`}
                       riga={modulo(String(m.numero), Math.round(media), previsti, perc(media, previsti))}
                     />
                   );

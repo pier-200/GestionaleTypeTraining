@@ -81,8 +81,8 @@ export function Corsi() {
                   )}
                 </dl>
                 <div className="scheda-parti">
-                  {teorico && <span className="tag-parte mtt">MTT · {teorico.nome}</span>}
-                  {pratico && <span className="tag-parte ptt">PTT · {pratico.nome}</span>}
+                  {teorico && <span className="tag-parte mtt">{teorico.nome}</span>}
+                  {pratico && <span className="tag-parte ptt">{pratico.nome}</span>}
                   {!c.attivo && <span className="tag-parte chiuso">Chiuso</span>}
                 </div>
                 <Group gap="xs" mt="auto">

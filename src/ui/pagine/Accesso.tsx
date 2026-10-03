@@ -13,8 +13,8 @@ import { useStato } from '../stato';
 function Testata() {
   return (
     <div style={{ marginBottom: 24 }}>
-      <div className="marchio-sigla" style={{ fontSize: '3rem' }}>
-        <span>TT</span>
+      <div className="marchio-sigla grande" aria-hidden>
+        TT
       </div>
       <h1 className="titolo-pagina" style={{ marginTop: 10 }}>
         Gestionale Type Training
@@ -97,7 +97,7 @@ export function Accesso() {
                     <button type="button" onClick={() => void prova(u.id, () => demo.accediCome(u.username))} disabled={attesa != null}>
                       <span>
                         <strong>{u.ruolo === 'trainee' && !s?.registrazioni.length && !esempio.anagrafiche.some((a) => a.user_id === u.id) ? `${u.username} (nuovo account)` : nomeUtente(esempio, u.id)}</strong>
-                        <span className="debole" style={{ display: 'block', fontSize: '0.8125rem' }}>
+                        <span className="debole" style={{ display: 'block', fontSize: 'var(--fs-s)' }}>
                           {ETICHETTA_RUOLO[u.ruolo]}
                           {u.ruolo === 'instructor' ? ' · sola lettura' : u.ruolo === 'admin' ? ' · pieni poteri' : ''}
                         </span>
@@ -105,7 +105,7 @@ export function Accesso() {
                       {s ? (
                         <span className="cifre" style={{ fontWeight: 600, textAlign: 'right' }}>
                           {formatoPercentuale(s.report.totale.percentuale)}
-                          <span className={s.report.conforme ? 'debole' : 'rosso'} style={{ display: 'block', fontSize: '0.75rem' }}>
+                          <span className={s.report.conforme ? 'debole' : 'rosso'} style={{ display: 'block', fontSize: 'var(--fs-xs)' }}>
                             {s.report.conforme ? 'conforme' : 'non conforme'}
                           </span>
                         </span>

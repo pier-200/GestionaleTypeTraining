@@ -34,13 +34,13 @@ export function Revisioni({ dati, registrazioni, conNome, apri }: { dati: Dati; 
                     <span className="cifre" style={{ fontWeight: 600 }}>
                       {t?.id ?? r.task_id} · Ch {t?.chapter} · {t?.tipo}
                     </span>
-                    <div className="debole" style={{ fontSize: '0.875rem', lineHeight: 1.35 }}>
+                    <div className="debole" style={{ fontSize: 'var(--fs-s)', lineHeight: 1.35 }}>
                       {t?.descrizione}
                     </div>
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>{esecuzione(r)}</td>
                   <td style={{ minWidth: 140 }}>{istruttore(r)}</td>
-                  <td className="debole" style={{ fontSize: '0.8125rem', minWidth: 120 }}>
+                  <td className="debole" style={{ fontSize: 'var(--fs-s)', minWidth: 120 }}>
                     {formatoIstante(r.modificato_il)}
                     {(!conNome || r.modificato_da !== r.user_id) && <div>{nomeUtente(dati, r.modificato_da)}</div>}
                   </td>

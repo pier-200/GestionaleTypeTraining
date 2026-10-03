@@ -79,7 +79,7 @@ function TavolaDi({ f, corso }: { f: Utente; corso: Corso }) {
           {chapter.length > 0 && (
             <div className="t-ch">
               <Sezione titolo={`Chapter senza task · ${chapter.length}`}>
-                <p className="debole" style={{ margin: '0 0 10px', fontSize: '0.9375rem' }}>
+                <p className="debole" style={{ margin: '0 0 10px', fontSize: 'var(--fs-m)' }}>
                   Serve almeno un task eseguito per ciascun chapter. Tocca un codice per vederne i task.
                 </p>
                 <div className="palloncini">

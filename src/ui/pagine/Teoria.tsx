@@ -61,7 +61,7 @@ export function Teoria() {
       </div>
 
       <Sezione titolo="Quote per modulo">
-        <div className="quote">
+        <div className="quote mtt">
           {stato.moduli.map((m) => (
             <Quota
               key={m.numero}
@@ -103,7 +103,7 @@ export function Teoria() {
                   </td>
                   <td style={{ minWidth: 240 }}>
                     <strong>{r.materia.titolo}</strong>
-                    <div className="debole" style={{ fontSize: '0.8125rem' }}>
+                    <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                       {chapterMateria(r.materia)}
                     </div>
                   </td>

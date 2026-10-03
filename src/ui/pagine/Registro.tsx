@@ -119,7 +119,7 @@ export function Registro() {
                     <a href={link('/corso', r.corso)}>
                       <strong>{r.corso.codice}</strong>
                     </a>
-                    <div className="debole" style={{ fontSize: '0.8125rem' }}>
+                    <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                       {r.corso.nome}
                     </div>
                   </td>
@@ -167,7 +167,7 @@ export function Registro() {
                 <tr key={`${r.corso.id}|${r.utente.id}`}>
                   <td style={{ minWidth: 190 }}>
                     <strong>{nomeUtente(dati, r.utente.id)}</strong>
-                    <div className="debole" style={{ fontSize: '0.8125rem' }}>
+                    <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                       {r.utente.username}
                       {r.utente.attivo ? '' : ' · disattivato'}
                     </div>

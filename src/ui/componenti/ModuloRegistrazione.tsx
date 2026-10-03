@@ -130,7 +130,7 @@ export function ModuloRegistrazione({ aperto, chiudi, frequentatore, corso, task
               />
             )}
             {task && (
-              <div style={{ borderLeft: 0, background: 'var(--carta-2)', padding: '10px 12px', border: '1px solid var(--filetto-chiaro)' }}>
+              <div style={{ borderLeft: 0, background: 'var(--superficie-2)', padding: '10px 12px', border: '1px solid var(--traccia)' }}>
                 <Text className="etichetta" component="div">
                   Task {task.id} · Modulo {task.modulo} · Ch {task.chapter} · {task.tipo}
                 </Text>
@@ -216,7 +216,7 @@ export function ModuloRegistrazione({ aperto, chiudi, frequentatore, corso, task
             </div>
 
             {nuovoIstr ? (
-              <fieldset style={{ border: '1px solid var(--inchiostro)', padding: '10px 12px 14px', margin: 0 }}>
+              <fieldset style={{ border: '1px solid var(--testo)', padding: '10px 12px 14px', margin: 0 }}>
                 <legend className="etichetta" style={{ padding: '0 6px' }}>
                   Nuovo istruttore
                 </legend>

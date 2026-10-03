@@ -60,7 +60,7 @@ export function Distinta() {
       <div className="cartiglio riepilogo-corso">
         <div>
           <span className="etichetta">Conformi</span>
-          <div className="numero-monumentale" style={{ fontSize: '3.25rem' }}>
+          <div className="numero-monumentale" style={{ fontSize: 'var(--fs-numero)' }}>
             {conformi}
             <small>/{attivi.length}</small>
           </div>
@@ -82,7 +82,7 @@ export function Distinta() {
         </div>
         <div>
           <span className="etichetta">Avanzamento medio</span>
-          <div className="numero-monumentale" style={{ fontSize: '3.25rem' }}>
+          <div className="numero-monumentale" style={{ fontSize: 'var(--fs-numero)' }}>
             {formatoPercentuale(Math.round(media * 10) / 10).replace('%', '')}
             <small>%</small>
           </div>
@@ -117,7 +117,7 @@ export function Distinta() {
                             <a href={link('/tavola', corso, s.utente.id)} onClick={(e) => e.stopPropagation()} style={{ fontWeight: 600 }}>
                               {s.nome}
                             </a>
-                            <div className="debole" style={{ fontSize: '0.8125rem' }}>
+                            <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                               {s.utente.username}
                             </div>
                           </div>
@@ -125,7 +125,7 @@ export function Distinta() {
                       </td>
                       <td className="num">
                         {formatoPercentuale(s.report.totale.percentuale)}
-                        <div className="debole" style={{ fontSize: '0.8125rem', fontWeight: 500 }}>
+                        <div className="debole" style={{ fontSize: 'var(--fs-s)', fontWeight: 500 }}>
                           {s.report.totale.eseguiti}/{s.report.totale.previsti}
                         </div>
                       </td>
@@ -154,12 +154,12 @@ export function Distinta() {
                     <Ciambella eseguiti={s.report.totale.eseguiti} previsti={s.report.totale.previsti} dimensione={48} testo={false} />
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <strong>{s.nome}</strong>
-                      <span className="debole" style={{ display: 'block', fontSize: '0.8125rem' }}>
+                      <span className="debole" style={{ display: 'block', fontSize: 'var(--fs-s)' }}>
                         {s.mancanti.chapter.length ? `${s.mancanti.chapter.length} chapter scoperti` : 'Tutti i chapter coperti'} · {s.mancanti.moduli.length} moduli sotto soglia
                       </span>
                     </span>
                     <span style={{ textAlign: 'right' }}>
-                      <span className="cifre" style={{ fontWeight: 600, fontSize: '1.125rem', display: 'block' }}>
+                      <span className="cifre" style={{ fontWeight: 600, fontSize: 'var(--fs-l)', display: 'block' }}>
                         {formatoPercentuale(s.report.totale.percentuale)}
                       </span>
                       <Timbro conforme={s.report.conforme} piccolo />

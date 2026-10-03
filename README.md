@@ -16,6 +16,10 @@ Aperto un corso si entra in **Avanzamento del corso**: parte teorica e parte pra
 visibili nel riquadro del corso. Da lì si passa alla gestione separata della teoria (settimana, rapportino, assenze)
 e della pratica (logbook, tavola, Compliance Report).
 
+**Interfaccia** in stile «app tascabile» (vedi [DESIGN.md](DESIGN.md)): schede morbide, verde per la teoria, arancio
+per la pratica con la linea della soglia del 50%, tabelle con intestazione fissa, corso sempre in vista nella barra in
+alto e tema scuro facoltativo (pulsante luna/sole).
+
 Specifica iniziale: [PROGETTO_Logbook_PTT.md](PROGETTO_Logbook_PTT.md).
 
 ## Corsi, ruoli e permessi
@@ -165,7 +169,7 @@ scripts/layout_compliance.py   posizioni dei valori nel modulo PDF      scripts/
 supabase/functions/gestione-utenti   creazione e modifica account (Edge Function)
 src/dominio/    programmi, compliance, pianificazione, presenze, motore dei comandi (permessi), viste
 src/backend/    archivi demo, github, supabase                          src/esporta.ts  Excel e CSV
-src/ui/         interfaccia: guscio, avanzamento del corso, pagine MTT e PTT, stile «tavola tecnica»
+src/ui/         interfaccia: guscio, avanzamento del corso, pagine MTT e PTT, stile «app tascabile» (DESIGN.md)
 tests/          dominio, pianificazione e presenze, schema SQL, end-to-end (demo e archivio GitHub)
 ```
 

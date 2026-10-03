@@ -212,7 +212,7 @@ export function Account() {
               </thead>
               <tbody>
                 {utenti.map((u) => (
-                  <tr key={u.id} style={u.attivo ? undefined : { color: 'var(--inchiostro-3)' }}>
+                  <tr key={u.id} style={u.attivo ? undefined : { color: 'var(--testo-3)' }}>
                     <td style={{ fontWeight: 600, minWidth: 180 }}>{nomeUtente(dati, u.id)}</td>
                     <td className="cifre">{u.username}</td>
                     <td style={{ whiteSpace: 'nowrap' }}>{ETICHETTA_RUOLO[u.ruolo]}</td>
@@ -257,7 +257,7 @@ export function Account() {
                       <td>{i.nome}</td>
                       <td style={{ fontWeight: 600 }}>{i.cognome}</td>
                       <td className="num">{dati.registrazioni.filter((r) => r.instructor_id === i.id).length}</td>
-                      <td className="debole" style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
+                      <td className="debole" style={{ fontSize: 'var(--fs-s)', whiteSpace: 'nowrap' }}>
                         {formatoData(i.created_at)} · {nomeUtente(dati, i.created_by)}
                       </td>
                       <td>

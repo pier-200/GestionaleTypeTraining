@@ -11,7 +11,7 @@ import { IntestazionePagina } from '../componenti/disegno';
 
 function Parte({ titolo, aperta, children }: { titolo: string; aperta?: boolean; children: ReactNode }) {
   return (
-    <details className="parte" open={aperta}>
+    <details className="capitolo" open={aperta}>
       <summary>{titolo}</summary>
       <div className="parte-testo">{children}</div>
     </details>

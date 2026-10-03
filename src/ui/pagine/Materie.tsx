@@ -128,7 +128,7 @@ export function Materie() {
                     <td className="cifre">M{m.modulo}</td>
                     <td style={{ minWidth: 240 }}>
                       <strong>{m.titolo}</strong>
-                      <div className="debole" style={{ fontSize: '0.8125rem' }}>
+                      <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                         {chapterMateria(m)}
                       </div>
                     </td>

@@ -17,3 +17,4 @@ supabase/.temp/
 .impeccable/aggiorna-esempio.mjs
 .impeccable/quadro.mjs
 __pycache__/
+.impeccable/giro.mjs

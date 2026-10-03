@@ -107,7 +107,7 @@ export function Corso() {
                         <li key={u.id}>
                           <span>
                             <strong>{nomeUtente(dati, u.id)}</strong>
-                            <span className="debole" style={{ display: 'block', fontSize: '0.8125rem' }}>
+                            <span className="debole" style={{ display: 'block', fontSize: 'var(--fs-s)' }}>
                               {u.username}
                               {u.attivo ? '' : ' · account disattivato'}
                             </span>

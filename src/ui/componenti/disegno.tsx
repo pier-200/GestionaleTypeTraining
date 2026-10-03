@@ -2,37 +2,10 @@ import type { ReactNode } from 'react';
 import { IconAlertTriangleFilled, IconCircleCheckFilled } from '@tabler/icons-react';
 import { formatoPercentuale, type RigaReport } from '../../dominio/compliance';
 
-/** Elementi del mondo "tavola tecnica": foglio, timbro, linee di quota, palloncini, ciambella. */
-
-const ZONE_X = ['1', '2', '3', '4', '5', '6', '7', '8'];
-const ZONE_Y = ['A', 'B', 'C', 'D', 'E', 'F'];
+/** Elementi ricorrenti: pagina, esito, barre di avanzamento, palloncini, anello. */
 
 export function Foglio({ children }: { children: ReactNode }) {
-  return (
-    <div className="foglio">
-      <div className="zone zone-alto" aria-hidden>
-        {ZONE_X.map((z) => (
-          <span key={z}>{z}</span>
-        ))}
-      </div>
-      <div className="zone zone-basso" aria-hidden>
-        {ZONE_X.map((z) => (
-          <span key={z}>{z}</span>
-        ))}
-      </div>
-      <div className="zone zone-sx" aria-hidden>
-        {ZONE_Y.map((z) => (
-          <span key={z}>{z}</span>
-        ))}
-      </div>
-      <div className="zone zone-dx" aria-hidden>
-        {ZONE_Y.map((z) => (
-          <span key={z}>{z}</span>
-        ))}
-      </div>
-      {children}
-    </div>
-  );
+  return <div className="foglio">{children}</div>;
 }
 
 export function Timbro({ conforme, piccolo }: { conforme: boolean; piccolo?: boolean }) {
@@ -119,25 +92,33 @@ export function ScalaQuote() {
   );
 }
 
-/** Ciambella dell'avanzamento: arco giallo con filo d'inchiostro, su traccia sottile. */
-export function Ciambella({ eseguiti, previsti, dimensione = 112, testo = true }: { eseguiti: number; previsti: number; dimensione?: number; testo?: boolean }) {
+/** Anello di avanzamento con la percentuale al centro (colore: --fatto del contesto). */
+export function Ciambella({
+  eseguiti,
+  previsti,
+  dimensione = 112,
+  testo = true,
+  descrizione = 'task eseguiti',
+}: {
+  eseguiti: number;
+  previsti: number;
+  dimensione?: number;
+  testo?: boolean;
+  descrizione?: string;
+}) {
   const r = 40;
   const c = 2 * Math.PI * r;
-  const f = previsti ? eseguiti / previsti : 0;
+  const f = previsti ? Math.min(1, eseguiti / previsti) : 0;
   return (
-    <svg className="ciambella" width={dimensione} height={dimensione} viewBox="0 0 100 100" role="img" aria-label={`${eseguiti} task eseguiti su ${previsti}`}>
-      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--filetto-chiaro)" strokeWidth="12" />
-      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--evidenzia)" strokeWidth="12" strokeDasharray={`${f * c} ${c}`} transform="rotate(-90 50 50)" />
-      <circle cx="50" cy="50" r={r + 6} fill="none" stroke="var(--inchiostro)" strokeWidth="1" />
-      <circle cx="50" cy="50" r={r - 6} fill="none" stroke="var(--inchiostro)" strokeWidth="1" />
-      {f > 0 && f < 1 && (
-        <line x1="50" y1={50 - r - 6} x2="50" y2={50 - r + 6} stroke="var(--inchiostro)" strokeWidth="2" transform={`rotate(${f * 360} 50 50)`} />
+    <svg className="ciambella" width={dimensione} height={dimensione} viewBox="0 0 100 100" role="img" aria-label={`${Math.round(f * 100)}% ${descrizione}`}>
+      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--traccia)" strokeWidth="12" />
+      {f > 0 && (
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--fatto)" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${f * c} ${c}`} transform="rotate(-90 50 50)" />
       )}
-      <line x1="50" y1={50 - r - 9} x2="50" y2={50 - r + 9} stroke="var(--inchiostro)" strokeWidth="1" />
       {testo && (
-        <text x="50" y="56" textAnchor="middle" fontSize="19" fontWeight="600" fill="var(--inchiostro)">
-          {eseguiti}
-          <tspan fontSize="11" fill="var(--inchiostro-2)">/{previsti}</tspan>
+        <text x="50" y="57" textAnchor="middle" fontSize="20" fontWeight="800" fill="var(--testo)" fontFamily="var(--font)">
+          {(Math.round(f * 1000) / 10).toLocaleString('it-IT')}
+          <tspan fontSize="11" fill="var(--testo-2)">%</tspan>
         </text>
       )}
     </svg>

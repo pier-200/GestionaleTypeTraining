@@ -1,10 +1,8 @@
-import '@fontsource/barlow/latin-400.css';
-import '@fontsource/barlow/latin-500.css';
-import '@fontsource/barlow/latin-600.css';
-import '@fontsource/barlow/latin-700.css';
-import '@fontsource/barlow-condensed/latin-500.css';
-import '@fontsource/barlow-condensed/latin-600.css';
-import '@fontsource/barlow-condensed/latin-700.css';
+import '@fontsource/figtree/latin-400.css';
+import '@fontsource/figtree/latin-500.css';
+import '@fontsource/figtree/latin-600.css';
+import '@fontsource/figtree/latin-700.css';
+import '@fontsource/figtree/latin-800.css';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import './ui/stili.css';
@@ -17,7 +15,7 @@ import { tema } from './ui/tema';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <MantineProvider theme={tema} forceColorScheme="light">
+    <MantineProvider theme={tema} defaultColorScheme="auto">
       <Notifications position="top-center" autoClose={3500} />
       <App />
     </MantineProvider>

@@ -60,7 +60,7 @@ export function Docenti() {
       </div>
 
       <Sezione titolo="Carico per istruttore">
-        <div className="quote">
+        <div className="quote mtt">
           {righe
             .filter((r) => r.minuti > 0)
             .map((r) => (
@@ -103,7 +103,7 @@ export function Docenti() {
                 <tr key={r.utente.id}>
                   <td>
                     <strong>{nomeUtente(dati, r.utente.id)}</strong>
-                    <div className="debole" style={{ fontSize: '0.8125rem' }}>
+                    <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                       {r.utente.username}
                     </div>
                   </td>

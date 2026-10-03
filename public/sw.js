@@ -1,7 +1,7 @@
 // Service worker di PTT: rende l'app installabile e ne tiene in cache i file.
 // Pagine e config.json: prima la rete (dati e versioni sempre aggiornati), la cache solo senza rete.
 // File con hash (assets/): prima la cache. Le chiamate agli archivi (GitHub, Supabase) non passano di qui.
-const CACHE = 'ptt-v1';
+const CACHE = 'tt-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icona.svg'])));
