@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-09-22T12:00:00Z",
-  "title": "Design System: Gestionale PTT",
+  "title": "Design System: Gestionale Type Training",
   "extensions": {
     "colorMeta": {
       "inchiostro": { "role": "primary", "displayName": "Inchiostro di china", "canonical": "#16202b", "tonalRamp": ["#0c131a", "#16202b", "#26313c", "#36414d", "#4a5561", "#667586", "#b3bcc6", "#eef1f4"] },

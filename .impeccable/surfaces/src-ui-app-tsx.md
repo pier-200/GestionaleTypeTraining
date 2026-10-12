@@ -5,7 +5,7 @@ primary_target: "src/ui/App.tsx"
 related_targets: []
 ---
 
-# Surface brief: app PTT (tutte le pagine autenticate)
+# Surface brief: app Gestionale Type Training (tutte le pagine autenticate)
 
 Mode: Operate. Audience: frequentatori (telefono, hangar/linea volo), istruttori (sola lettura), Training Manager (PC d'ufficio). Task: registrare task eseguiti in pochi tocchi, capire subito conformità e mancanze, monitorare il corso. Constraints: catalogo e testi dal documento ufficiale; dati esempio sintetici e dichiarati tali.
 

@@ -63,7 +63,7 @@ interface Accesso {
 }
 
 export async function idVoce(username: string): Promise<string> {
-  return sha256Hex(`gestionale-ptt|${username.trim().toLowerCase()}`);
+  return sha256Hex(`gestionale-tt|${username.trim().toLowerCase()}`);
 }
 
 async function chiave(b64: string): Promise<CryptoKey> {

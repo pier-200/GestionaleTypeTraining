@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-React + Vite + TypeScript, pubblicata su GitHub Pages come PWA (nome breve "PTT"), come indicato in PROGETTO_Logbook_PTT.md §7.
+React + Vite + TypeScript, pubblicata su GitHub Pages come PWA (nome breve "TT"), come indicato in PROGETTO_Logbook_PTT.md §7.
 Archivio dati intercambiabile da `config.json` (scelta dell'utente, 2026-09-22): `demo` (browser, situazione esempio), `supabase` (PostgreSQL + RLS + Realtime) oppure `github` (repository privato con portachiavi cifrato, come Gestionale PdS).
 
 ## Users

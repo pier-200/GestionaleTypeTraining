@@ -94,7 +94,7 @@ Permessi applicati dal database, aggiornamento in tempo reale, piano gratuito.
 
 ### 1. Creare il progetto
 
-1. Registrarsi su <https://supabase.com> e creare un **New project** (nome `gestionale-ptt`, regione europea, password
+1. Registrarsi su <https://supabase.com> e creare un **New project** (nome `gestionale-tt`, regione europea, password
    del database robusta da conservare).
 2. Dal PC dell'ufficio aprire `https://<progetto>.supabase.co`: se la pagina è bloccata dalla rete, usare l'archivio GitHub (sezione B).
 
