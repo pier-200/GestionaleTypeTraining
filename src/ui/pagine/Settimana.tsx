@@ -1,30 +1,34 @@
 import { useMemo, useState } from 'react';
-import { ActionIcon, Autocomplete, Badge, Button, Drawer, Group, Menu, Select, Stack, Text, Textarea } from '@mantine/core';
+import { ActionIcon, Autocomplete, Badge, Button, Drawer, Group, Menu, SegmentedControl, Select, Stack, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconChevronLeft, IconChevronRight, IconDots, IconEraser, IconFileSpreadsheet, IconLock, IconLockOpen, IconPlus, IconTrash, IconWand } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
 import { messaggioErrore } from '../../dominio/errori';
 import { oggiISO, ruoloNelCorso, TIPI_PERIODO, type CampiLezione } from '../../dominio/motore';
-import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, chapterInCorso, generaSettimana, giorniSettimana, lunediDi, orarioPeriodo, periodiDelGiorno, settimanaDiCorso, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
+import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, chapterInCorso, generaSettimana, giorniSettimana, inOrdine, lunediDi, orariLezioni, periodiDelGiorno, settimanaDiCorso, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
 import { chapterPrevisti, materiaDi, oreDaMinuti, programmaTeorico, voceLezione, type Materia } from '../../dominio/programmi';
 import { conMateria, ETICHETTA_PERIODO, SIGLA_PERIODO, type Lezione, type TipoPeriodo } from '../../dominio/tipi';
-import { docenti, formatoDataBreve, formatoMinuti, lezioniVisibili, nomeUtente, ore } from '../../dominio/viste';
+import { contenutoLezione, docenti, formatoDataBreve, formatoMinuti, lezioniVisibili, nomeUtente, ore } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
 import { useCampoVisibile } from '../componenti/tastiera';
 import { useCorso } from '../navigazione';
 import { aggiornaQuery, usePosizione } from '../router';
 import { useStato } from '../stato';
 
-/** Durate proponibili per un periodo: quarti d'ora fino all'ora piena, poi c'è la pausa. */
+/** Durate proponibili per una lezione: quarti d'ora fino all'ora piena, poi c'è la pausa. */
 const DURATE = [15, 30, 45, MINUTI_PERIODO];
 
-/** Programma settimanale: una griglia di periodi a orari fissi (6 dal lunedì al giovedì, 3 il venerdì) da compilare. */
+/**
+ * Programma settimanale: una griglia di periodi a orari fissi (6 dal lunedì al giovedì, 3 il venerdì) da compilare.
+ * Un periodo è un'ora: la riempie una lezione sola oppure più lezioni brevi, una dopo l'altra.
+ */
 export function Settimana() {
   const { dati, utente, esegui } = useStato();
   const corso = useCorso();
   const { query } = usePosizione();
-  const [bozza, setBozza] = useState<CampiLezione[] | null>(null);
-  const [aperto, setAperto] = useState<{ data: string; ordine: number } | null>(null);
+  const [inBozza, setInBozza] = useState<{ lunedi: string; lezioni: CampiLezione[] } | null>(null);
+  /** Lezione aperta nel pannello di modifica. */
+  const [aperto, setAperto] = useState<string | null>(null);
   const [attesa, setAttesa] = useState(false);
   useCampoVisibile(true);
 
@@ -44,6 +48,9 @@ export function Settimana() {
 
   const lunedi = lunediDi(query.get('w') ?? corso.data_inizio ?? oggiISO());
   const giorni = giorniSettimana(lunedi);
+  // la bozza vale per la settimana in cui è nata: arrivando su un'altra si riparte da quella salvata
+  const bozza = inBozza?.lunedi === lunedi ? inBozza.lezioni : null;
+  const setBozza = (nuova: CampiLezione[] | null) => setInBozza(nuova && { lunedi, lezioni: nuova });
   const salvate = lezioni.filter((l) => giorni.includes(l.data));
   const fuori = lezioni.filter((l) => !giorni.includes(l.data));
   const campi = (l: Lezione | CampiLezione): CampiLezione => ({
@@ -51,6 +58,7 @@ export function Settimana() {
     corso_id: l.corso_id,
     data: l.data,
     ordine: l.ordine,
+    parte: l.parte,
     minuti: l.minuti,
     materia: l.materia,
     chapter: l.chapter,
@@ -70,7 +78,10 @@ export function Settimana() {
   /** Lezioni "virtuali" per i calcoli: quelle fuori settimana più la bozza corrente. */
   const perCalcolo = [...fuori, ...correnti.map((l) => ({ ...l, validata: false, validata_da: null, validata_il: null, creato_il: '', modificato_il: '', modificato_da: null }) as Lezione)];
   const stato = statoTeorico(programma, perCalcolo, oggiISO());
-  const trova = (data: string, ordine: number) => correnti.find((l) => l.data === data && l.ordine === ordine);
+  const orari = orariLezioni(correnti);
+  /** Lezioni che si dividono il periodo, nell'ordine in cui si svolgono, e minuti ancora liberi. */
+  const delPeriodo = (data: string, ordine: number) => inOrdine(correnti.filter((l) => l.data === data && l.ordine === ordine));
+  const liberi = (data: string, ordine: number) => MINUTI_PERIODO - delPeriodo(data, ordine).reduce((s, l) => s + l.minuti, 0);
 
   const possibili = docenti(dati, corso.id);
   /** Istruttori proponibili: quelli abilitati alla materia (più quello già assegnato, se diverso). */
@@ -106,20 +117,25 @@ export function Settimana() {
     const proposte = generaSettimana(programma, perCalcolo, lunedi, { istruttorePerMateria: (m: Materia) => scegliIstruttore(m.id, pesi) });
     if (!proposte.length) return;
     for (const p of proposte) if (p.istruttore_id) pesi.set(p.istruttore_id, (pesi.get(p.istruttore_id) ?? 0) + p.minuti);
-    setBozza([...correnti, ...proposte.map((p) => ({ id: nuovoUuid(), corso_id: corso.id, data: p.data, ordine: p.ordine, minuti: p.minuti, materia: p.materia, chapter: p.chapter, istruttore_id: p.istruttore_id, aula: '', tipo: 'lezione' as TipoPeriodo, note: '' }))]);
+    setBozza([...correnti, ...proposte.map((p) => ({ id: nuovoUuid(), corso_id: corso.id, data: p.data, ordine: p.ordine, parte: p.parte, minuti: p.minuti, materia: p.materia, chapter: p.chapter, istruttore_id: p.istruttore_id, aula: '', tipo: 'lezione' as TipoPeriodo, note: '' }))]);
   };
 
-  /** Compila un periodo ancora vuoto con la materia successiva del programma, proseguendo il chapter in corso. */
+  /** Mette nel tempo ancora libero del periodo la materia successiva del programma, proseguendo il chapter in corso. */
   const aggiungi = (data: string, ordine: number) => {
+    const minuti = liberi(data, ordine);
+    if (minuti < DURATE[0]) return;
     const materia = stato.prossima ?? programma.materie[0];
-    setBozza([...correnti, { id: nuovoUuid(), corso_id: corso.id, data, ordine, minuti: MINUTI_PERIODO, materia: materia.id, chapter: chapterInCorso(materia, perCalcolo), istruttore_id: scegliIstruttore(materia.id), aula: '', tipo: 'lezione', note: '' }]);
-    setAperto({ data, ordine });
+    const id = nuovoUuid();
+    const parte = (delPeriodo(data, ordine).at(-1)?.parte ?? -1) + 1;
+    setBozza([...correnti, { id, corso_id: corso.id, data, ordine, parte, minuti, materia: materia.id, chapter: chapterInCorso(materia, perCalcolo), istruttore_id: scegliIstruttore(materia.id), aula: '', tipo: 'lezione', note: '' }]);
+    setAperto(id);
   };
 
   const modifica = (id: string, nuovi: Partial<CampiLezione>) => setBozza(correnti.map((x) => (x.id === id ? { ...x, ...nuovi } : x)));
-  const togli = (id: string) => {
-    setBozza(correnti.filter((x) => x.id !== id));
-    setAperto(null);
+  /** Toglie la lezione: se nel periodo ne restano altre si passa alla prima. */
+  const togli = (l: CampiLezione) => {
+    setBozza(correnti.filter((x) => x.id !== l.id));
+    setAperto(delPeriodo(l.data, l.ordine).find((x) => x.id !== l.id)?.id ?? null);
   };
 
   const salva = async () => {
@@ -150,17 +166,15 @@ export function Settimana() {
     }
   };
 
-  /** Orario del periodo: l'inizio è fisso, la fine segue la durata della lezione. */
-  const orario = (data: string, ordine: number) => orarioPeriodo(ordine, trova(data, ordine)?.minuti);
-
-  const inModifica = aperto ? trova(aperto.data, aperto.ordine) : undefined;
+  const inModifica = correnti.find((l) => l.id === aperto);
   const materiaInModifica = inModifica && conMateria(inModifica.tipo) ? materiaDi(programma, inModifica.materia) : undefined;
+  const compagne = inModifica ? delPeriodo(inModifica.data, inModifica.ordine) : [];
+  const liberiInModifica = inModifica ? liberi(inModifica.data, inModifica.ordine) : 0;
 
-  /** Contenuto di un periodo: modulo, chapter, materia e istruttore. */
+  /** Contenuto di un periodo: per ogni lezione modulo, chapter, titolo e istruttore; se sono più d'una, una riga ciascuna con il suo orario. */
   const Periodo = ({ data, ordine }: { data: string; ordine: number }) => {
-    const l = trova(data, ordine);
-    const o = orario(data, ordine);
-    if (!l) {
+    const parti = delPeriodo(data, ordine);
+    if (!parti.length) {
       return guida ? (
         <button type="button" className="periodo vuoto" onClick={() => aggiungi(data, ordine)} aria-label={`Compila il periodo ${ordine + 1} di ${formatoDataBreve(data)}`}>
           <IconPlus size={15} aria-hidden />
@@ -169,35 +183,49 @@ export function Settimana() {
         <div className="periodo vuoto" aria-label="periodo libero" />
       );
     }
-    const materia = conMateria(l.tipo) ? materiaDi(programma, l.materia) : undefined;
-    const voce = materia && voceLezione(materia, l.chapter);
-    const titolo = voce?.subject ?? ETICHETTA_PERIODO[l.tipo];
-    const contenuto = (
-      <>
-        <div className="periodo-testa">
-          {materia && voce ? (
-            <span className="codice-materia">
-              M{materia.modulo} · Ch {voce.chapter}
+    const diviso = parti.length > 1;
+    return (
+      <div className={`periodo-parti ${diviso ? 'diviso' : ''}`}>
+        {parti.map((l) => {
+          const o = orari.get(l.id)!;
+          const { materia, chapter, titolo } = contenutoLezione(programma, l);
+          const codice = materia ? `${diviso ? '' : `M${materia.modulo} · `}Ch ${chapter}` : SIGLA_PERIODO[l.tipo] || ETICHETTA_PERIODO[l.tipo];
+          const istruttore = (
+            <span className={`periodo-istruttore ${l.istruttore_id ? '' : conMateria(l.tipo) ? 'rosso' : 'debole'}`}>
+              {l.istruttore_id ? cognome(l.istruttore_id) : conMateria(l.tipo) ? 'da assegnare' : '—'}
             </span>
+          );
+          const contenuto = diviso ? (
+            <>
+              <span className="cifre debole">{o.inizio}</span>
+              <span className="codice-materia">{codice}</span>
+              <span className="periodo-materia">{titolo}</span>
+              {istruttore}
+            </>
           ) : (
-            <span className="codice-materia">{SIGLA_PERIODO[l.tipo] || ETICHETTA_PERIODO[l.tipo]}</span>
-          )}
-          {l.tipo === 'recupero' && <span className="segno-recupero">REC</span>}
-          {l.minuti !== MINUTI_PERIODO && <span className="debole durata">{formatoMinuti(l.minuti)}</span>}
-        </div>
-        <div className="periodo-materia">{titolo}</div>
-        <div className={`periodo-istruttore ${l.istruttore_id ? '' : conMateria(l.tipo) ? 'rosso' : 'debole'}`}>
-          {l.istruttore_id ? cognome(l.istruttore_id) : conMateria(l.tipo) ? 'da assegnare' : '—'}
-        </div>
-      </>
-    );
-    const classi = `periodo ${l.tipo !== 'lezione' ? `t-${l.tipo}` : ''}`;
-    return guida ? (
-      <button type="button" className={classi} onClick={() => setAperto({ data, ordine })} title={`${o.inizio}–${o.fine} · ${titolo} · ${l.aula || corso.aula}`}>
-        {contenuto}
-      </button>
-    ) : (
-      <div className={classi}>{contenuto}</div>
+            <>
+              <span className="periodo-testa">
+                <span className="codice-materia">{codice}</span>
+                {l.tipo === 'recupero' && <span className="segno-recupero">REC</span>}
+                {l.minuti !== MINUTI_PERIODO && <span className="debole durata">{formatoMinuti(l.minuti)}</span>}
+              </span>
+              <span className="periodo-materia">{titolo}</span>
+              {istruttore}
+            </>
+          );
+          // chi è collegato riconosce a colpo d'occhio le proprie lezioni
+          const classi = ['periodo', diviso && 'parte', l.tipo !== 'lezione' && `t-${l.tipo}`, l.istruttore_id === utente.id && 'mia'].filter(Boolean).join(' ');
+          return guida ? (
+            <button key={l.id} type="button" className={classi} onClick={() => setAperto(l.id)} title={`${o.inizio}–${o.fine} · ${titolo} · ${l.aula || corso.aula}`}>
+              {contenuto}
+            </button>
+          ) : (
+            <div key={l.id} className={classi} title={`${o.inizio}–${o.fine} · ${titolo} · ${l.aula || corso.aula}`}>
+              {contenuto}
+            </div>
+          );
+        })}
+      </div>
     );
   };
 
@@ -343,6 +371,15 @@ export function Settimana() {
       >
         {inModifica && (
           <Stack gap="sm">
+            {compagne.length > 1 && (
+              <SegmentedControl
+                fullWidth
+                aria-label="Lezioni del periodo"
+                value={inModifica.id}
+                onChange={setAperto}
+                data={compagne.map((l) => ({ value: l.id, label: `${orari.get(l.id)!.inizio} · ${formatoMinuti(l.minuti)}` }))}
+              />
+            )}
             <Select
               label="Cosa si svolge"
               value={inModifica.tipo}
@@ -391,16 +428,20 @@ export function Settimana() {
             )}
             <Select
               label="Durata"
-              description={`Dalle ${ORARI_PERIODI[inModifica.ordine]}: un’ora al massimo, poi la pausa.`}
+              description={`Dalle ${orari.get(inModifica.id)!.inizio} alle ${orari.get(inModifica.id)!.fine}. Il periodo è di un’ora: accorciando la lezione resta posto per un’altra.`}
               value={String(inModifica.minuti)}
               onChange={(v) => v && modifica(inModifica.id, { minuti: Number(v) })}
-              data={DURATE.map((m) => ({ value: String(m), label: formatoMinuti(m) }))}
+              data={DURATE.filter((m) => m <= inModifica.minuti + liberiInModifica).map((m) => ({ value: String(m), label: formatoMinuti(m) }))}
+              allowDeselect={false}
               comboboxProps={{ withinPortal: true }}
             />
             <Textarea label="Note" autosize minRows={2} maxLength={300} value={inModifica.note} onChange={(e) => modifica(inModifica.id, { note: e.currentTarget.value })} />
+            <Button variant="default" leftSection={<IconPlus size={16} />} disabled={liberiInModifica < DURATE[0]} onClick={() => aggiungi(inModifica.data, inModifica.ordine)}>
+              {liberiInModifica < DURATE[0] ? 'Altra lezione nel periodo: prima accorcia questa' : `Altra lezione nel periodo · ${formatoMinuti(liberiInModifica)} liberi`}
+            </Button>
             <Group justify="space-between" mt="xs">
-              <Button variant="subtle" color="rosso" leftSection={<IconTrash size={16} />} onClick={() => togli(inModifica.id)}>
-                Svuota il periodo
+              <Button variant="subtle" color="rosso" leftSection={<IconTrash size={16} />} onClick={() => togli(inModifica)}>
+                Togli la lezione
               </Button>
               <Button onClick={() => setAperto(null)}>Fatto</Button>
             </Group>

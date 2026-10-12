@@ -270,8 +270,18 @@ await pausa(300);
 assert.equal(await page.getByRole('option').count(), 0, 'chapter non previsto dal syllabus non selezionabile');
 await chapter.fill('Pneumatic');
 await page.getByRole('option', { name: '36 · Pneumatic', exact: true }).click();
+// due lezioni di mezz'ora nella stessa ora: si accorcia la prima e nel tempo libero si mette la seconda
+await page.getByRole('combobox', { name: 'Durata' }).click();
+await page.getByRole('option', { name: '30′', exact: true }).click();
+await page.getByRole('button', { name: /Altra lezione nel periodo · 30′ liberi/ }).click();
+await pausa(300);
+await chapter.fill('Vacuum');
+await page.getByRole('option', { name: '37 · Vacuum', exact: true }).click();
+assert.ok(await page.getByRole('button', { name: /prima accorcia questa/ }).isDisabled(), 'ora piena: niente terza lezione');
 await page.getByRole('button', { name: 'Fatto' }).click();
-assert.match(await page.locator('.periodo:not(.vuoto):visible').first().innerText(), /Ch 36\s+Pneumatic/, 'la griglia mostra il chapter svolto');
+const parti = page.locator('.periodo.parte:visible');
+assert.equal(await parti.count(), 2, 'il periodo mostra le due lezioni');
+assert.match((await parti.allInnerTexts()).join(' | '), /08:20\s*Ch 36\s*Pneumatic[\s\S]*\|\s*08:50\s*Ch 37\s*Vacuum/, 'ogni lezione con il suo orario e il suo chapter');
 await page.getByRole('button', { name: 'Salva' }).click();
 await page.getByText('Programma della settimana salvato').waitFor({ timeout: 15000 });
 await page.getByRole('button', { name: 'Altre azioni' }).click();
@@ -279,7 +289,45 @@ const [scaricato] = await Promise.all([page.waitForEvent('download'), page.getBy
 assert.equal(scaricato.suggestedFilename(), 'Programma_settimanale_T1-2026_2_2026-09-14.xlsx', 'nome del file del programma settimanale');
 const foglio = strFromU8(unzipSync(new Uint8Array(readFileSync(await scaricato.path())))['xl/worksheets/sheet1.xml']);
 assert.match(foglio, /<c r="C11"[^>]*><is><t[^>]*>Pneumatic<\/t><\/is><\/c>.*<c r="G11"[^>]*><v>36<\/v><\/c>/, 'modulo: ADDESTRAMENTO e COD. del chapter svolto');
+// il periodo diviso prende una riga in più sul modulo, ciascuna con il suo orario
+assert.match(foglio, /<c r="B11"[^>]*><is><t[^>]*>08:20-08:50<\/t>.*<c r="B12"[^>]*><is><t[^>]*>08:50-09:20<\/t>.*<c r="C12"[^>]*><is><t[^>]*>Vacuum<\/t>/, 'modulo: una riga per ciascuna lezione del periodo');
+assert.equal(foglio.match(/<row r="/g).length, 64, 'modulo: il resto scende di una riga');
 for (const atteso of ['T1-2026/2', '1° Mar. GRECO Stefano', 'Ten. Col. Prova FIRMA', 'Serg. MARCHETTI Davide', '08:20-09:20', 'Aula N.1']) assert.ok(foglio.includes(atteso), `modulo compilato: ${atteso}`);
+
+// 14. l'istruttore vede subito le sue lezioni da oggi in poi, ma solo quando la settimana è validata
+const FUTURA = '2027-03-01';
+await page.goto(`${BASE}#/settimana?c=c-2026-2&w=${FUTURA}`);
+await pausa(500);
+await page.locator('.periodo.vuoto:visible').first().click();
+const istruttore = page.getByRole('combobox', { name: 'Istruttore' });
+if (!/Rinaldi/.test(await istruttore.inputValue())) {
+  await istruttore.click();
+  await page.getByRole('option', { name: /Paolo Rinaldi/ }).click();
+}
+await page.getByRole('button', { name: 'Fatto' }).click();
+await page.getByRole('button', { name: 'Salva' }).click();
+await pausa(800);
+const sueLezioni = async () => {
+  await esci();
+  await profilo('Paolo Rinaldi');
+  await page.goto(`${BASE}#/corsi`);
+  await page.getByRole('heading', { name: 'Le mie lezioni' }).waitFor();
+  return page.locator('.mie-lezioni section', { hasText: '01/03' });
+};
+assert.equal(await (await sueLezioni()).count(), 0, 'settimana non validata: la lezione non è ancora un impegno');
+await esci();
+await profilo('Luca Ferri');
+await page.goto(`${BASE}#/settimana?c=c-2026-2&w=${FUTURA}`);
+await pausa(500);
+await page.getByRole('button', { name: 'Altre azioni' }).click();
+await page.getByRole('menuitem', { name: 'Valida la settimana' }).click();
+await pausa(800);
+const impegno = await sueLezioni();
+assert.equal(await impegno.count(), 1, 'settimana validata: la lezione compare fra gli impegni');
+assert.match(await impegno.innerText(), /08:20–09:20[\s\S]*Ch \S+ · /, 'impegno con orario e chapter');
+await page.goto(`${BASE}#/settimana?c=c-2026-2&w=${FUTURA}`);
+await pausa(500);
+assert.equal(await page.locator('.periodo.mia:visible').count(), 1, 'nella griglia la sua lezione è evidenziata');
 
 // chi dirigeva il corso torna istruttore in quel corso, e resta direttore dell'altro
 await esci();

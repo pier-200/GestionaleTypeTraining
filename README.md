@@ -66,6 +66,10 @@ del corso. I permessi in più valgono solo dentro quel corso; negli altri resta 
   Una lezione dura **al massimo un'ora**, poi c'è la pausa; si accorcia a quarti d'ora. I periodi si compilano
   toccandoli: lezione, **lezione di recupero**, **Mantenimento Efficienza Operativa**, **Sospensione** o **Esame
   teorico**. L'**aula** è quella del corso, salvo sceglierne un'altra sul singolo periodo.
+- **Più lezioni nella stessa ora**: accorciando una lezione, nel tempo rimasto libero se ne mette un'altra («Altra
+  lezione nel periodo»): due mezz'ore, 15 + 45, 15 + 15 + 30 e così via, ciascuna con il suo chapter, istruttore e
+  aula. Si susseguono senza pausa (08:20–08:50, 08:50–09:20) e insieme non superano l'ora; griglia, assenze e conto
+  a scalare le trattano come lezioni distinte. Anche «Genera» riempie l'ora quando una materia finisce a metà.
 - **A schermo**: sul PC la settimana intera sta in una schermata (periodo, modulo · chapter, materia, istruttore);
   sul cellulare ogni giornata mostra solo orario, materia e istruttore.
 - **Validazione**: la settimana salvata resta privata finché il direttore o il TM premono «Valida»; solo allora i
@@ -74,6 +78,9 @@ del corso. I permessi in più valgono solo dentro quel corso; negli altri resta 
   alto e nella pagina «Situazione della teoria» (per modulo, per materia, ore già svolte e settimane stimate).
 - **Materie e istruttori**: il Training Manager o il direttore indicano quali materie ogni istruttore può erogare.
 - **Ore degli istruttori**: pagina «Docenti» con le ore a calendario ed erogate da ciascun istruttore.
+- **Le mie lezioni**: l'istruttore, appena entra, trova in testa alla pagina i suoi impegni **da oggi in poi** (giorno,
+  orario, chapter, aula, corso, totale delle ore), presi dai soli programmi settimanali **validati** di tutti i suoi
+  corsi; nella griglia della settimana le sue lezioni sono evidenziate.
 - **Programma settimanale in Excel**: dal menu «Altre azioni» si scarica il **modulo ufficiale compilato**, pronto da
   stampare in PDF su una pagina A4 (vedi «Modulo del programma settimanale»).
 
@@ -147,13 +154,16 @@ soltanto i valori: celle, bordi, unioni e impostazione di stampa restano quelli 
 | DATA INIZIO CORSO, DURATA, DATA FINE CORSO | dati del corso: inizio, durata in settimane, fine stimata |
 | SETTIMANA | numero progressivo da 1, contato dal lunedì della data di inizio |
 | EVENTUALE RITARDO | settimane oltre quella della fine stimata (vuoto se non si è in ritardo) |
-| DATA, ORARIO | giorni della settimana e orari fissi dei periodi (la fine segue la durata della lezione) |
+| DATA, ORARIO | giorni della settimana e orari fissi dei periodi; se più lezioni si dividono un periodo, una riga per ciascuna con il suo orario |
 | ADDESTRAMENTO, COD. | titolo e numero del chapter svolto nella lezione (34 → «Navigation»); MEO, sospensione ed esame hanno la loro dicitura |
 | ISTRUTTORE | grado e cognome dell'istruttore della lezione |
 | AULA | aula del periodo, altrimenti quella del corso |
 | DIRETTORE DEL CORSO | l'istruttore a cui è affidato il corso, «Grado COGNOME Nome» |
 | FREQUENTATORI, ENTE | i frequentatori iscritti, «Grado COGNOME Nome», con l'ente dei Personal Data (16 righe) |
 | IL COMANDANTE | gruppo firma inserito nei dati del corso |
+
+Quando un periodo è diviso la tabella prende una riga in più per ogni lezione aggiunta, il resto del modulo scende
+e, oltre le tre righe, la scala di stampa si riduce quanto basta a restare in una pagina.
 
 Il modulo vuoto si prepara una volta dall'Excel originale con `py -3.11 scripts/modulo_settimanale.py`, che toglie
 autori, percorsi e impostazioni della stampante. Lo scaricano il Training Manager e gli istruttori del corso.

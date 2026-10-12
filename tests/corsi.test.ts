@@ -80,6 +80,7 @@ describe('periodi del programma', () => {
     corso_id: C2,
     data: '2026-10-05',
     ordine,
+    parte: 0,
     minuti: 60,
     materia: TEORICO.materie[0].id,
     chapter: '',

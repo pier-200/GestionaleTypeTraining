@@ -1,7 +1,7 @@
 import { calcolaReport, reportVuoto, requisitiMancanti, type Report } from './compliance';
-import { statoTeorico, type StatoTeorico } from './pianificazione';
-import { programmaPratico, programmaTeorico } from './programmi';
-import type { Corso, Dati, ID, Istruttore, Lezione, Registrazione, RuoloCorso, Utente } from './tipi';
+import { inOrdine, orariLezioni, statoTeorico, type Orario, type StatoTeorico } from './pianificazione';
+import { materiaDi, programmaPratico, programmaTeorico, voceLezione, type ProgrammaTeorico } from './programmi';
+import { ETICHETTA_PERIODO, conMateria, type Corso, type Dati, type ID, type Istruttore, type Lezione, type Registrazione, type RuoloCorso, type Utente } from './tipi';
 
 /** Viste calcolate sui dati, condivise da interfaccia ed esportazioni. */
 
@@ -52,8 +52,32 @@ export const direttoreDi = (dati: Dati, corsoId: ID | null | undefined): Utente 
 export const registrazioniDi = (dati: Dati, corsoId: ID | null | undefined, userId: ID) =>
   dati.registrazioni.filter((r) => r.user_id === userId && r.corso_id === corsoId).sort((a, b) => b.data.localeCompare(a.data) || b.modificato_il.localeCompare(a.modificato_il));
 
-export const lezioniDi = (dati: Dati, corsoId: ID | null | undefined) =>
-  dati.lezioni.filter((l) => l.corso_id === corsoId).sort((a, b) => a.data.localeCompare(b.data) || a.ordine - b.ordine);
+export const lezioniDi = (dati: Dati, corsoId: ID | null | undefined) => inOrdine(dati.lezioni.filter((l) => l.corso_id === corsoId));
+
+/** Cosa si svolge in una lezione: il chapter con il suo titolo, oppure la dicitura del periodo non didattico. */
+export function contenutoLezione(programma: ProgrammaTeorico | undefined, l: Pick<Lezione, 'tipo' | 'materia' | 'chapter'>) {
+  const materia = programma && conMateria(l.tipo) ? materiaDi(programma, l.materia) : undefined;
+  const voce = materia && voceLezione(materia, l.chapter);
+  return { materia, chapter: voce?.chapter ?? null, titolo: voce?.subject ?? ETICHETTA_PERIODO[l.tipo] };
+}
+
+export interface Impegno {
+  lezione: Lezione;
+  corso: Corso;
+  orario: Orario;
+}
+
+/** Lezioni dell'istruttore da oggi in poi, in tutti i suoi corsi: solo quelle dei programmi settimanali già validati. */
+export function impegniDi(dati: Dati, utenteId: ID, oggi: string): Impegno[] {
+  return dati.corsi
+    .filter((c) => c.attivo)
+    .flatMap((corso) => {
+      const lezioni = lezioniDi(dati, corso.id);
+      const orari = orariLezioni(lezioni);
+      return lezioni.filter((l) => l.istruttore_id === utenteId && l.validata && l.data >= oggi).map((lezione) => ({ lezione, corso, orario: orari.get(lezione.id)! }));
+    })
+    .sort((a, b) => a.lezione.data.localeCompare(b.lezione.data) || a.orario.inizio.localeCompare(b.orario.inizio));
+}
 
 /** Programma visibile: il frequentatore vede solo le settimane già validate. */
 export const lezioniVisibili = (dati: Dati, corsoId: ID | null | undefined, ruolo: string | null) =>
@@ -170,4 +194,3 @@ export const formatoMinuti = (m: number) => (m >= 60 ? `${Math.floor(m / 60)} h 
 /** Ore residue/svolte in formato compatto ("12 h", "1,5 h"). */
 export const ore = (minuti: number) => `${(minuti / 60).toLocaleString('it-IT', { maximumFractionDigits: 1 })} h`;
 
-export const lezioniGiorno = (lezioni: readonly Lezione[], data: string) => lezioni.filter((l) => l.data === data).sort((a, b) => a.ordine - b.ordine);

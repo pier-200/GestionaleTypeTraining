@@ -3,9 +3,9 @@ import { datiEsempio } from '../src/dati/esempio';
 import { aggiornaDati, type Dati } from '../src/dominio/tipi';
 import { calcolaReport, requisitiMancanti } from '../src/dominio/compliance';
 import { applica, ruoloNelCorso, type Comando } from '../src/dominio/motore';
-import { chapterInCorso, generaSettimana, lunediDi, statoTeorico } from '../src/dominio/pianificazione';
-import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, chapterPrevisti } from '../src/dominio/programmi';
-import { registrazioniDi } from '../src/dominio/viste';
+import { chapterInCorso, generaSettimana, lunediDi, orariLezioni, statoTeorico } from '../src/dominio/pianificazione';
+import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, chapterPrevisti, programmaTeorico } from '../src/dominio/programmi';
+import { impegniDi, registrazioniDi } from '../src/dominio/viste';
 
 const ctx = (utenteId: string) => ({ utenteId, ora: '2026-09-22T10:00:00.000Z', oggi: '2026-09-22' });
 const dati = datiEsempio();
@@ -136,7 +136,7 @@ describe('motore', () => {
 
   it('il direttore prepara il programma del suo corso, l’istruttore no', () => {
     const giorni = ['2026-10-05'];
-    const lezioni = [{ id: 'l-x', corso_id: C2, data: '2026-10-05', ordine: 0, minuti: 60, materia: TEORICO.materie[0].id, chapter: '', istruttore_id: 'u-rinaldi', aula: '', tipo: 'lezione' as const, note: '' }];
+    const lezioni = [{ id: 'l-x', corso_id: C2, data: '2026-10-05', ordine: 0, parte: 0, minuti: 60, materia: TEORICO.materie[0].id, chapter: '', istruttore_id: 'u-rinaldi', aula: '', tipo: 'lezione' as const, note: '' }];
     const cmd: Comando = { tipo: 'lezioni.sostituisci', corso_id: C2, giorni, lezioni };
     expect(applica(dati, cmd, ctx('u-neri')).dati.lezioni.some((l) => l.id === 'l-x')).toBe(true);
     expect(() => applica(dati, cmd, ctx('u-rinaldi'))).toThrow(/Training Manager|permessi/);
@@ -149,7 +149,7 @@ describe('motore', () => {
     // il gruppo «Navigation» ha 14 ore per i chapter 34…42A; 35 (Oxygen) e 38 (Water/Waste) non sono applicabili
     const navigation = TEORICO.materie.find((m) => m.titolo === 'Navigation')!;
     expect(chapterPrevisti(navigation).map((v) => v.chapter)).toEqual(['34', '36', '36A', '37', '40', '42', '42A']);
-    const lezione = (chapter: string, ordine = 0) => ({ id: `l-ch${ordine}`, corso_id: C2, data: '2026-10-05', ordine, minuti: 60, materia: navigation.id, chapter, istruttore_id: null, aula: '', tipo: 'lezione' as const, note: '' });
+    const lezione = (chapter: string, ordine = 0) => ({ id: `l-ch${ordine}`, corso_id: C2, data: '2026-10-05', ordine, parte: 0, minuti: 60, materia: navigation.id, chapter, istruttore_id: null, aula: '', tipo: 'lezione' as const, note: '' });
     const salva = (...lezioni: ReturnType<typeof lezione>[]) => applica(dati, { tipo: 'lezioni.sostituisci', corso_id: C2, giorni: ['2026-10-05'], lezioni }, ctx('u-neri')).dati.lezioni.filter((l) => l.data === '2026-10-05');
     expect(salva(lezione('36'), lezione('', 1)).map((l) => l.chapter)).toEqual(['36', '34']); // senza indicazione: il primo previsto
     expect(() => salva(lezione('35'))).toThrow(/non previsto dal syllabus/); // nel programma ma non applicabile
@@ -160,6 +160,52 @@ describe('motore', () => {
     expect(chapterInCorso(navigation, salva(lezione('34'), lezione('37', 1)))).toBe('37');
     // i periodi non didattici non hanno chapter
     expect(salva({ ...lezione('36'), tipo: 'meo' as never })[0]).toMatchObject({ materia: '', chapter: '' });
+  });
+
+  it('più lezioni brevi si dividono un periodo: insieme non superano l’ora e si susseguono senza pausa', () => {
+    const parte = (id: string, n: number, minuti: number, ordine = 0) => ({ id, corso_id: C2, data: '2026-10-05', ordine, parte: n, minuti, materia: TEORICO.materie[0].id, chapter: '', istruttore_id: null, aula: '', tipo: 'lezione' as const, note: '' });
+    const salva = (...lezioni: ReturnType<typeof parte>[]) => applica(dati, { tipo: 'lezioni.sostituisci', corso_id: C2, giorni: ['2026-10-05'], lezioni }, ctx('u-neri')).dati.lezioni.filter((l) => l.data === '2026-10-05');
+    const orari = (lezioni: ReturnType<typeof salva>) => [...orariLezioni(lezioni).values()].map((o) => `${o.inizio}-${o.fine}`);
+    // due mezz'ore nella prima ora, poi 15 + 15 + 30 nella seconda
+    expect(orari(salva(parte('a', 0, 30), parte('b', 1, 30)))).toEqual(['08:20-08:50', '08:50-09:20']);
+    expect(orari(salva(parte('a', 0, 15, 1), parte('b', 1, 15, 1), parte('c', 2, 30, 1)))).toEqual(['09:30-09:45', '09:45-10:00', '10:00-10:30']);
+    expect(orari(salva(parte('a', 0, 45), parte('b', 1, 15)))).toEqual(['08:20-09:05', '09:05-09:20']);
+    // la posizione nel periodo si rinumera di seguito, nell'ordine indicato
+    expect(salva(parte('z', 3, 15), parte('y', 1, 30)).map((l) => [l.id, l.parte])).toEqual([['y', 0], ['z', 1]]);
+    expect(() => salva(parte('a', 0, 45), parte('b', 1, 30))).toThrow(/non possono superare 60 minuti/);
+    expect(() => salva(parte('a', 0, 30), parte('b', 1, 30), parte('c', 2, 15))).toThrow(/non possono superare 60 minuti/);
+    // il conto a scalare somma le lezioni, comunque siano divise
+    expect(statoTeorico(TEORICO, salva(parte('a', 0, 30), parte('b', 1, 15))).totale.pianificati).toBe(45);
+  });
+
+  it('la generazione riempie l’ora anche quando una materia finisce a metà periodo', () => {
+    // nell'UC-228 molte materie durano 30 o 90 minuti: il resto dell'ora va alla materia successiva
+    const uc = programmaTeorico('mtt-uc228-b11')!;
+    const proposte = generaSettimana(uc, [], '2026-09-14');
+    const perPeriodo = new Map<string, typeof proposte>();
+    for (const p of proposte) perPeriodo.set(`${p.data}|${p.ordine}`, [...(perPeriodo.get(`${p.data}|${p.ordine}`) ?? []), p]);
+    expect(perPeriodo.size).toBe(27);
+    expect([...perPeriodo.values()].every((parti) => parti.reduce((s, p) => s + p.minuti, 0) === 60)).toBe(true);
+    const divisi = [...perPeriodo.values()].filter((parti) => parti.length > 1);
+    expect(divisi.length).toBeGreaterThan(0);
+    expect(divisi.every((parti) => parti.map((p) => p.parte).join() === parti.map((_, i) => i).join() && new Set(parti.map((p) => p.materia)).size === parti.length)).toBe(true);
+  });
+
+  it('l’istruttore vede le sue lezioni da oggi in poi, solo dei programmi validati, in tutti i suoi corsi', () => {
+    const oggi = '2026-09-16';
+    const suoi = impegniDi(dati, 'u-rinaldi', oggi);
+    expect(suoi.length).toBeGreaterThan(0);
+    expect(suoi.every((i) => i.lezione.istruttore_id === 'u-rinaldi' && i.lezione.validata && i.lezione.data >= oggi)).toBe(true);
+    // la seconda settimana del secondo corso non è ancora validata: le sue lezioni non compaiono
+    const daValidare = dati.lezioni.filter((l) => l.istruttore_id === 'u-rinaldi' && !l.validata && l.data >= oggi);
+    expect(daValidare.length).toBeGreaterThan(0);
+    expect(suoi.map((i) => i.lezione.id)).toEqual(dati.lezioni.filter((l) => l.istruttore_id === 'u-rinaldi' && l.validata && l.data >= oggi).sort((a, b) => a.data.localeCompare(b.data) || a.ordine - b.ordine).map((l) => l.id));
+    expect(new Set(suoi.map((i) => i.corso.id))).toEqual(new Set([C1, C2])); // il recupero del 17/09 nel primo corso, la teoria nel secondo
+    expect(suoi[0].orario).toEqual({ inizio: expect.stringMatching(/^\d\d:\d\d$/), fine: expect.stringMatching(/^\d\d:\d\d$/) });
+    // dopo la validazione compaiono anche quelle; chi non insegna non ha impegni
+    const validati = applica(dati, { tipo: 'settimana.valida', corso_id: C2, giorni: [...new Set(daValidare.map((l) => l.data))], valida: true }, ctx('u-neri')).dati;
+    expect(impegniDi(validati, 'u-rinaldi', oggi)).toHaveLength(suoi.length + daValidare.length);
+    expect(impegniDi(dati, 'u-gallo', oggi)).toEqual([]);
   });
 
   it('abilitazioni: solo TM e direttore, e solo su materie del programma', () => {
@@ -189,7 +235,7 @@ describe('motore', () => {
     expect(dopo.iscrizioni.filter((i) => i.corso_id === C2 && i.ruolo === 'direttore').map((i) => i.user_id)).toEqual(['u-rinaldi']);
     expect(ruoloNelCorso(dopo, utente(dopo, 'u-neri'), C2)).toBe('instructor'); // chi lascia resta istruttore
     expect(ruoloNelCorso(dopo, utente(dopo, 'u-neri'), C1)).toBe('direttore'); // l'altro corso non cambia
-    const lezioni = [{ id: 'l-d', corso_id: C2, data: '2026-10-05', ordine: 0, minuti: 60, materia: TEORICO.materie[0].id, chapter: '', istruttore_id: null, aula: '', tipo: 'lezione' as const, note: '' }];
+    const lezioni = [{ id: 'l-d', corso_id: C2, data: '2026-10-05', ordine: 0, parte: 0, minuti: 60, materia: TEORICO.materie[0].id, chapter: '', istruttore_id: null, aula: '', tipo: 'lezione' as const, note: '' }];
     const cmd: Comando = { tipo: 'lezioni.sostituisci', corso_id: C2, giorni: ['2026-10-05'], lezioni };
     expect(applica(dopo, cmd, ctx('u-rinaldi')).dati.lezioni.some((l) => l.id === 'l-d')).toBe(true);
     expect(() => applica(dopo, cmd, ctx('u-neri'))).toThrow(/Training Manager|permessi/);

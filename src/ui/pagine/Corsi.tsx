@@ -9,6 +9,7 @@ import { corsiDi, ruoloNelCorso, type CampiCorso } from '../../dominio/motore';
 import type { Corso } from '../../dominio/tipi';
 import { chiaveOrdine, direttoreDi, formatoData, frequentatori, iscritti, lezioniVisibili, nomeUtente, ore, situazione } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
+import { MieLezioni } from '../componenti/MieLezioni';
 import { link, ricordaCorso } from '../navigazione';
 import { naviga } from '../router';
 import { useStato } from '../stato';
@@ -34,6 +35,7 @@ export function Corsi() {
         sotto={elenco.length === 1 ? '1 corso' : `${elenco.length} corsi`}
         azioni={admin ? <Button leftSection={<IconPlus size={17} />} onClick={() => setModifica('nuovo')}>Nuovo corso</Button> : undefined}
       />
+      <MieLezioni />
       {elenco.length === 0 ? (
         <p className="debole">Nessun corso: {admin ? 'creane uno con «Nuovo corso».' : 'il Training Manager deve iscriverti a un corso.'}</p>
       ) : (

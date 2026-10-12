@@ -143,7 +143,9 @@ create table if not exists public.lezioni (
   id uuid primary key default gen_random_uuid(),
   corso_id uuid not null references public.corsi on delete cascade,
   data date not null,
+  -- periodo della giornata e posizione dentro il periodo: più lezioni brevi possono dividersi la stessa ora
   ordine int not null check (ordine between 0 and 40),
+  parte int not null default 0 check (parte between 0 and 3),
   -- una lezione dura al massimo un'ora (poi la pausa) e si compone a quarti d'ora
   minuti int not null check (minuti between 15 and 60 and minuti % 15 = 0),
   -- id della materia nel programma teorico del corso e chapter svolto, fra quelli previsti dal syllabus per la materia
@@ -161,8 +163,7 @@ create table if not exists public.lezioni (
   note text not null default '' check (length(note) <= 300),
   creato_il timestamptz not null default now(),
   modificato_il timestamptz not null default now(),
-  modificato_da uuid,
-  unique (corso_id, data, ordine)
+  modificato_da uuid
 );
 create index if not exists lezioni_corso on public.lezioni (corso_id, data);
 -- aggiornamento di installazioni precedenti
@@ -181,6 +182,10 @@ alter table public.lezioni drop constraint if exists lezioni_minuti_check;
 alter table public.lezioni add constraint lezioni_minuti_check check (minuti between 15 and 60 and minuti % 15 = 0) not valid;
 alter table public.lezioni add column if not exists aula text not null default '' check (length(aula) <= 40);
 alter table public.lezioni add column if not exists chapter text not null default '' check (length(chapter) <= 20);
+alter table public.lezioni add column if not exists parte int not null default 0 check (parte between 0 and 3);
+-- prima c'era una sola lezione per periodo
+alter table public.lezioni drop constraint if exists lezioni_corso_id_data_ordine_key;
+create unique index if not exists lezioni_periodo_parte on public.lezioni (corso_id, data, ordine, parte);
 
 -- rapportino presenze: una riga per giornata di corso, compilata dai frequentatori e validata da chi guida
 create table if not exists public.rapportini (

@@ -20,6 +20,7 @@ const lez = (id: string, data: string, ordine: number, minuti: number, materia: 
   corso_id: C1,
   data,
   ordine,
+  parte: 0,
   minuti,
   materia,
   chapter: '',
@@ -65,6 +66,14 @@ describe('assenze', () => {
     expect(uscita.minuti).toBe(120);
     expect(assenzeDi(TEORICO, giornata, [rap('2026-09-14')], [pres('2026-09-14', 'u1', 'assente')], 'u1').assenze).toHaveLength(3);
     expect(assenzeDi(TEORICO, giornata, [rap('2026-09-14')], [pres('2026-09-14', 'u1', 'presente')], 'u1').minuti).toBe(0);
+  });
+
+  it('periodo diviso in due lezioni: chi esce a metà è assente solo alla seconda', () => {
+    // 08:20-08:50 e 08:50-09:20 nella stessa ora
+    const divisa = [lez('p1', '2026-09-14', 0, 30, M[0].id), { ...lez('p2', '2026-09-14', 0, 30, M[1].id), parte: 1 }];
+    const esce = assenzeDi(TEORICO, divisa, [rap('2026-09-14')], [pres('2026-09-14', 'u1', 'parziale', '08:00', '08:55')], 'u1');
+    expect(esce.assenze.map((a) => [a.lezione.id, a.orario.inizio, a.orario.fine])).toEqual([['p2', '08:50', '09:20']]);
+    expect(esce.minuti).toBe(30);
   });
 
   it('senza rapportino non si contano assenze; orario standard 08:00-16:30, il venerdì 08:00-12:00', () => {
@@ -169,7 +178,7 @@ describe('motore: rapportino e validazione', () => {
 
   it('il programma si vede solo dopo la validazione e ogni modifica la ritira', () => {
     const giorni = ['2026-10-05'];
-    const lezione = { id: 'l-v', corso_id: C2, data: '2026-10-05', ordine: 0, minuti: 45, materia: M[0].id, chapter: '', istruttore_id: 'u-rinaldi', aula: '', tipo: 'lezione' as const, note: '' };
+    const lezione = { id: 'l-v', corso_id: C2, data: '2026-10-05', ordine: 0, parte: 0, minuti: 45, materia: M[0].id, chapter: '', istruttore_id: 'u-rinaldi', aula: '', tipo: 'lezione' as const, note: '' };
     const messe = applica(dati, { tipo: 'lezioni.sostituisci', corso_id: C2, giorni, lezioni: [lezione] }, ctx('u-neri')).dati;
     expect(messe.lezioni.find((l) => l.id === 'l-v')!.validata).toBe(false);
     expect(lezioniVisibili(messe, C2, 'trainee').some((l) => l.id === 'l-v')).toBe(false);

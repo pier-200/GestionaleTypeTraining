@@ -6,7 +6,7 @@ import type { Lezione } from './tipi';
  * Le lezioni seguono l'ordine del programma; una materia lunga si spezza su più giorni.
  */
 
-/** Durata massima di una lezione: un'ora, poi la pausa. */
+/** Durata di un periodo: un'ora di lezione, poi la pausa. Una o più lezioni la riempiono a quarti d'ora. */
 export const MINUTI_PERIODO = 60;
 
 /**
@@ -109,6 +109,7 @@ export function statoTeorico(programma: ProgrammaTeorico, lezioni: readonly Lezi
 export interface Proposta {
   data: string;
   ordine: number;
+  parte: number;
   minuti: number;
   materia: string;
   chapter: string;
@@ -144,11 +145,15 @@ export function generaSettimana(programma: ProgrammaTeorico, lezioni: readonly L
     if (salta.has(data)) return;
     for (let ordine = 0; ordine < periodiDelGiorno(i); ordine++) {
       if (lezioni.some((l) => l.data === data && l.ordine === ordine)) continue;
-      const materia = programma.materie.find((m) => (residui.get(m.id) ?? 0) > 0);
-      if (!materia) return;
-      const minuti = Math.min(residui.get(materia.id)!, MINUTI_PERIODO);
-      proposte.push({ data, ordine, minuti, materia: materia.id, chapter: chapterInCorso(materia, lezioni), istruttore_id: opzioni.istruttorePerMateria?.(materia) ?? null });
-      residui.set(materia.id, residui.get(materia.id)! - minuti);
+      // se la materia finisce prima dell'ora, il resto del periodo va alla materia successiva
+      for (let parte = 0, liberi = MINUTI_PERIODO; liberi > 0; parte++) {
+        const materia = programma.materie.find((m) => (residui.get(m.id) ?? 0) > 0);
+        if (!materia) return;
+        const minuti = Math.min(residui.get(materia.id)!, liberi);
+        proposte.push({ data, ordine, parte, minuti, materia: materia.id, chapter: chapterInCorso(materia, lezioni), istruttore_id: opzioni.istruttorePerMateria?.(materia) ?? null });
+        residui.set(materia.id, residui.get(materia.id)! - minuti);
+        liberi -= minuti;
+      }
     }
   });
   return proposte;
@@ -157,10 +162,32 @@ export function generaSettimana(programma: ProgrammaTeorico, lezioni: readonly L
 const inMinuti = (orario: string) => Number(orario.slice(0, 2)) * 60 + Number(orario.slice(3));
 const inOrario = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 
-/** Orario di un periodo: l'inizio è fisso, la fine segue la durata della lezione (un'ora al massimo). */
-export function orarioPeriodo(ordine: number, durata = MINUTI_PERIODO) {
-  const inizio = ORARI_PERIODI[ordine] ?? ORARI_PERIODI[0];
-  return { inizio, fine: inOrario(inMinuti(inizio) + durata) };
+export interface Orario {
+  inizio: string;
+  fine: string;
+}
+
+/** Orario dentro un periodo: il periodo inizia a ora fissa, la lezione dopo i minuti di quelle che la precedono. */
+export function orarioPeriodo(ordine: number, durata = MINUTI_PERIODO, dopo = 0): Orario {
+  const inizio = inMinuti(ORARI_PERIODI[ordine] ?? ORARI_PERIODI[0]) + dopo;
+  return { inizio: inOrario(inizio), fine: inOrario(inizio + durata) };
+}
+
+/** Lezioni in ordine di svolgimento: giorno, periodo e posizione nel periodo. */
+export const inOrdine = <T extends Pick<Lezione, 'data' | 'ordine' | 'parte'>>(lezioni: readonly T[]): T[] =>
+  [...lezioni].sort((a, b) => a.data.localeCompare(b.data) || a.ordine - b.ordine || a.parte - b.parte);
+
+/** Orario di ogni lezione: quelle che si dividono un periodo si susseguono senza pausa. */
+export function orariLezioni(lezioni: readonly Pick<Lezione, 'id' | 'data' | 'ordine' | 'parte' | 'minuti'>[]): Map<ID, Orario> {
+  const orari = new Map<ID, Orario>();
+  let periodo = '';
+  let dopo = 0;
+  for (const l of inOrdine(lezioni)) {
+    if (periodo !== `${l.data}|${l.ordine}`) [periodo, dopo] = [`${l.data}|${l.ordine}`, 0];
+    orari.set(l.id, orarioPeriodo(l.ordine, l.minuti, dopo));
+    dopo += l.minuti;
+  }
+  return orari;
 }
 
 /** Settimana di corso (1 = quella della data di inizio) e settimane di ritardo oltre la data stimata di fine. */

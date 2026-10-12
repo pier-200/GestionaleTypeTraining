@@ -122,8 +122,10 @@ export interface Lezione {
   id: ID;
   corso_id: ID;
   data: string;
-  /** Posizione nella giornata (0 = prima lezione). */
+  /** Periodo della giornata (0 = il primo, alle 08:20). */
   ordine: number;
+  /** Posizione dentro il periodo: più lezioni brevi possono dividersi la stessa ora (0 = la prima). */
+  parte: number;
   minuti: number;
   /** Materia del programma: il gruppo di chapter che condivide le ore di lezione. */
   materia: string;
@@ -293,7 +295,7 @@ export function aggiornaDati(d: Dati): Dati {
     utenti: d.utenti.map((u) => ({ ...u, grado: u.grado ?? '', cognome: u.cognome ?? '', ruolo: (u.ruolo as string) === 'direttore' ? 'instructor' : u.ruolo })),
     corsi: d.corsi.map((c) => ({ ...c, durata_settimane: c.durata_settimane ?? null, aula: c.aula ?? '', gruppo_firma: c.gruppo_firma ?? '' })),
     anagrafiche: d.anagrafiche.map((a) => ({ ...a, ente: a.ente ?? '' })),
-    lezioni: d.lezioni.map((l) => ({ ...l, aula: l.aula ?? '', chapter: l.chapter ?? '' })),
+    lezioni: d.lezioni.map((l) => ({ ...l, aula: l.aula ?? '', chapter: l.chapter ?? '', parte: l.parte ?? 0 })),
   };
 }
 

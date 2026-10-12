@@ -1,27 +1,41 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
-import { giorniSettimana, orarioPeriodo, periodiDelGiorno, settimanaDiCorso } from './dominio/pianificazione';
-import { materiaDi, programmaTeorico, voceLezione } from './dominio/programmi';
+import { giorniSettimana, inOrdine, orariLezioni, orarioPeriodo, periodiDelGiorno, settimanaDiCorso } from './dominio/pianificazione';
+import { programmaTeorico } from './dominio/programmi';
 import type { CampiLezione } from './dominio/motore';
-import { ETICHETTA_PERIODO, SIGLA_PERIODO, conMateria, type Corso, type Dati } from './dominio/tipi';
-import { direttoreDi, formatoDataBreve, frequentatori, gradoCognome, nomeModulo } from './dominio/viste';
+import { SIGLA_PERIODO, type Corso, type Dati } from './dominio/tipi';
+import { contenutoLezione, direttoreDi, formatoDataBreve, frequentatori, gradoCognome, nomeModulo } from './dominio/viste';
 import { pulisciNome, scarica } from './esporta';
 
 /**
  * Programma settimanale sul modulo ufficiale: il foglio è quello di public/modelli/programma-settimanale.xlsx
  * (preparato da scripts/modulo_settimanale.py) e si scrivono solo i valori nelle celle, che conservano stile,
- * unioni e impostazione di stampa. Da Excel si stampa in PDF così com'è, su una pagina A4.
+ * unioni e impostazione di stampa. Quando più lezioni si dividono un periodo la tabella prende una riga in più
+ * per ciascuna e il resto del modulo scende. Da Excel si stampa in PDF così com'è, su una pagina A4.
  */
 
 type Valore = string | number | null;
+/** Una riga della tabella delle lezioni. */
+export type RigaLezione = [orario: string, addestramento: Valore, codice: Valore, istruttore: Valore, aula: Valore];
 
 const FOGLIO = 'xl/worksheets/sheet1.xml';
 const CARTELLA = 'xl/workbook.xml';
 const NOME_FOGLIO = 'SETTIMANA';
 
-/** Prima riga di ciascun giorno, da lunedì a venerdì. */
-const RIGA_GIORNO = [11, 18, 25, 32, 39];
-/** Riga di ciascun periodo dentro la giornata: fra il quarto e il quinto c'è la pausa pranzo. */
-const RIGA_PERIODO = [0, 1, 2, 3, 5, 6];
+/** Prima e ultima riga di ciascun giorno nel modulo, da lunedì a venerdì. */
+const RIGHE_GIORNO = [
+  [11, 17],
+  [18, 24],
+  [25, 31],
+  [32, 38],
+  [39, 41],
+];
+const PRIMA_RIGA_LEZIONI = 11;
+const ULTIMA_RIGA_LEZIONI = 41;
+const ULTIMA_RIGA = 63;
+/** Dopo quattro periodi il modulo ha la riga della pausa pranzo. */
+const PERIODI_DEL_MATTINO = 4;
+/** Righe che stanno in una pagina alla scala del modulo: oltre, la stampa si riduce per restare in un foglio. */
+const RIGHE_IN_PAGINA = 66;
 const SIGLA_GIORNO = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven'];
 /** Elenco dei frequentatori: due colonne da 8 righe a partire da questa. */
 const RIGA_FREQUENTATORI = 47;
@@ -32,10 +46,8 @@ const BARRATO = '////';
 const seriale = (iso: string | null) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86_400_000 + 25569 : null);
 const settimane = (n: number | null) => (n ? `${n} settiman${n === 1 ? 'a' : 'e'}` : null);
 
-/** Valore di ogni cella compilabile del modulo, per la settimana che inizia il lunedì indicato. */
-export function celleSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]): Record<string, Valore> {
-  const programma = programmaTeorico(corso.programma_teorico);
-  if (!programma) throw new Error('Il corso non prevede la parte teorica.');
+/** Celle a posizione fissa: intestazione, direttore, frequentatori e gruppo firma. */
+export function celleFisse(dati: Dati, corso: Corso, lunedi: string): Record<string, Valore> {
   const allievi = frequentatori(dati, corso.id);
   // ponytail: il modulo ha 16 righe fisse; oltre servirebbe un secondo foglio, da aggiungere se mai capita un corso più numeroso
   if (allievi.length > POSTI_FREQUENTATORI) throw new Error(`Il modulo ha ${POSTI_FREQUENTATORI} righe per i frequentatori: il corso ne ha ${allievi.length}.`);
@@ -50,25 +62,6 @@ export function celleSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni
     C43: nomeModulo(dati, direttoreDi(dati, corso.id)?.id),
     F58: corso.gruppo_firma,
   };
-  giorniSettimana(lunedi).forEach((data, g) => {
-    celle[`A${RIGA_GIORNO[g]}`] = `${SIGLA_GIORNO[g]}\n${formatoDataBreve(data)}`;
-    for (let ordine = 0; ordine < periodiDelGiorno(g); ordine++) {
-      const riga = RIGA_GIORNO[g] + RIGA_PERIODO[ordine];
-      const l = lezioni.find((x) => x.data === data && x.ordine === ordine);
-      const materia = l && conMateria(l.tipo) ? materiaDi(programma, l.materia) : undefined;
-      // chapter della lezione: il suo numero va in COD., il suo titolo in ADDESTRAMENTO
-      const voce = l && materia ? voceLezione(materia, l.chapter) : undefined;
-      const orario = orarioPeriodo(ordine, l?.minuti);
-      // i periodi non didattici hanno la loro sigla
-      const codice = voce ? voce.chapter : l ? (l.tipo === 'sospensione' ? BARRATO : SIGLA_PERIODO[l.tipo]) : null;
-      celle[`B${riga}`] = `${orario.inizio}-${orario.fine}`;
-      celle[`C${riga}`] = !l ? null : voce ? `${voce.subject}${l.tipo === 'recupero' ? ' (recupero)' : ''}` : ETICHETTA_PERIODO[l.tipo];
-      // numero se Excel lo riscrive uguale ("34"), testo altrimenti ("05", "32A", "AVES 1")
-      celle[`G${riga}`] = codice && /^[1-9]\d*$/.test(codice) ? Number(codice) : codice;
-      celle[`H${riga}`] = l ? gradoCognome(dati, l.istruttore_id) : null;
-      celle[`I${riga}`] = !l ? null : l.tipo === 'sospensione' ? BARRATO : l.aula || corso.aula;
-    }
-  });
   for (let i = 0; i < POSTI_FREQUENTATORI; i++) {
     const riga = RIGA_FREQUENTATORI + (i % 8);
     const [nome, ente] = i < 8 ? ['B', 'D'] : ['G', 'I'];
@@ -79,9 +72,40 @@ export function celleSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni
   return celle;
 }
 
+/**
+ * Righe della tabella, per giorno e per periodo: una per lezione (le lezioni che si dividono un periodo
+ * hanno ciascuna la sua, con il proprio orario), una vuota per i periodi liberi.
+ */
+export function righeSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]): RigaLezione[][][] {
+  const programma = programmaTeorico(corso.programma_teorico);
+  if (!programma) throw new Error('Il corso non prevede la parte teorica.');
+  const orari = orariLezioni(lezioni);
+  const intervallo = (o: { inizio: string; fine: string }) => `${o.inizio}-${o.fine}`;
+  return giorniSettimana(lunedi).map((data, g) =>
+    Array.from({ length: periodiDelGiorno(g) }, (_, ordine): RigaLezione[] => {
+      const delPeriodo = inOrdine(lezioni.filter((l) => l.data === data && l.ordine === ordine));
+      if (!delPeriodo.length) return [[intervallo(orarioPeriodo(ordine)), null, null, null, null]];
+      return delPeriodo.map((l) => {
+        // chapter della lezione: il suo numero va in COD., il suo titolo in ADDESTRAMENTO; i periodi non didattici hanno la loro sigla
+        const { chapter, titolo } = contenutoLezione(programma, l);
+        const sospesa = l.tipo === 'sospensione';
+        const codice = chapter ?? (sospesa ? BARRATO : SIGLA_PERIODO[l.tipo]);
+        return [
+          intervallo(orari.get(l.id)!),
+          `${titolo}${l.tipo === 'recupero' ? ' (recupero)' : ''}`,
+          // numero se Excel lo riscrive uguale ("34"), testo altrimenti ("05", "32A", "AVES 1")
+          /^[1-9]\d*$/.test(codice) ? Number(codice) : codice,
+          gradoCognome(dati, l.istruttore_id),
+          sospesa ? BARRATO : l.aula || corso.aula,
+        ];
+      });
+    }),
+  );
+}
+
 const testoXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/** Scrive i valori nelle celle del foglio: ogni cella conserva il proprio stile. */
+/** Scrive i valori nelle celle indicate: ogni cella conserva il proprio stile. */
 export function compilaFoglio(foglio: string, celle: Record<string, Valore>): string {
   for (const [cella, v] of Object.entries(celle)) {
     let trovata = false;
@@ -96,13 +120,76 @@ export function compilaFoglio(foglio: string, celle: Record<string, Valore>): st
   return foglio;
 }
 
+/** Il foglio del modulo compilato, e di quante righe si è allungato rispetto all'originale. */
+export function foglioSettimana(modello: string, dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]): { foglio: string; righeInPiu: number } {
+  const foglio = compilaFoglio(modello, celleFisse(dati, corso, lunedi));
+  const rigaDelModulo = (n: number) => {
+    const riga = foglio.match(new RegExp(`<row r="${n}"[^>]*>[\\s\\S]*?</row>`))?.[0];
+    if (!riga) throw new Error(`Modulo del programma settimanale non riconosciuto: manca la riga ${n}.`);
+    return riga;
+  };
+  /** Copia di una riga del modulo, portata al numero indicato e compilata. */
+  const copia = (da: number, a: number, valori: Record<string, Valore>) =>
+    compilaFoglio(
+      rigaDelModulo(da).replace(`<row r="${da}"`, `<row r="${a}"`).replace(/<c r="([A-Z]+)\d+"/g, `<c r="$1${a}"`),
+      Object.fromEntries(Object.entries(valori).map(([colonna, v]) => [`${colonna}${a}`, v])),
+    );
+
+  const date = giorniSettimana(lunedi);
+  const righe: string[] = [];
+  const unioni: string[] = [];
+  let n = PRIMA_RIGA_LEZIONI;
+  righeSettimana(dati, corso, lunedi, lezioni).forEach((periodi, g) => {
+    const [prima, ultima] = RIGHE_GIORNO[g];
+    const inizio = n;
+    let t = prima; // riga del modulo che corrisponde al periodo
+    periodi.forEach((lezioniDelPeriodo, ordine) => {
+      if (ordine === PERIODI_DEL_MATTINO) righe.push(copia(t++, n++, {})); // pausa pranzo, com'è nel modulo
+      lezioniDelPeriodo.forEach(([orario, addestramento, codice, istruttore, aula], i) => {
+        // la riga del modulo porta i bordi del periodo (in testa o in coda alla giornata);
+        // le altre lezioni dello stesso periodo prendono quelli di una riga interna
+        const suaRiga = t === ultima ? i === lezioniDelPeriodo.length - 1 : i === 0;
+        righe.push(copia(suaRiga ? t : prima + 1, n, { A: n === inizio ? `${SIGLA_GIORNO[g]}\n${formatoDataBreve(date[g])}` : null, B: orario, C: addestramento, G: codice, H: istruttore, I: aula }));
+        n++;
+      });
+      t++;
+    });
+    unioni.push(`A${inizio}:A${n - 1}`);
+  });
+  for (let r = PRIMA_RIGA_LEZIONI; r < n; r++) unioni.push(`C${r}:F${r}`);
+  const righeInPiu = n - 1 - ULTIMA_RIGA_LEZIONI;
+
+  // sotto la tabella tutto scende delle righe aggiunte: righe, celle, unioni
+  const giu = (riga: string) => Number(riga) + righeInPiu;
+  const testa = foglio.slice(0, foglio.indexOf(`<row r="${PRIMA_RIGA_LEZIONI}"`)).replace(/(<dimension ref="A1:[A-Z]+)(\d+)"/, (_, inizio: string, r: string) => `${inizio}${giu(r)}"`);
+  const coda = foglio
+    .slice(foglio.indexOf(`<row r="${ULTIMA_RIGA_LEZIONI + 1}"`))
+    .replace(/<row r="(\d+)"/g, (_, r: string) => `<row r="${giu(r)}"`)
+    .replace(/<c r="([A-Z]+)(\d+)"/g, (_, c: string, r: string) => `<c r="${c}${giu(r)}"`)
+    .replace(/<mergeCells[^>]*>([\s\S]*?)<\/mergeCells>/, (_, elenco: string) => {
+      const altre = [...elenco.matchAll(/ref="([A-Z]+)(\d+):([A-Z]+)(\d+)"/g)].flatMap(([, c1, r1, c2, r2]) =>
+        Number(r1) < PRIMA_RIGA_LEZIONI ? [`${c1}${r1}:${c2}${r2}`] : Number(r1) > ULTIMA_RIGA_LEZIONI ? [`${c1}${giu(r1)}:${c2}${giu(r2)}`] : [],
+      );
+      const tutte = [...altre, ...unioni];
+      return `<mergeCells count="${tutte.length}">${tutte.map((ref) => `<mergeCell ref="${ref}"/>`).join('')}</mergeCells>`;
+    })
+    // con molte righe in più la scala si riduce quanto basta a restare in una pagina
+    .replace(/(<pageSetup[^>]*? scale=")(\d+)"/, (_, inizio: string, scala: string) => `${inizio}${Math.min(Number(scala), Math.floor((Number(scala) * RIGHE_IN_PAGINA) / (ULTIMA_RIGA + righeInPiu)))}"`);
+  return { foglio: testa + righe.join('') + coda, righeInPiu };
+}
+
 /** Il file Excel della settimana, a partire dal modulo vuoto. */
 export function creaModuloSettimana(modello: Uint8Array, dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]): Uint8Array {
   const parti = unzipSync(modello);
   const { numero } = settimanaDiCorso(corso, lunedi);
-  parti[FOGLIO] = strToU8(compilaFoglio(strFromU8(parti[FOGLIO]), celleSettimana(dati, corso, lunedi, lezioni)));
-  // il foglio prende il numero della settimana, come nell'originale ("10 SETTIMANA")
-  if (numero) parti[CARTELLA] = strToU8(strFromU8(parti[CARTELLA]).replaceAll(NOME_FOGLIO, `${numero} ${NOME_FOGLIO}`));
+  const { foglio, righeInPiu } = foglioSettimana(strFromU8(parti[FOGLIO]), dati, corso, lunedi, lezioni);
+  parti[FOGLIO] = strToU8(foglio);
+  // l'area di stampa segue le righe aggiunte; il foglio prende il numero della settimana, come nell'originale ("10 SETTIMANA")
+  parti[CARTELLA] = strToU8(
+    strFromU8(parti[CARTELLA])
+      .replace(`$I$${ULTIMA_RIGA}<`, `$I$${ULTIMA_RIGA + righeInPiu}<`)
+      .replaceAll(NOME_FOGLIO, numero ? `${numero} ${NOME_FOGLIO}` : NOME_FOGLIO),
+  );
   return zipSync(parti);
 }
 

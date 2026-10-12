@@ -1,4 +1,4 @@
-import { indiceGiorno, orarioPeriodo } from './pianificazione';
+import { indiceGiorno, inOrdine, orariLezioni, type Orario } from './pianificazione';
 import { materiaDi, type Materia, type ProgrammaTeorico } from './programmi';
 import type { ID, Lezione, Presenza, Rapportino } from './tipi';
 
@@ -24,13 +24,7 @@ export { indiceGiorno };
 
 export const orarioStandard = (data: string) => ORARIO_STANDARD[indiceGiorno(data)] ?? ORARIO_STANDARD[0];
 
-export interface Orario {
-  inizio: string;
-  fine: string;
-}
-
-/** Orario di ogni lezione: i periodi hanno orari fissi. */
-export const orariLezioni = (lezioni: readonly Lezione[]): Map<ID, Orario> => new Map(lezioni.map((l) => [l.id, orarioPeriodo(l.ordine, l.minuti)]));
+export { orariLezioni, type Orario };
 
 /** Presenza del frequentatore in quel giorno: senza rapportino non c'è rilevazione. */
 const presenzaDi = (presenze: readonly Presenza[], data: string, userId: ID) => presenze.find((p) => p.data === data && p.user_id === userId);
@@ -85,15 +79,16 @@ export function assenzeDi(
   presenze: readonly Presenza[],
   userId: ID,
 ): SituazioneAssenze {
+  const orari = orariLezioni(lezioni);
   const rilevate = new Map(rapportini.map((r) => [r.data, r]));
   const mie = presenze.filter((p) => p.user_id === userId);
   const assenze: AssenzaLezione[] = [];
   const recuperi = new Map<string, number>();
 
-  for (const l of [...lezioni].sort((a, b) => a.data.localeCompare(b.data) || a.ordine - b.ordine)) {
+  for (const l of inOrdine(lezioni)) {
     const rapportino = rilevate.get(l.data);
     if (!rapportino) continue; // giornata non rilevata: nessuna assenza da conteggiare
-    const orario = orarioPeriodo(l.ordine, l.minuti);
+    const orario = orari.get(l.id)!;
     const presenza = presenzaDi(mie, l.data, userId);
     const assente = assenteAllaLezione(presenza, orario);
     if (l.tipo === 'recupero') {

@@ -1,6 +1,6 @@
 import { ErroreApp } from './errori';
 import { chapterPrevisti, materiaDi, mdsDi, indice, programmaPratico, programmaTeorico, programmiPer, voceLezione } from './programmi';
-import { MINUTI_PERIODO, indiceGiorno, periodiDelGiorno } from './pianificazione';
+import { MINUTI_PERIODO, inOrdine, indiceGiorno, periodiDelGiorno } from './pianificazione';
 import { conMateria, type Anagrafica, type Certificato, type Corso, type Dati, type DatiTraining, type EsitoProva, type ID, type Iscrizione, type Istruttore, type Lezione, type Presenza, type Rapportino, type Registrazione, type RuoloCorso, type RuoloNelCorso, type StatoCertificato, type StatoPresenza, type TipoCertificato, type TipoEsecuzione, type TipoPeriodo, type Utente } from './tipi';
 
 /**
@@ -22,7 +22,7 @@ export type CampiCorso = Pick<
   Corso,
   'id' | 'codice' | 'nome' | 'mds' | 'categoria' | 'data_inizio' | 'data_fine' | 'durata_settimane' | 'maintenance_organization' | 'location' | 'aula' | 'gruppo_firma' | 'attivo'
 >;
-export type CampiLezione = Pick<Lezione, 'id' | 'corso_id' | 'data' | 'ordine' | 'minuti' | 'materia' | 'chapter' | 'istruttore_id' | 'aula' | 'tipo' | 'note'>;
+export type CampiLezione = Pick<Lezione, 'id' | 'corso_id' | 'data' | 'ordine' | 'parte' | 'minuti' | 'materia' | 'chapter' | 'istruttore_id' | 'aula' | 'tipo' | 'note'>;
 export type CampiPresenza = Pick<Presenza, 'id' | 'user_id' | 'stato' | 'dalle' | 'alle' | 'motivo'>;
 export type CampiCertificato = Omit<Certificato, 'creato_il' | 'creato_da' | 'modificato_il' | 'modificato_da'>;
 
@@ -380,6 +380,9 @@ export function applica(dati: Dati, comando: Comando, ctx: Contesto): Esito {
         if (l.ordine < 0 || l.ordine >= periodiDelGiorno(indiceGiorno(l.data))) v.errori.ordine = 'Periodo fuori dalla giornata';
         // una lezione dura al massimo un'ora (poi c'è la pausa) e si compone a quarti d'ora
         if (!Number.isInteger(l.minuti) || l.minuti < 15 || l.minuti > MINUTI_PERIODO || l.minuti % 15 !== 0) v.errori.minuti = `Durata della lezione non valida: quarti d’ora da 15 a ${MINUTI_PERIODO} minuti`;
+        // più lezioni brevi possono dividersi un periodo, senza superare l'ora
+        const nelPeriodo = comando.lezioni.filter((x) => x.data === l.data && x.ordine === l.ordine).reduce((s, x) => s + x.minuti, 0);
+        if (nelPeriodo > MINUTI_PERIODO) v.errori.periodo = `Le lezioni di un periodo non possono superare ${MINUTI_PERIODO} minuti in tutto`;
         if ((l.aula ?? '').trim().length > 40) v.errori.aula = 'Aula: massimo 40 caratteri';
         if (l.istruttore_id && !iscrittoCome(comando.corso_id, l.istruttore_id, 'instructor') && !iscrittoCome(comando.corso_id, l.istruttore_id, 'direttore')) {
           v.errori.istruttore = 'Istruttore non iscritto al corso';
@@ -388,8 +391,11 @@ export function applica(dati: Dati, comando: Comando, ctx: Contesto): Esito {
       v.verifica();
       const restanti = dati.lezioni.filter((l) => l.corso_id !== comando.corso_id || !giorni.has(l.data));
       // dopo ogni modifica la settimana torna da validare: i frequentatori vedono solo i programmi validati
-      const nuove: Lezione[] = comando.lezioni.map((l) => ({
+      // dentro ogni periodo le lezioni si numerano di seguito, nell'ordine indicato
+      const ordinate = inOrdine(comando.lezioni.map((l) => ({ ...l, parte: Number(l.parte) || 0 })));
+      const nuove: Lezione[] = ordinate.map((l, i) => ({
         ...l,
+        parte: ordinate.slice(0, i).filter((x) => x.data === l.data && x.ordine === l.ordine).length,
         materia: conMateria(l.tipo) ? l.materia : '',
         chapter: conMateria(l.tipo) ? voceLezione(materiaDi(p, l.materia)!, l.chapter ?? '').chapter : '',
         aula: (l.aula ?? '').trim(),

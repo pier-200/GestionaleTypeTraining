@@ -1745,6 +1745,85 @@ button.periodo {
 .periodo.t-esame {
   background: var(--arancio-tenue);
 }
+/* la lezione di chi è collegato */
+.periodo.mia {
+  box-shadow: inset 3px 0 0 var(--verde);
+  background: var(--verde-tenue);
+}
+/* più lezioni nello stesso periodo: una riga ciascuna, con il proprio orario */
+.periodo-parti {
+  display: grid;
+  height: 100%;
+}
+.periodo-parti.diviso {
+  align-content: stretch;
+}
+.periodo.parte {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  font-size: var(--fs-xs);
+}
+.periodo.parte + .periodo.parte {
+  border-top: 1px dashed var(--bordo-forte);
+}
+.periodo.parte .periodo-materia {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  text-overflow: ellipsis;
+}
+.periodo.parte .codice-materia,
+.periodo.parte .periodo-istruttore {
+  flex: none;
+  max-width: 40%;
+}
+
+/* le lezioni dell'istruttore collegato, da oggi in poi: un blocco per giorno */
+#mie-lezioni {
+  margin: 8px 0 28px;
+}
+.mie-lezioni {
+  display: grid;
+  border-radius: var(--raggio);
+  box-shadow: var(--ombra);
+  overflow: hidden;
+  background: var(--superficie);
+}
+.mie-lezioni header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--superficie-2);
+  font-weight: 800;
+}
+.mie-lezioni .oggi header {
+  background: var(--verde-tenue);
+}
+.mie-lezioni .riga {
+  display: grid;
+  grid-template-columns: 124px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 14px;
+  padding: 7px 14px;
+  border-top: 1px solid var(--bordo);
+}
+.mie-lezioni .dove {
+  font-size: var(--fs-s);
+  color: var(--testo-2);
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .mie-lezioni .riga {
+    grid-template-columns: 104px minmax(0, 1fr);
+  }
+  .mie-lezioni .dove {
+    grid-column: 2;
+  }
+}
 
 /* schermi bassi (portatili 768 px): la settimana resta tutta a video */
 @media (min-width: 992px) and (max-height: 860px) {
