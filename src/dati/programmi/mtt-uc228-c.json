@@ -1288,7 +1288,7 @@
      "item": 91,
      "chapter": "AVES 1a",
      "subject": "Maintenance data",
-     "livello": ""
+     "livello": "2"
     }
    ],
    "chapters": [
@@ -1305,7 +1305,7 @@
      "item": 92,
      "chapter": "AVES 1b",
      "subject": "Ordinary activities of Linea",
-     "livello": ""
+     "livello": "2"
     }
    ],
    "chapters": [
@@ -1322,7 +1322,7 @@
      "item": 93,
      "chapter": "AVES 1c",
      "subject": "Maintenance records",
-     "livello": ""
+     "livello": "2"
     }
    ],
    "chapters": [
@@ -1339,7 +1339,7 @@
      "item": 94,
      "chapter": "AVES 1d",
      "subject": "Airworthiness records",
-     "livello": ""
+     "livello": "2"
     }
    ],
    "chapters": [
@@ -1349,38 +1349,48 @@
   {
    "id": "m065",
    "modulo": 8,
-   "minuti": 60,
-   "titolo": "A.G.E. OF GENERAL USE",
+   "minuti": 30,
+   "titolo": "Ground Support Equipment",
    "voci": [
     {
      "item": 95,
      "chapter": "AVES 2a",
      "subject": "Ground Support Equipment",
-     "livello": ""
-    },
-    {
-     "item": 96,
-     "chapter": "AVES 2b",
-     "subject": "Ground Power unit-400",
-     "livello": ""
+     "livello": "1"
     }
    ],
    "chapters": [
-    "AVES 2a",
-    "AVES 2b"
+    "AVES 2a"
    ]
   },
   {
    "id": "m066",
    "modulo": 8,
+   "minuti": 30,
+   "titolo": "Ground Power unit-400",
+   "voci": [
+    {
+     "item": 96,
+     "chapter": "AVES 2b",
+     "subject": "Ground Power unit-400",
+     "livello": "1"
+    }
+   ],
+   "chapters": [
+    "AVES 2b"
+   ]
+  },
+  {
+   "id": "m067",
+   "modulo": 8,
    "minuti": 60,
-   "titolo": "DEDICATED A.G.E. OF AIRCRAFT",
+   "titolo": "Special Tools and Test Equipment",
    "voci": [
     {
      "item": 97,
      "chapter": "AVES 3",
      "subject": "Special Tools and Test Equipment",
-     "livello": ""
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -1388,16 +1398,16 @@
    ]
   },
   {
-   "id": "m067",
+   "id": "m068",
    "modulo": 8,
    "minuti": 60,
-   "titolo": "DEDICATED A.G.E. OF T/M",
+   "titolo": "Special Tools and Test Equipment",
    "voci": [
     {
      "item": 98,
      "chapter": "AVES 4",
      "subject": "Special Tools and Test Equipment",
-     "livello": ""
+     "livello": "1"
     }
    ],
    "chapters": [
@@ -1405,16 +1415,16 @@
    ]
   },
   {
-   "id": "m068",
+   "id": "m069",
    "modulo": 8,
    "minuti": 60,
-   "titolo": "A.G.E. OF GAS SYS.",
+   "titolo": "Nitrogen Replenishment CRA 310",
    "voci": [
     {
      "item": 99,
      "chapter": "AVES 5",
      "subject": "Nitrogen Replenishment CRA 310",
-     "livello": ""
+     "livello": "1"
     }
    ],
    "chapters": [
