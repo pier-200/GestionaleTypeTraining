@@ -262,10 +262,23 @@ await pausa(500);
 assert.match(await page.locator('.riepilogo-corso').innerText(), /Direttore del corso\s+1° Mar\. Stefano Greco/i, 'il nuovo direttore compare nel corso');
 await page.goto(`${BASE}#/settimana?c=c-2026-2&w=2026-09-14`);
 await pausa(500);
+// il chapter della lezione si sceglie solo fra quelli previsti dal syllabus: 35 Oxygen non è applicabile al CH-47F B1.3
+await page.locator('.periodo:not(.vuoto):visible').first().click();
+const chapter = page.getByRole('combobox', { name: 'Chapter' });
+await chapter.fill('Oxygen');
+await pausa(300);
+assert.equal(await page.getByRole('option').count(), 0, 'chapter non previsto dal syllabus non selezionabile');
+await chapter.fill('Pneumatic');
+await page.getByRole('option', { name: '36 · Pneumatic', exact: true }).click();
+await page.getByRole('button', { name: 'Fatto' }).click();
+assert.match(await page.locator('.periodo:not(.vuoto):visible').first().innerText(), /Ch 36\s+Pneumatic/, 'la griglia mostra il chapter svolto');
+await page.getByRole('button', { name: 'Salva' }).click();
+await page.getByText('Programma della settimana salvato').waitFor({ timeout: 15000 });
 await page.getByRole('button', { name: 'Altre azioni' }).click();
 const [scaricato] = await Promise.all([page.waitForEvent('download'), page.getByRole('menuitem', { name: 'Programma settimanale in Excel' }).click()]);
 assert.equal(scaricato.suggestedFilename(), 'Programma_settimanale_T1-2026_2_2026-09-14.xlsx', 'nome del file del programma settimanale');
 const foglio = strFromU8(unzipSync(new Uint8Array(readFileSync(await scaricato.path())))['xl/worksheets/sheet1.xml']);
+assert.match(foglio, /<c r="C11"[^>]*><is><t[^>]*>Pneumatic<\/t><\/is><\/c>.*<c r="G11"[^>]*><v>36<\/v><\/c>/, 'modulo: ADDESTRAMENTO e COD. del chapter svolto');
 for (const atteso of ['T1-2026/2', '1° Mar. GRECO Stefano', 'Ten. Col. Prova FIRMA', 'Serg. MARCHETTI Davide', '08:20-09:20', 'Aula N.1']) assert.ok(foglio.includes(atteso), `modulo compilato: ${atteso}`);
 
 // chi dirigeva il corso torna istruttore in quel corso, e resta direttore dell'altro

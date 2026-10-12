@@ -131,6 +131,18 @@ export function titoloBreveModulo(titolo: string) {
 }
 
 export const materiaDi = (p: ProgrammaTeorico, id: string) => p.materie.find((m) => m.id === id);
+
+/**
+ * Chapter che si possono mettere a lezione per una materia: solo quelli previsti dal syllabus
+ * (il trattino al posto del livello segna i chapter non applicabili al corso).
+ */
+export function chapterPrevisti(m: Materia): Voce[] {
+  const previsti = m.voci.filter((v) => v.livello !== '-');
+  return previsti.length ? previsti : m.voci;
+}
+
+/** Voce del chapter della lezione; le lezioni salvate senza chapter prendono il primo della materia. */
+export const voceLezione = (m: Materia, chapter: string): Voce => chapterPrevisti(m).find((v) => v.chapter === chapter) ?? chapterPrevisti(m)[0];
 export const oreDaMinuti = (m: number) => `${Math.floor(m / 60)}${m % 60 ? `:${String(m % 60).padStart(2, '0')}` : ''} h`;
 /** "Ch 63, 63A, 64" per il sottotitolo di una materia. */
 export const chapterMateria = (m: Materia) => `Ch ${m.chapters.join(', ')}`;

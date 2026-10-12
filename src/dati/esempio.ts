@@ -1,6 +1,6 @@
 import { generaSettimana, lunediDi, sommaGiorni } from '../dominio/pianificazione';
 import { minimoMeta } from '../dominio/compliance';
-import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, type Task } from '../dominio/programmi';
+import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, materiaDi, voceLezione, type Task } from '../dominio/programmi';
 import type { Abilitazione, Anagrafica, Certificato, Corso, Dati, DatiTraining, Iscrizione, Istruttore, Lezione, Presenza, Rapportino, Registrazione, StatoPresenza, TipoEsecuzione, Utente } from '../dominio/tipi';
 
 /**
@@ -212,6 +212,7 @@ function lezioniEsempio(corsoId: string, inizio: string, settimane: number, doce
         ordine: p.ordine,
         minuti: p.minuti,
         materia: p.materia,
+        chapter: p.chapter,
         istruttore_id: p.istruttore_id,
         aula: '',
         tipo: 'lezione',
@@ -346,18 +347,20 @@ export function datiEsempio(): Dati {
   // qualche periodo non didattico, come capita nella realtà
   const segna = (data: string, ordine: number, tipo: Lezione['tipo']) => {
     const l = lezioni1.find((x) => x.data === data && x.ordine === ordine);
-    if (l) Object.assign(l, { tipo, materia: '', istruttore_id: tipo === 'esame' ? l.istruttore_id : null, note: '' });
+    if (l) Object.assign(l, { tipo, materia: '', chapter: '', istruttore_id: tipo === 'esame' ? l.istruttore_id : null, note: '' });
   };
   segna(giorni1[5], 5, 'meo');
   segna(giorni1[8], 0, 'sospensione');
   segna(giorni1.at(-1)!, 0, 'esame');
+  const daRecuperare = lezioni1.find((l) => l.data === giorni1[3])!.materia;
   lezioni1.push({
     id: 'l-recupero-1',
     corso_id: CORSO_1,
     data: '2026-09-17',
     ordine: 0,
     minuti: 60,
-    materia: lezioni1.find((l) => l.data === giorni1[3])!.materia,
+    materia: daRecuperare,
+    chapter: voceLezione(materiaDi(TEORICO, daRecuperare)!, '').chapter,
     istruttore_id: 'u-rinaldi',
     aula: 'Aula N.2',
     tipo: 'recupero',

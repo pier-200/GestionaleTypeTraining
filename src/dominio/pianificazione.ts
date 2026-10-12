@@ -1,4 +1,4 @@
-import { type Materia, type ProgrammaTeorico } from './programmi';
+import { voceLezione, type Materia, type ProgrammaTeorico } from './programmi';
 import type { Lezione } from './tipi';
 
 /**
@@ -111,10 +111,17 @@ export interface Proposta {
   ordine: number;
   minuti: number;
   materia: string;
+  chapter: string;
   istruttore_id: ID | null;
 }
 
 type ID = string;
+
+/** Chapter con cui proseguire una materia: quello dell'ultima lezione a calendario, altrimenti il primo previsto dal syllabus. */
+export function chapterInCorso(materia: Materia, lezioni: readonly Pick<Lezione, 'data' | 'ordine' | 'materia' | 'chapter'>[]): string {
+  const ultima = lezioni.filter((l) => l.materia === materia.id && l.chapter).sort((a, b) => a.data.localeCompare(b.data) || a.ordine - b.ordine).at(-1);
+  return voceLezione(materia, ultima?.chapter ?? '').chapter;
+}
 
 export interface OpzioniSettimana {
   /** Giorni da saltare (festività, esami…). */
@@ -140,7 +147,7 @@ export function generaSettimana(programma: ProgrammaTeorico, lezioni: readonly L
       const materia = programma.materie.find((m) => (residui.get(m.id) ?? 0) > 0);
       if (!materia) return;
       const minuti = Math.min(residui.get(materia.id)!, MINUTI_PERIODO);
-      proposte.push({ data, ordine, minuti, materia: materia.id, istruttore_id: opzioni.istruttorePerMateria?.(materia) ?? null });
+      proposte.push({ data, ordine, minuti, materia: materia.id, chapter: chapterInCorso(materia, lezioni), istruttore_id: opzioni.istruttorePerMateria?.(materia) ?? null });
       residui.set(materia.id, residui.get(materia.id)! - minuti);
     }
   });

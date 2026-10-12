@@ -82,6 +82,7 @@ describe('periodi del programma', () => {
     ordine,
     minuti: 60,
     materia: TEORICO.materie[0].id,
+    chapter: '',
     istruttore_id: 'u-rinaldi',
     aula: '',
     tipo: 'lezione' as const,

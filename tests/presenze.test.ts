@@ -22,6 +22,7 @@ const lez = (id: string, data: string, ordine: number, minuti: number, materia: 
   ordine,
   minuti,
   materia,
+  chapter: '',
   istruttore_id: null,
   aula: '',
   tipo,
@@ -168,7 +169,7 @@ describe('motore: rapportino e validazione', () => {
 
   it('il programma si vede solo dopo la validazione e ogni modifica la ritira', () => {
     const giorni = ['2026-10-05'];
-    const lezione = { id: 'l-v', corso_id: C2, data: '2026-10-05', ordine: 0, minuti: 45, materia: M[0].id, istruttore_id: 'u-rinaldi', aula: '', tipo: 'lezione' as const, note: '' };
+    const lezione = { id: 'l-v', corso_id: C2, data: '2026-10-05', ordine: 0, minuti: 45, materia: M[0].id, chapter: '', istruttore_id: 'u-rinaldi', aula: '', tipo: 'lezione' as const, note: '' };
     const messe = applica(dati, { tipo: 'lezioni.sostituisci', corso_id: C2, giorni, lezioni: [lezione] }, ctx('u-neri')).dati;
     expect(messe.lezioni.find((l) => l.id === 'l-v')!.validata).toBe(false);
     expect(lezioniVisibili(messe, C2, 'trainee').some((l) => l.id === 'l-v')).toBe(false);

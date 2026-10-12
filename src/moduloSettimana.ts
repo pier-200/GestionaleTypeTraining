@@ -1,6 +1,6 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import { giorniSettimana, orarioPeriodo, periodiDelGiorno, settimanaDiCorso } from './dominio/pianificazione';
-import { materiaDi, programmaTeorico } from './dominio/programmi';
+import { materiaDi, programmaTeorico, voceLezione } from './dominio/programmi';
 import type { CampiLezione } from './dominio/motore';
 import { ETICHETTA_PERIODO, SIGLA_PERIODO, conMateria, type Corso, type Dati } from './dominio/tipi';
 import { direttoreDi, formatoDataBreve, frequentatori, gradoCognome, nomeModulo } from './dominio/viste';
@@ -56,11 +56,13 @@ export function celleSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni
       const riga = RIGA_GIORNO[g] + RIGA_PERIODO[ordine];
       const l = lezioni.find((x) => x.data === data && x.ordine === ordine);
       const materia = l && conMateria(l.tipo) ? materiaDi(programma, l.materia) : undefined;
+      // chapter della lezione: il suo numero va in COD., il suo titolo in ADDESTRAMENTO
+      const voce = l && materia ? voceLezione(materia, l.chapter) : undefined;
       const orario = orarioPeriodo(ordine, l?.minuti);
-      // il codice è il primo chapter della materia; i periodi non didattici hanno la loro sigla
-      const codice = materia ? materia.chapters[0] : l ? (l.tipo === 'sospensione' ? BARRATO : SIGLA_PERIODO[l.tipo]) : null;
+      // i periodi non didattici hanno la loro sigla
+      const codice = voce ? voce.chapter : l ? (l.tipo === 'sospensione' ? BARRATO : SIGLA_PERIODO[l.tipo]) : null;
       celle[`B${riga}`] = `${orario.inizio}-${orario.fine}`;
-      celle[`C${riga}`] = !l ? null : materia ? `${materia.titolo}${l.tipo === 'recupero' ? ' (recupero)' : ''}` : ETICHETTA_PERIODO[l.tipo];
+      celle[`C${riga}`] = !l ? null : voce ? `${voce.subject}${l.tipo === 'recupero' ? ' (recupero)' : ''}` : ETICHETTA_PERIODO[l.tipo];
       // numero se Excel lo riscrive uguale ("34"), testo altrimenti ("05", "32A", "AVES 1")
       celle[`G${riga}`] = codice && /^[1-9]\d*$/.test(codice) ? Number(codice) : codice;
       celle[`H${riga}`] = l ? gradoCognome(dati, l.istruttore_id) : null;

@@ -5,8 +5,8 @@ import { IconChevronLeft, IconChevronRight, IconDots, IconEraser, IconFileSpread
 import { nuovoUuid } from '../../backend/github/crittografia';
 import { messaggioErrore } from '../../dominio/errori';
 import { oggiISO, ruoloNelCorso, TIPI_PERIODO, type CampiLezione } from '../../dominio/motore';
-import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, generaSettimana, giorniSettimana, lunediDi, orarioPeriodo, periodiDelGiorno, settimanaDiCorso, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
-import { chapterMateria, materiaDi, oreDaMinuti, programmaTeorico, type Materia } from '../../dominio/programmi';
+import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, chapterInCorso, generaSettimana, giorniSettimana, lunediDi, orarioPeriodo, periodiDelGiorno, settimanaDiCorso, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
+import { chapterPrevisti, materiaDi, oreDaMinuti, programmaTeorico, voceLezione, type Materia } from '../../dominio/programmi';
 import { conMateria, ETICHETTA_PERIODO, SIGLA_PERIODO, type Lezione, type TipoPeriodo } from '../../dominio/tipi';
 import { docenti, formatoDataBreve, formatoMinuti, lezioniVisibili, nomeUtente, ore } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
@@ -53,6 +53,7 @@ export function Settimana() {
     ordine: l.ordine,
     minuti: l.minuti,
     materia: l.materia,
+    chapter: l.chapter,
     istruttore_id: l.istruttore_id,
     aula: l.aula,
     tipo: l.tipo,
@@ -90,9 +91,14 @@ export function Settimana() {
     return elenco.length ? [...elenco].sort((a, b) => (pesi.get(a.id) ?? 0) - (pesi.get(b.id) ?? 0))[0].id : null;
   };
 
-  const opzioniMaterie = programma.materie.map((m) => {
+  /** Chapter del syllabus, raggruppati per materia: le ore del programma sono date al gruppo, non al singolo chapter. */
+  const opzioniChapter = programma.materie.map((m) => {
     const residuo = stato.materie.find((r) => r.materia.id === m.id)?.residui ?? 0;
-    return { value: m.id, label: `M${m.modulo} · ${chapterMateria(m)} · ${m.titolo}${residuo ? ` — restano ${oreDaMinuti(residuo)}` : ''}` };
+    const previsti = chapterPrevisti(m);
+    return {
+      group: `M${m.modulo} · Ch ${previsti.map((v) => v.chapter).join(', ')} — ${residuo ? `restano ${oreDaMinuti(residuo)}` : 'ore tutte a calendario'}`,
+      items: previsti.map((v) => ({ value: `${m.id}|${v.chapter}`, label: `${v.chapter} · ${v.subject}` })),
+    };
   });
 
   const genera = () => {
@@ -100,13 +106,13 @@ export function Settimana() {
     const proposte = generaSettimana(programma, perCalcolo, lunedi, { istruttorePerMateria: (m: Materia) => scegliIstruttore(m.id, pesi) });
     if (!proposte.length) return;
     for (const p of proposte) if (p.istruttore_id) pesi.set(p.istruttore_id, (pesi.get(p.istruttore_id) ?? 0) + p.minuti);
-    setBozza([...correnti, ...proposte.map((p) => ({ id: nuovoUuid(), corso_id: corso.id, data: p.data, ordine: p.ordine, minuti: p.minuti, materia: p.materia, istruttore_id: p.istruttore_id, aula: '', tipo: 'lezione' as TipoPeriodo, note: '' }))]);
+    setBozza([...correnti, ...proposte.map((p) => ({ id: nuovoUuid(), corso_id: corso.id, data: p.data, ordine: p.ordine, minuti: p.minuti, materia: p.materia, chapter: p.chapter, istruttore_id: p.istruttore_id, aula: '', tipo: 'lezione' as TipoPeriodo, note: '' }))]);
   };
 
-  /** Compila un periodo ancora vuoto con la materia successiva del programma. */
+  /** Compila un periodo ancora vuoto con la materia successiva del programma, proseguendo il chapter in corso. */
   const aggiungi = (data: string, ordine: number) => {
-    const materia = stato.prossima?.id ?? programma.materie[0].id;
-    setBozza([...correnti, { id: nuovoUuid(), corso_id: corso.id, data, ordine, minuti: MINUTI_PERIODO, materia, istruttore_id: scegliIstruttore(materia), aula: '', tipo: 'lezione', note: '' }]);
+    const materia = stato.prossima ?? programma.materie[0];
+    setBozza([...correnti, { id: nuovoUuid(), corso_id: corso.id, data, ordine, minuti: MINUTI_PERIODO, materia: materia.id, chapter: chapterInCorso(materia, perCalcolo), istruttore_id: scegliIstruttore(materia.id), aula: '', tipo: 'lezione', note: '' }]);
     setAperto({ data, ordine });
   };
 
@@ -148,6 +154,7 @@ export function Settimana() {
   const orario = (data: string, ordine: number) => orarioPeriodo(ordine, trova(data, ordine)?.minuti);
 
   const inModifica = aperto ? trova(aperto.data, aperto.ordine) : undefined;
+  const materiaInModifica = inModifica && conMateria(inModifica.tipo) ? materiaDi(programma, inModifica.materia) : undefined;
 
   /** Contenuto di un periodo: modulo, chapter, materia e istruttore. */
   const Periodo = ({ data, ordine }: { data: string; ordine: number }) => {
@@ -163,12 +170,14 @@ export function Settimana() {
       );
     }
     const materia = conMateria(l.tipo) ? materiaDi(programma, l.materia) : undefined;
+    const voce = materia && voceLezione(materia, l.chapter);
+    const titolo = voce?.subject ?? ETICHETTA_PERIODO[l.tipo];
     const contenuto = (
       <>
         <div className="periodo-testa">
-          {materia ? (
+          {materia && voce ? (
             <span className="codice-materia">
-              M{materia.modulo} · {chapterMateria(materia)}
+              M{materia.modulo} · Ch {voce.chapter}
             </span>
           ) : (
             <span className="codice-materia">{SIGLA_PERIODO[l.tipo] || ETICHETTA_PERIODO[l.tipo]}</span>
@@ -176,7 +185,7 @@ export function Settimana() {
           {l.tipo === 'recupero' && <span className="segno-recupero">REC</span>}
           {l.minuti !== MINUTI_PERIODO && <span className="debole durata">{formatoMinuti(l.minuti)}</span>}
         </div>
-        <div className="periodo-materia">{materia ? materia.titolo : ETICHETTA_PERIODO[l.tipo]}</div>
+        <div className="periodo-materia">{titolo}</div>
         <div className={`periodo-istruttore ${l.istruttore_id ? '' : conMateria(l.tipo) ? 'rosso' : 'debole'}`}>
           {l.istruttore_id ? cognome(l.istruttore_id) : conMateria(l.tipo) ? 'da assegnare' : '—'}
         </div>
@@ -184,7 +193,7 @@ export function Settimana() {
     );
     const classi = `periodo ${l.tipo !== 'lezione' ? `t-${l.tipo}` : ''}`;
     return guida ? (
-      <button type="button" className={classi} onClick={() => setAperto({ data, ordine })} title={`${o.inizio}–${o.fine} · ${materia?.titolo ?? ETICHETTA_PERIODO[l.tipo]} · ${l.aula || corso.aula}`}>
+      <button type="button" className={classi} onClick={() => setAperto({ data, ordine })} title={`${o.inizio}–${o.fine} · ${titolo} · ${l.aula || corso.aula}`}>
         {contenuto}
       </button>
     ) : (
@@ -344,11 +353,17 @@ export function Settimana() {
             {conMateria(inModifica.tipo) && (
               <>
                 <Select
-                  label="Materia"
+                  label="Chapter"
+                  description="Solo i chapter previsti dal syllabus: numero e titolo vanno sul programma settimanale."
                   searchable
-                  value={inModifica.materia}
-                  onChange={(v) => v && modifica(inModifica.id, { materia: v, istruttore_id: inModifica.istruttore_id ?? scegliIstruttore(v) })}
-                  data={opzioniMaterie}
+                  allowDeselect={false}
+                  value={materiaInModifica ? `${materiaInModifica.id}|${voceLezione(materiaInModifica, inModifica.chapter).chapter}` : null}
+                  onChange={(v) => {
+                    if (!v) return;
+                    const [materia, chapter] = v.split('|');
+                    modifica(inModifica.id, { materia, chapter, istruttore_id: inModifica.istruttore_id ?? scegliIstruttore(materia) });
+                  }}
+                  data={opzioniChapter}
                   comboboxProps={{ withinPortal: true }}
                 />
                 <Select

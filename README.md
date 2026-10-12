@@ -57,6 +57,10 @@ del corso. I permessi in più valgono solo dentro quel corso; negli altri resta 
   «Tuition Min.» del programma e copre uno o più chapter.
 - **Programma settimanale**: «Genera» riempie i periodi ancora vuoti seguendo l'ordine del programma; una materia
   lunga si spezza su più periodi e l'istruttore si sceglie fra quelli **abilitati** a quella materia.
+- **Chapter della lezione**: il programma dà le ore a gruppi di chapter (per esempio 14 ore per 34 Navigation,
+  36 Pneumatic, 37 Vacuum…). Per ogni periodo si sceglie il **chapter svolto**, solo fra quelli **previsti dal
+  syllabus** (i chapter senza livello, non applicabili al corso, non si possono mettere a lezione); le ore si scalano
+  dal gruppo. «Genera» prosegue il chapter dell'ultima lezione del gruppo.
 - **Griglia dei periodi**: la giornata ha sempre **6 periodi dal lunedì al giovedì e 3 il venerdì**, a **orari fissi**
   uguali per tutti i corsi: 08:20–09:20, 09:30–10:30, 10:50–11:50, 12:00–13:00, pausa pranzo, 14:00–15:00, 15:10–16:10.
   Una lezione dura **al massimo un'ora**, poi c'è la pausa; si accorcia a quarti d'ora. I periodi si compilano
@@ -144,7 +148,7 @@ soltanto i valori: celle, bordi, unioni e impostazione di stampa restano quelli 
 | SETTIMANA | numero progressivo da 1, contato dal lunedì della data di inizio |
 | EVENTUALE RITARDO | settimane oltre quella della fine stimata (vuoto se non si è in ritardo) |
 | DATA, ORARIO | giorni della settimana e orari fissi dei periodi (la fine segue la durata della lezione) |
-| ADDESTRAMENTO, COD. | materia della lezione e suo primo chapter; MEO, sospensione ed esame hanno la loro dicitura |
+| ADDESTRAMENTO, COD. | titolo e numero del chapter svolto nella lezione (34 → «Navigation»); MEO, sospensione ed esame hanno la loro dicitura |
 | ISTRUTTORE | grado e cognome dell'istruttore della lezione |
 | AULA | aula del periodo, altrimenti quella del corso |
 | DIRETTORE DEL CORSO | l'istruttore a cui è affidato il corso, «Grado COGNOME Nome» |

@@ -25,7 +25,7 @@ it('ogni cella del modulo prende il suo valore: intestazione, periodi a orari fi
   expect([11, 12, 13, 14, 16, 17].map((r) => c[`B${r}`])).toEqual(['08:20-09:20', '09:30-10:30', '10:50-11:50', '12:00-13:00', '14:00-15:00', '15:10-16:10']);
   expect(Object.keys(c).some((k) => /^[A-I](15|22|29|36)$/.test(k))).toBe(false);
   expect([c.C17, c.G17, c.H17, c.I17]).toEqual(['Mantenimento Efficienza Operativa', 'MEO', '', 'Aula N.1']);
-  // lezione: titolo della materia, primo chapter come codice, grado e cognome dell'istruttore, aula del corso
+  // lezione: titolo e numero del chapter svolto, grado e cognome dell'istruttore, aula del corso
   const prima = lezioni.find((l) => l.data === LUNEDI && l.ordine === 0)!;
   expect([c.C11, c.G11]).toEqual(['Rotor Drives', 63]);
   expect(c.H11).toBe({ 'u-rinaldi': 'Mar. Ca. Rinaldi', 'u-colombo': 'Lgt. Colombo', 'u-neri': 'Cap. Neri' }[prima.istruttore_id!]);
@@ -38,9 +38,14 @@ it('ogni cella del modulo prende il suo valore: intestazione, periodi a orari fi
 
 it('settimana oltre la fine stimata: riporta il ritardo; il venerdì ha tre periodi; codici non numerici restano testo', () => {
   const tardi = celleSettimana(dati, corso, '2026-10-12', [
-    { id: 'x', corso_id: C1, data: '2026-10-16', ordine: 2, minuti: 45, materia: 'm001', istruttore_id: null, aula: 'Aula N.4', tipo: 'recupero', note: '' },
-    { id: 'y', corso_id: C1, data: '2026-10-12', ordine: 0, minuti: 60, materia: '', istruttore_id: null, aula: '', tipo: 'sospensione', note: '' },
+    { id: 'x', corso_id: C1, data: '2026-10-16', ordine: 2, minuti: 45, materia: 'm001', chapter: '05', istruttore_id: null, aula: 'Aula N.4', tipo: 'recupero', note: '' },
+    { id: 'y', corso_id: C1, data: '2026-10-12', ordine: 0, minuti: 60, materia: '', chapter: '', istruttore_id: null, aula: '', tipo: 'sospensione', note: '' },
+    // gruppo «Navigation» (34…42A): sul modulo va il chapter svolto, non il nome del gruppo
+    { id: 'z', corso_id: C1, data: '2026-10-13', ordine: 0, minuti: 60, materia: 'm028', chapter: '36', istruttore_id: null, aula: '', tipo: 'lezione', note: '' },
+    { id: 'w', corso_id: C1, data: '2026-10-13', ordine: 1, minuti: 60, materia: 'm028', chapter: '34', istruttore_id: null, aula: '', tipo: 'lezione', note: '' },
+    { id: 'v', corso_id: C1, data: '2026-10-13', ordine: 2, minuti: 60, materia: 'm028', chapter: '', istruttore_id: null, aula: '', tipo: 'lezione', note: '' },
   ]);
+  expect([18, 19, 20].map((r) => [tardi[`C${r}`], tardi[`G${r}`]])).toEqual([['Pneumatic', 36], ['Navigation', 34], ['Navigation', 34]]);
   expect([tardi.H6, tardi.H8]).toEqual([15, '2 settimane']);
   expect([tardi.B41, tardi.C41, tardi.G41, tardi.I41]).toEqual(['10:50-11:35', 'Time limits/Maintenance checks (recupero)', '05', 'Aula N.4']);
   expect([tardi.C11, tardi.G11, tardi.I11]).toEqual(['Sospensione', '////', '////']);

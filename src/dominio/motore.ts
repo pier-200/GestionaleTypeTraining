@@ -1,5 +1,5 @@
 import { ErroreApp } from './errori';
-import { mdsDi, indice, programmaPratico, programmaTeorico, programmiPer } from './programmi';
+import { chapterPrevisti, materiaDi, mdsDi, indice, programmaPratico, programmaTeorico, programmiPer, voceLezione } from './programmi';
 import { MINUTI_PERIODO, indiceGiorno, periodiDelGiorno } from './pianificazione';
 import { conMateria, type Anagrafica, type Certificato, type Corso, type Dati, type DatiTraining, type EsitoProva, type ID, type Iscrizione, type Istruttore, type Lezione, type Presenza, type Rapportino, type Registrazione, type RuoloCorso, type RuoloNelCorso, type StatoCertificato, type StatoPresenza, type TipoCertificato, type TipoEsecuzione, type TipoPeriodo, type Utente } from './tipi';
 
@@ -22,7 +22,7 @@ export type CampiCorso = Pick<
   Corso,
   'id' | 'codice' | 'nome' | 'mds' | 'categoria' | 'data_inizio' | 'data_fine' | 'durata_settimane' | 'maintenance_organization' | 'location' | 'aula' | 'gruppo_firma' | 'attivo'
 >;
-export type CampiLezione = Pick<Lezione, 'id' | 'corso_id' | 'data' | 'ordine' | 'minuti' | 'materia' | 'istruttore_id' | 'aula' | 'tipo' | 'note'>;
+export type CampiLezione = Pick<Lezione, 'id' | 'corso_id' | 'data' | 'ordine' | 'minuti' | 'materia' | 'chapter' | 'istruttore_id' | 'aula' | 'tipo' | 'note'>;
 export type CampiPresenza = Pick<Presenza, 'id' | 'user_id' | 'stato' | 'dalle' | 'alle' | 'motivo'>;
 export type CampiCertificato = Omit<Certificato, 'creato_il' | 'creato_da' | 'modificato_il' | 'modificato_da'>;
 
@@ -371,7 +371,12 @@ export function applica(dati: Dati, comando: Comando, ctx: Contesto): Esito {
       for (const l of comando.lezioni) {
         if (!giorni.has(l.data)) v.errori.lezioni = 'Una lezione cade fuori dai giorni indicati';
         if (!TIPI_PERIODO.includes(l.tipo)) v.errori.tipo = 'Tipo di periodo non valido';
-        else if (conMateria(l.tipo) && !p.materie.some((m) => m.id === l.materia)) v.errori.materia = 'Materia non presente nel programma del corso';
+        else if (conMateria(l.tipo)) {
+          const materia = materiaDi(p, l.materia);
+          if (!materia) v.errori.materia = 'Materia non presente nel programma del corso';
+          // a lezione vanno solo i chapter previsti dal syllabus per quella materia
+          else if (l.chapter && !chapterPrevisti(materia).some((x) => x.chapter === l.chapter)) v.errori.chapter = `Chapter ${l.chapter} non previsto dal syllabus per questa materia`;
+        }
         if (l.ordine < 0 || l.ordine >= periodiDelGiorno(indiceGiorno(l.data))) v.errori.ordine = 'Periodo fuori dalla giornata';
         // una lezione dura al massimo un'ora (poi c'è la pausa) e si compone a quarti d'ora
         if (!Number.isInteger(l.minuti) || l.minuti < 15 || l.minuti > MINUTI_PERIODO || l.minuti % 15 !== 0) v.errori.minuti = `Durata della lezione non valida: quarti d’ora da 15 a ${MINUTI_PERIODO} minuti`;
@@ -386,6 +391,7 @@ export function applica(dati: Dati, comando: Comando, ctx: Contesto): Esito {
       const nuove: Lezione[] = comando.lezioni.map((l) => ({
         ...l,
         materia: conMateria(l.tipo) ? l.materia : '',
+        chapter: conMateria(l.tipo) ? voceLezione(materiaDi(p, l.materia)!, l.chapter ?? '').chapter : '',
         aula: (l.aula ?? '').trim(),
         validata: false,
         validata_da: null,

@@ -146,8 +146,9 @@ create table if not exists public.lezioni (
   ordine int not null check (ordine between 0 and 40),
   -- una lezione dura al massimo un'ora (poi la pausa) e si compone a quarti d'ora
   minuti int not null check (minuti between 15 and 60 and minuti % 15 = 0),
-  -- id della materia nel programma teorico del corso
+  -- id della materia nel programma teorico del corso e chapter svolto, fra quelli previsti dal syllabus per la materia
   materia text not null,
+  chapter text not null default '' check (length(chapter) <= 20),
   istruttore_id uuid references public.profili on delete set null,
   -- aula del periodo; vuota = aula del corso
   aula text not null default '' check (length(aula) <= 40),
@@ -179,6 +180,7 @@ alter table public.lezioni drop constraint if exists lezioni_minuti_check;
 -- "not valid": le lezioni più lunghe di installazioni precedenti restano, le nuove rispettano l'ora
 alter table public.lezioni add constraint lezioni_minuti_check check (minuti between 15 and 60 and minuti % 15 = 0) not valid;
 alter table public.lezioni add column if not exists aula text not null default '' check (length(aula) <= 40);
+alter table public.lezioni add column if not exists chapter text not null default '' check (length(chapter) <= 20);
 
 -- rapportino presenze: una riga per giornata di corso, compilata dai frequentatori e validata da chi guida
 create table if not exists public.rapportini (
