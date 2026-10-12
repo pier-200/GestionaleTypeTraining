@@ -19,7 +19,7 @@ export function Assenze() {
   const rapportini = rapportiniDi(dati, corso.id);
   const presenze = presenzeDi(dati, corso.id);
   const elenco = ruolo === 'trainee' ? frequentatori(dati, corso.id).filter((u) => u.id === utente.id) : frequentatori(dati, corso.id);
-  const righe = elenco.map((u) => ({ utente: u, s: assenzeDi(programma, corso, lezioni, rapportini, presenze, u.id) }));
+  const righe = elenco.map((u) => ({ utente: u, s: assenzeDi(programma, lezioni, rapportini, presenze, u.id) }));
   const limite = limiteAssenze(programma);
   const nonIdonei = righe.filter((r) => !r.s.idoneo).length;
   const daValidare = rapportini.filter((r) => !r.validato_il).length;

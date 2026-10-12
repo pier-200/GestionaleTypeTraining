@@ -1,7 +1,9 @@
 // Prova end-to-end nel browser (Microsoft Edge) sulla modalità dimostrativa (?demo).
 //   npm run build && npx vite preview --port 4174   poi   npm run e2e
 import { chromium } from '@playwright/test';
+import { strFromU8, unzipSync } from 'fflate';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 const BASE = process.env.PTT_URL ?? 'http://localhost:4174/?demo';
 const browser = await chromium.launch({ channel: 'msedge' });
@@ -200,6 +202,7 @@ await profilo('Davide Marchetti');
 await page.goto(`${BASE}#/settimana?c=c-2026-2&w=2026-10-12`);
 await pausa(500);
 assert.equal(await page.locator('.periodo:not(.vuoto):visible').count(), 0, 'il frequentatore non vede il programma non validato');
+assert.equal(await page.getByRole('button', { name: 'Altre azioni' }).count(), 0, 'il modulo con i nominativi non è per i frequentatori');
 
 await esci();
 await profilo('Marco Neri');
@@ -245,6 +248,35 @@ await page.getByText('Certificato inserito nel registro').waitFor({ timeout: 150
 await pausa(600);
 assert.equal(await page.locator('.tabella tbody tr').count(), primaCerti + 1, 'il certificato entra nel registro');
 assert.match(await page.locator('.tabella tbody').innerText(), /Rilasciato/i, 'certificato rilasciato');
+
+// 13. il TM affida il secondo corso a un altro istruttore e scarica il programma sul modulo ufficiale
+await page.goto(`${BASE}#/corsi`);
+await page.locator('.scheda-corso', { hasText: 'T1-2026/2' }).getByRole('button', { name: 'Modifica' }).click();
+await page.getByRole('combobox', { name: 'Direttore del corso' }).click();
+await page.getByRole('option', { name: /Stefano Greco/ }).click();
+await page.getByLabel('Gruppo firma del comandante').fill('Ten. Col. Prova FIRMA');
+await page.getByRole('button', { name: 'Salva' }).click();
+await page.getByText('Corso aggiornato').waitFor({ timeout: 15000 });
+await page.goto(`${BASE}#/corso?c=c-2026-2`);
+await pausa(500);
+assert.match(await page.locator('.riepilogo-corso').innerText(), /Direttore del corso\s+1° Mar\. Stefano Greco/i, 'il nuovo direttore compare nel corso');
+await page.goto(`${BASE}#/settimana?c=c-2026-2&w=2026-09-14`);
+await pausa(500);
+await page.getByRole('button', { name: 'Altre azioni' }).click();
+const [scaricato] = await Promise.all([page.waitForEvent('download'), page.getByRole('menuitem', { name: 'Programma settimanale in Excel' }).click()]);
+assert.equal(scaricato.suggestedFilename(), 'Programma_settimanale_T1-2026_2_2026-09-14.xlsx', 'nome del file del programma settimanale');
+const foglio = strFromU8(unzipSync(new Uint8Array(readFileSync(await scaricato.path())))['xl/worksheets/sheet1.xml']);
+for (const atteso of ['T1-2026/2', '1° Mar. GRECO Stefano', 'Ten. Col. Prova FIRMA', 'Serg. MARCHETTI Davide', '08:20-09:20', 'Aula N.1']) assert.ok(foglio.includes(atteso), `modulo compilato: ${atteso}`);
+
+// chi dirigeva il corso torna istruttore in quel corso, e resta direttore dell'altro
+await esci();
+await profilo('Marco Neri');
+await page.goto(`${BASE}#/settimana?c=c-2026-2&w=2026-10-19`);
+await pausa(500);
+assert.equal(await page.getByRole('button', { name: 'Genera' }).count(), 0, 'senza incarico l’istruttore non prepara il programma');
+await page.goto(`${BASE}#/settimana?c=c-2026-1&w=2026-10-19`);
+await pausa(500);
+assert.equal(await page.getByRole('button', { name: 'Genera' }).count(), 1, 'nel corso che dirige prepara il programma');
 
 await browser.close();
 assert.deepEqual(errori, [], `errori JavaScript: ${errori.join('; ')}`);

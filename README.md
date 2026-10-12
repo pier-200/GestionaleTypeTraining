@@ -36,15 +36,19 @@ seguono da soli.
 Caricati oggi: **CH-47F B1.3** (teorico e pratico). Per gli altri bastano i due Excel (vedi «Programmi di corso»):
 finché mancano, il corso si crea lo stesso e le pagine lo segnalano.
 
-| | Frequentatore | Istruttore | Direttore del corso | Training Manager |
+Gli account sono di tre tipi: **frequentatore**, **istruttore**, **Training Manager**. Il **direttore del corso** non è
+un tipo di account: è uno degli istruttori, a cui il Training Manager affida un corso (uno solo per corso) nei dati
+del corso. I permessi in più valgono solo dentro quel corso; negli altri resta un istruttore.
+
+| | Frequentatore | Istruttore | Istruttore direttore di quel corso | Training Manager |
 |---|---|---|---|---|
-| Corsi visibili | i propri | quelli a cui è iscritto | quelli che dirige | tutti |
+| Corsi visibili | i propri | quelli a cui è iscritto | quelli a cui è iscritto | tutti |
 | Logbook (PTT) | solo il proprio, in scrittura | lettura di tutto il corso | lettura | correzioni su tutti |
 | Programma settimanale (MTT) | lettura, solo se validato | lettura | **prepara, valida e assegna gli istruttori** | idem |
 | Rapportino presenze | **compila per tutti**, finché non è validato | compila | valida e riapre | valida e riapre |
 | Assenze e idoneità | le proprie | tutto il corso | tutto il corso | tutto il corso |
 | Materie e abilitazioni | – | lettura | modifica | modifica |
-| Iscrizioni e dati del corso | – | – | modifica | modifica |
+| Iscrizioni e dati del corso | – | – | modifica | modifica, **assegna il direttore** |
 | Account | – | – | – | crea, disattiva, reimposta password |
 
 ## Parte teorica (MTT)
@@ -53,9 +57,11 @@ finché mancano, il corso si crea lo stesso e le pagine lo segnalano.
   «Tuition Min.» del programma e copre uno o più chapter.
 - **Programma settimanale**: «Genera» riempie i periodi ancora vuoti seguendo l'ordine del programma; una materia
   lunga si spezza su più periodi e l'istruttore si sceglie fra quelli **abilitati** a quella materia.
-- **Griglia dei periodi**: la giornata ha sempre **6 periodi dal lunedì al giovedì e 3 il venerdì**; si compilano
-  toccando il periodo. Ogni periodo può essere una lezione, una **lezione di recupero**, **Mantenimento Efficienza
-  Operativa**, una **Sospensione** o un **Esame teorico**; la durata si cambia a quarti d'ora.
+- **Griglia dei periodi**: la giornata ha sempre **6 periodi dal lunedì al giovedì e 3 il venerdì**, a **orari fissi**
+  uguali per tutti i corsi: 08:20–09:20, 09:30–10:30, 10:50–11:50, 12:00–13:00, pausa pranzo, 14:00–15:00, 15:10–16:10.
+  Una lezione dura **al massimo un'ora**, poi c'è la pausa; si accorcia a quarti d'ora. I periodi si compilano
+  toccandoli: lezione, **lezione di recupero**, **Mantenimento Efficienza Operativa**, **Sospensione** o **Esame
+  teorico**. L'**aula** è quella del corso, salvo sceglierne un'altra sul singolo periodo.
 - **A schermo**: sul PC la settimana intera sta in una schermata (periodo, modulo · chapter, materia, istruttore);
   sul cellulare ogni giornata mostra solo orario, materia e istruttore.
 - **Validazione**: la settimana salvata resta privata finché il direttore o il TM premono «Valida»; solo allora i
@@ -64,7 +70,8 @@ finché mancano, il corso si crea lo stesso e le pagine lo segnalano.
   alto e nella pagina «Situazione della teoria» (per modulo, per materia, ore già svolte e settimane stimate).
 - **Materie e istruttori**: il Training Manager o il direttore indicano quali materie ogni istruttore può erogare.
 - **Ore degli istruttori**: pagina «Docenti» con le ore a calendario ed erogate da ciascun istruttore.
-- **Excel**: «Excel» esporta il programma della settimana (formato provvisorio, da sostituire col modulo ufficiale).
+- **Programma settimanale in Excel**: dal menu «Altre azioni» si scarica il **modulo ufficiale compilato**, pronto da
+  stampare in PDF su una pagina A4 (vedi «Modulo del programma settimanale»).
 
 ## Registri del Training Manager (AER(EP).P-147)
 
@@ -95,8 +102,9 @@ Voci di menu riservate al Training Manager, nella sezione «Registri · AER(EP).
 ## Parte pratica (PTT)
 
 - Catalogo dal PTR ufficiale: **190 task, 68 chapter, 8 moduli**.
-- Conformità: **≥ 50%** dei task per ciascun modulo e task type, **≥ 1** task per ciascun chapter; più registrazioni
-  dello stesso task contano una volta. MEL ha 0 task applicabili e risulta «n.a.».
+- Conformità, come nel Compliance Report: **≥ 50%** dei task per ciascun task type, per ciascun **chapter** e per
+  ciascun modulo (un solo task per chapter non basta); più registrazioni dello stesso task contano una volta. MEL ha
+  0 task applicabili e risulta «n.a.».
 - Registrazione di un task: data, aeromobile (matricola) oppure SIM/CLA, ET in minuti, luogo, istruttore. Nel logbook
   ogni riga mostra **ID del task e chapter** in evidenza.
 - Compliance Report sempre aggiornato; «Stampa / PDF» produce il modulo ufficiale compilato (vedi sotto).
@@ -124,6 +132,28 @@ valori: Organization, Grade, First name, Surname, MAML, task eseguiti e percentu
 righe barrate nel modulo (21A, 27) restano vuote. Logo facoltativo in `public/modelli/logo.png`. Le posizioni si
 ricavano dal PDF con `py -3.11 scripts/layout_compliance.py`.
 
+## Modulo del programma settimanale
+
+«Programma settimanale in Excel» apre il modulo ufficiale (`public/modelli/programma-settimanale.xlsx`) e vi scrive
+soltanto i valori: celle, bordi, unioni e impostazione di stampa restano quelli dell'originale.
+
+| Campo | Da dove viene |
+|---|---|
+| CORSO | codice del corso (l'ID, es. `06-B1.3-CH`) |
+| DATA INIZIO CORSO, DURATA, DATA FINE CORSO | dati del corso: inizio, durata in settimane, fine stimata |
+| SETTIMANA | numero progressivo da 1, contato dal lunedì della data di inizio |
+| EVENTUALE RITARDO | settimane oltre quella della fine stimata (vuoto se non si è in ritardo) |
+| DATA, ORARIO | giorni della settimana e orari fissi dei periodi (la fine segue la durata della lezione) |
+| ADDESTRAMENTO, COD. | materia della lezione e suo primo chapter; MEO, sospensione ed esame hanno la loro dicitura |
+| ISTRUTTORE | grado e cognome dell'istruttore della lezione |
+| AULA | aula del periodo, altrimenti quella del corso |
+| DIRETTORE DEL CORSO | l'istruttore a cui è affidato il corso, «Grado COGNOME Nome» |
+| FREQUENTATORI, ENTE | i frequentatori iscritti, «Grado COGNOME Nome», con l'ente dei Personal Data (16 righe) |
+| IL COMANDANTE | gruppo firma inserito nei dati del corso |
+
+Il modulo vuoto si prepara una volta dall'Excel originale con `py -3.11 scripts/modulo_settimanale.py`, che toglie
+autori, percorsi e impostazioni della stampante. Lo scaricano il Training Manager e gli istruttori del corso.
+
 ## Archivio dei dati
 
 Si sceglie in [`public/config.json`](public/config.json), senza ricompilare:
@@ -146,8 +176,8 @@ Istruzioni e migrazione: [docs/PUBBLICAZIONE.md](docs/PUBBLICAZIONE.md).
 
 Due corsi: il 1° 2026 (teoria conclusa e validata, pratica avviata, 6 frequentatori, rapportini presenze compilati con
 qualche assenza, una lezione di recupero e un «non idoneo») e il 2° 2026 (solo teoria, appena iniziato, 3 frequentatori,
-seconda settimana ancora da validare). Profili pronti nella pagina di accesso in modalità demo: Training Manager, direttore del corso,
-tre istruttori e i frequentatori. «Ripristina la situazione esempio» riporta tutto allo stato iniziale.
+seconda settimana ancora da validare). Profili pronti nella pagina di accesso in modalità demo: Training Manager, quattro
+istruttori (uno dirige entrambi i corsi) e i frequentatori. «Ripristina la situazione esempio» riporta tutto allo stato iniziale.
 
 ## Sviluppo
 
@@ -166,12 +196,13 @@ Struttura:
 database/schema.sql            tabelle, RLS per corso, tempo reale       database/migrazione-corsi.sql  passaggio al modello a corsi
 scripts/import_catalogo.py     programma pratico dall'Excel             scripts/import_programma_mtt.py  programma teorico
 scripts/layout_compliance.py   posizioni dei valori nel modulo PDF      scripts/semina-supabase.mjs      TM e situazione esempio
+scripts/modulo_settimanale.py  modulo Excel del programma settimanale   src/moduloSettimana.ts           compilazione del modulo
 supabase/functions/gestione-utenti   creazione e modifica account (Edge Function)
 src/dominio/    programmi, compliance, pianificazione, presenze, motore dei comandi (permessi), viste
 src/backend/    archivi demo, github, supabase                          src/esporta.ts  Excel e CSV
 src/ui/         interfaccia: guscio, avanzamento del corso, pagine MTT e PTT, stile «app tascabile» (DESIGN.md)
-tests/          dominio, pianificazione e presenze, schema SQL, end-to-end (demo e archivio GitHub)
+tests/          dominio, pianificazione e presenze, modulo del programma settimanale, schema SQL, end-to-end
 ```
 
-Gli Excel e i PDF originali restano fuori dalla repository pubblica (tranne il modulo vuoto del Compliance Report,
-necessario alla stampa): vanno copiati in `docs/sorgenti/` per rigenerare i programmi.
+Gli Excel e i PDF originali restano fuori dalla repository pubblica (tranne i moduli vuoti del Compliance Report e del
+programma settimanale, necessari alla stampa): vanno copiati in `docs/sorgenti/` per rigenerare i programmi.

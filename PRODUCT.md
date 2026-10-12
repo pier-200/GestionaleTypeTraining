@@ -28,7 +28,7 @@ Il catalogo dei 190 task e le regole di conformità sono quelli del documento uf
 ## Operating Context
 
 - Documento ufficiale: T1 Military Type Training CH-47F Cat. B1.3, Allegato 1. Sorgenti in `docs/sorgenti/` (Excel del catalogo, PDF Generality and Purpose, Personnel Data, Compliance Report).
-- Regole: ≥50% task eseguiti per ciascun modulo e per ciascun task type, ≥1 task per ciascun chapter. Più registrazioni dello stesso task contano una volta.
+- Regole: ≥50% task eseguiti per ciascun modulo, per ciascun task type e per ciascun chapter. Più registrazioni dello stesso task contano una volta.
 - Task eseguiti su simulatore o in aula si registrano con "SIM" o "CLA" al posto della matricola (da minimizzare).
 - La "Commissione tecnica esaminatrice" non è gestita.
 - Nessuna convalida delle registrazioni (decisione utente 2026-09-22): il frequentatore modifica sempre le proprie registrazioni, il TM può correggere.

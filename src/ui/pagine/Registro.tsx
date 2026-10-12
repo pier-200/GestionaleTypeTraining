@@ -43,7 +43,7 @@ export function Registro() {
         corso: c,
         utente: u,
         anagrafica: dati.anagrafiche.find((a) => a.user_id === u.id),
-        assenze: teorico ? assenzeDi(teorico, c, lezioni, rapportini, presenze, u.id) : null,
+        assenze: teorico ? assenzeDi(teorico, lezioni, rapportini, presenze, u.id) : null,
         pratica: pratico ? situazione(dati, c, u).report : null,
         certificati: dati.certificati.filter((x) => x.user_id === u.id && x.corso_id === c.id),
       }));

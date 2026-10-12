@@ -1,8 +1,14 @@
 /** Modello dati condiviso. Date in formato YYYY-MM-DD, istanti ISO. */
 
 export type ID = string;
-export type Ruolo = 'admin' | 'direttore' | 'instructor' | 'trainee';
+/** Ruolo dell'account: si conosce già all'accesso. */
+export type Ruolo = 'admin' | 'instructor' | 'trainee';
+/**
+ * Ruolo dentro un singolo corso. Il direttore non è un tipo di account: è un istruttore
+ * a cui il Training Manager affida quel corso (uno solo per corso).
+ */
 export type RuoloCorso = 'direttore' | 'instructor' | 'trainee';
+export type RuoloNelCorso = 'admin' | RuoloCorso;
 export type TipoEsecuzione = 'AC' | 'SIM' | 'CLA';
 
 export interface Utente {
@@ -10,8 +16,11 @@ export interface Utente {
   username: string;
   ruolo: Ruolo;
   attivo: boolean;
-  /** Nome mostrato per TM, direttori e istruttori (i frequentatori usano i Personal Data). */
+  /** Grado, nome e cognome di TM e istruttori (i frequentatori usano i Personal Data). */
+  grado: string;
+  /** Negli account creati prima della divisione in tre campi contiene l'intero nominativo. */
   nome: string;
+  cognome: string;
   /** Account istruttore collegato alla voce dell'elenco istruttori pratici. */
   istruttore_id: ID | null;
   deve_cambiare_password: boolean;
@@ -31,13 +40,16 @@ export interface Corso {
   programma_teorico: string | null;
   programma_pratico: string | null;
   data_inizio: string | null;
+  /** Data stimata di fine corso: oltre questa il programma settimanale riporta il ritardo. */
   data_fine: string | null;
+  /** Durata prevista, in settimane. */
+  durata_settimane: number | null;
   maintenance_organization: string;
   location: string;
-  /** Ora della prima lezione, per calcolare gli orari del programma settimanale. */
-  ora_inizio: string;
-  /** Minuti di lezione disponibili da lunedì a venerdì. */
-  minuti_giorno: number[];
+  /** Aula proposta per ogni lezione, salvo diversa indicazione sul singolo periodo. */
+  aula: string;
+  /** Gruppo firma del comandante, in calce al programma settimanale. */
+  gruppo_firma: string;
   attivo: boolean;
   created_at: string;
   updated_at: string;
@@ -60,6 +72,8 @@ export interface Anagrafica {
   citta_nascita: string;
   /** Numero MAML: compare nell'intestazione del Compliance Report. */
   maml: string;
+  /** Ente di appartenenza: compare nell'elenco dei frequentatori del programma settimanale. */
+  ente: string;
   updated_at: string;
   updated_by: ID | null;
 }
@@ -113,6 +127,8 @@ export interface Lezione {
   minuti: number;
   materia: string;
   istruttore_id: ID | null;
+  /** Aula del periodo; vuota = aula del corso. */
+  aula: string;
   /** Lezione, recupero oppure un periodo non didattico (MEO, sospensione, esame). */
   tipo: TipoPeriodo;
   /** Il programma diventa visibile ai frequentatori solo dopo la validazione. */
@@ -266,15 +282,26 @@ export const datiVuoti = (): Dati => ({
   certificati: [],
 });
 
+/** Completa i dati salvati da versioni precedenti dell'applicazione. */
+export function aggiornaDati(d: Dati): Dati {
+  return {
+    ...d,
+    // «direttore» era un tipo di account: ora è un istruttore con un incarico nel corso (resta nell'iscrizione)
+    utenti: d.utenti.map((u) => ({ ...u, grado: u.grado ?? '', cognome: u.cognome ?? '', ruolo: (u.ruolo as string) === 'direttore' ? 'instructor' : u.ruolo })),
+    corsi: d.corsi.map((c) => ({ ...c, durata_settimane: c.durata_settimane ?? null, aula: c.aula ?? '', gruppo_firma: c.gruppo_firma ?? '' })),
+    anagrafiche: d.anagrafiche.map((a) => ({ ...a, ente: a.ente ?? '' })),
+    lezioni: d.lezioni.map((l) => ({ ...l, aula: l.aula ?? '' })),
+  };
+}
+
 export const ETICHETTA_RUOLO: Record<Ruolo, string> = {
   admin: 'Training Manager',
-  direttore: 'Direttore del corso',
   instructor: 'Istruttore',
   trainee: 'Frequentatore',
 };
 
 export const ETICHETTA_RUOLO_CORSO: Record<RuoloCorso, string> = {
-  direttore: 'Direttore',
+  direttore: 'Direttore del corso',
   instructor: 'Istruttore',
   trainee: 'Frequentatore',
 };

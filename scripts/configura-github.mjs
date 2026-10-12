@@ -65,7 +65,7 @@ async function main() {
   const ora = new Date().toISOString();
   const utenti = await api('GET', `repos/${owner}/${repoDati}/contents/db/utenti.json?ref=${branch}`);
   if (utenti) throw new Error('Il repository dei dati contiene già degli utenti: usare l\'applicazione');
-  const admin = { id: nuovoUuid(), username, ruolo: 'admin', nome, istruttore_id: null, attivo: true, deve_cambiare_password: false, created_at: ora, updated_at: ora };
+  const admin = { id: nuovoUuid(), username, ruolo: 'admin', grado: '', nome, cognome: '', istruttore_id: null, attivo: true, deve_cambiare_password: false, created_at: ora, updated_at: ora };
   await scrivi(repoDati, 'README.md', `# Dati del Gestionale Type Training\n\nRepository **privato** gestito dall'applicazione: non modificare i file a mano.\n`, 'Inizializzazione');
   await scrivi(repoDati, 'db/utenti.json', `${JSON.stringify({ formato: 1, elementi: [admin] }, null, 1)}\n`, `${username}: configurazione iniziale`);
 

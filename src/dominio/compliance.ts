@@ -3,8 +3,8 @@ import type { Registrazione } from './tipi';
 
 /**
  * Compliance Report (Allegato 1, cap. 4) della parte pratica. Un frequentatore è conforme quando:
- * ≥50% dei task eseguiti per ciascun modulo, ≥50% per ciascun task type,
- * ≥1 task eseguito per ciascun chapter. Più registrazioni dello stesso task contano una volta.
+ * ≥50% dei task eseguiti per ciascun modulo, per ciascun task type e per ciascun chapter.
+ * Più registrazioni dello stesso task contano una volta.
  */
 
 export interface RigaReport {
@@ -42,10 +42,10 @@ const perc = (eseguiti: number, previsti: number) => (previsti ? Math.round((ese
 /** Soglia del 50%: il minimo intero di task che la soddisfa. */
 export const minimoMeta = (previsti: number) => Math.ceil(previsti / 2);
 
-function riga(codice: string, titolo: string, task: readonly Task[], eseguiti: Set<number>, requisito: 'meta' | 'uno'): RigaReport {
+function riga(codice: string, titolo: string, task: readonly Task[], eseguiti: Set<number>): RigaReport {
   const previsti = task.length;
   const fatti = task.filter((t) => eseguiti.has(t.id)).length;
-  const minimo = requisito === 'meta' ? minimoMeta(previsti) : 1;
+  const minimo = minimoMeta(previsti);
   return {
     codice,
     titolo,
@@ -64,9 +64,9 @@ const totale = (task: readonly Task[], eseguiti: Set<number>): Totale => {
 
 export function calcolaReport(registrazioni: readonly Pick<Registrazione, 'task_id'>[], programma: ProgrammaPratico): Report {
   const eseguiti = new Set(registrazioni.map((r) => r.task_id));
-  const perTipo = programma.taskType.map((t) => riga(t.codice, t.descrizione, programma.task.filter((x) => x.tipo === t.codice), eseguiti, 'meta'));
-  const perChapter = programma.chapter.map((c) => riga(c.codice, c.titolo, programma.task.filter((x) => x.chapter === c.codice), eseguiti, 'uno'));
-  const perModulo = programma.moduli.map((m) => riga(String(m.numero), `Modulo ${m.numero}`, programma.task.filter((x) => x.modulo === m.numero), eseguiti, 'meta'));
+  const perTipo = programma.taskType.map((t) => riga(t.codice, t.descrizione, programma.task.filter((x) => x.tipo === t.codice), eseguiti));
+  const perChapter = programma.chapter.map((c) => riga(c.codice, c.titolo, programma.task.filter((x) => x.chapter === c.codice), eseguiti));
+  const perModulo = programma.moduli.map((m) => riga(String(m.numero), `Modulo ${m.numero}`, programma.task.filter((x) => x.modulo === m.numero), eseguiti));
   const p66 = new Set(programma.moduli.filter((m) => m.p66).map((m) => m.numero));
   const tutte = [...perTipo, ...perChapter, ...perModulo];
   return {

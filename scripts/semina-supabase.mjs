@@ -51,7 +51,7 @@ if (esempio) {
   verifica(await sb.from('istruttori').insert(d.istruttori.map((i) => ({ ...i, id: m(i.id), created_by: m(i.created_by) }))), 'istruttori');
   verifica(
     await sb.from('profili').insert(
-      d.utenti.filter((u) => u.ruolo !== 'admin').map((u) => ({ id: m(u.id), username: u.username, ruolo: u.ruolo, nome: u.nome, attivo: u.attivo, istruttore_id: m(u.istruttore_id), deve_cambiare_password: false, created_at: u.created_at })),
+      d.utenti.filter((u) => u.ruolo !== 'admin').map((u) => ({ id: m(u.id), username: u.username, ruolo: u.ruolo, grado: u.grado, nome: u.nome, cognome: u.cognome, attivo: u.attivo, istruttore_id: m(u.istruttore_id), deve_cambiare_password: false, created_at: u.created_at })),
     ),
     'profili',
   );

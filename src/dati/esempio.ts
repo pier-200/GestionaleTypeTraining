@@ -51,11 +51,13 @@ const ISTRUTTORI: Istruttore[] = [
   ['ist-conti', 'Mar. Ord.', 'Fabio', 'Conti'],
 ].map(([id, grado, nome, cognome]) => ({ id, grado, nome, cognome, created_at: ISTANTE_BASE, created_by: 'u-tm' }));
 
-const utente = (id: string, username: string, ruolo: Utente['ruolo'], nome = '', istruttore_id: string | null = null): Utente => ({
+const utente = (id: string, username: string, ruolo: Utente['ruolo'], [grado, nome, cognome] = ['', '', ''], istruttore_id: string | null = null): Utente => ({
   id,
   username,
   ruolo,
+  grado,
   nome,
+  cognome,
   istruttore_id,
   attivo: true,
   deve_cambiare_password: false,
@@ -66,30 +68,31 @@ const utente = (id: string, username: string, ruolo: Utente['ruolo'], nome = '',
 interface Profilo {
   id: string;
   username: string;
-  anagrafica: [string, string, string, string, string, string] | null;
+  /** grado, nome, cognome, data e città di nascita, MAML, ente */
+  anagrafica: [string, string, string, string, string, string, string] | null;
   /** quanti task eseguire e con quali vincoli */
   obiettivo: { conforme: 'si' | 'quasi' | 'no'; task: number; chapterScoperti?: string[] };
 }
 
 const FREQUENTATORI: Profilo[] = [
-  { id: 'u-romano', username: 'giulia.romano', anagrafica: ['Serg. Magg.', 'Giulia', 'Romano', '1994-03-18', 'Viterbo', 'MAML-IT-0417'], obiettivo: { conforme: 'si', task: 118 } },
+  { id: 'u-romano', username: 'giulia.romano', anagrafica: ['Serg. Magg.', 'Giulia', 'Romano', '1994-03-18', 'Viterbo', 'MAML-IT-0417', '1° Rgt. AVES'], obiettivo: { conforme: 'si', task: 118 } },
   {
     id: 'u-bruno',
     username: 'alessandro.bruno',
-    anagrafica: ['Serg.', 'Alessandro', 'Bruno', '1996-11-02', 'Caserta', 'MAML-IT-0388'],
+    anagrafica: ['Serg.', 'Alessandro', 'Bruno', '1996-11-02', 'Caserta', 'MAML-IT-0388', '1° Rgt. AVES'],
     obiettivo: { conforme: 'quasi', task: 104, chapterScoperti: ['44', '46', 'AVES 3'] },
   },
-  { id: 'u-gallo', username: 'matteo.gallo', anagrafica: ['C.le Magg. Sc.', 'Matteo', 'Gallo', '1998-07-25', 'Rieti', 'MAML-IT-0452'], obiettivo: { conforme: 'no', task: 71 } },
-  { id: 'u-costa', username: 'francesca.costa', anagrafica: ['Serg.', 'Francesca', 'Costa', '1997-01-09', 'Bracciano', ''], obiettivo: { conforme: 'no', task: 44 } },
-  { id: 'u-ricci', username: 'luca.ricci', anagrafica: ['C.le Magg. Ca.', 'Luca', 'Ricci', '1995-05-30', 'Orvieto', ''], obiettivo: { conforme: 'no', task: 19 } },
+  { id: 'u-gallo', username: 'matteo.gallo', anagrafica: ['C.le Magg. Sc.', 'Matteo', 'Gallo', '1998-07-25', 'Rieti', 'MAML-IT-0452', '4° Rgt. AVES'], obiettivo: { conforme: 'no', task: 71 } },
+  { id: 'u-costa', username: 'francesca.costa', anagrafica: ['Serg.', 'Francesca', 'Costa', '1997-01-09', 'Bracciano', '', '4° Rgt. AVES'], obiettivo: { conforme: 'no', task: 44 } },
+  { id: 'u-ricci', username: 'luca.ricci', anagrafica: ['C.le Magg. Ca.', 'Luca', 'Ricci', '1995-05-30', 'Orvieto', '', '7° Rgt. AVES'], obiettivo: { conforme: 'no', task: 19 } },
   { id: 'u-fontana', username: 'simone.fontana', anagrafica: null, obiettivo: { conforme: 'no', task: 0 } },
 ];
 
 /** Frequentatori del secondo corso (solo teoria, appena iniziato). */
 const NUOVI: Profilo[] = [
-  { id: 'u-marchetti', username: 'davide.marchetti', anagrafica: ['Serg.', 'Davide', 'Marchetti', '1999-02-14', 'Terni', ''], obiettivo: { conforme: 'no', task: 0 } },
-  { id: 'u-pellegrini', username: 'sara.pellegrini', anagrafica: ['C.le Magg. Sc.', 'Sara', 'Pellegrini', '1998-09-03', 'Perugia', ''], obiettivo: { conforme: 'no', task: 0 } },
-  { id: 'u-esposito', username: 'nicola.esposito', anagrafica: ['Serg. Magg.', 'Nicola', 'Esposito', '1993-12-21', 'Napoli', ''], obiettivo: { conforme: 'no', task: 0 } },
+  { id: 'u-marchetti', username: 'davide.marchetti', anagrafica: ['Serg.', 'Davide', 'Marchetti', '1999-02-14', 'Terni', '', '1° Rgt. AVES'], obiettivo: { conforme: 'no', task: 0 } },
+  { id: 'u-pellegrini', username: 'sara.pellegrini', anagrafica: ['C.le Magg. Sc.', 'Sara', 'Pellegrini', '1998-09-03', 'Perugia', '', '5° Rgt. AVES'], obiettivo: { conforme: 'no', task: 0 } },
+  { id: 'u-esposito', username: 'nicola.esposito', anagrafica: ['Serg. Magg.', 'Nicola', 'Esposito', '1993-12-21', 'Napoli', '', '7° Rgt. AVES'], obiettivo: { conforme: 'no', task: 0 } },
 ];
 
 /** Giorni lavorativi del corso fino a ieri (rispetto al 22/09/2026, data di preparazione dell'esempio). */
@@ -111,10 +114,9 @@ function scegliTask(p: Profilo, g: ReturnType<typeof generatore>): Task[] {
   const scelti = new Set<Task>();
   const disponibili = TASK.filter((t) => !chapterScoperti.includes(t.chapter));
   if (conforme !== 'no') {
-    // un task per ogni chapter coperto, poi il 50% di ogni modulo e task type
-    for (const ch of new Set(disponibili.map((t) => t.chapter))) scelti.add(g.uno(disponibili.filter((t) => t.chapter === ch)));
+    // il 50% di ogni chapter coperto, di ogni modulo e di ogni task type
     const gruppi = (chiave: (t: Task) => string | number) => [...new Set(TASK.map(chiave))].map((k) => TASK.filter((t) => chiave(t) === k));
-    for (const gruppo of [...gruppi((t) => t.modulo), ...gruppi((t) => t.tipo)]) {
+    for (const gruppo of [...gruppi((t) => t.chapter), ...gruppi((t) => t.modulo), ...gruppi((t) => t.tipo)]) {
       const candidati = g.mescola(gruppo.filter((t) => disponibili.includes(t)));
       for (const t of candidati) {
         if ([...scelti].filter((s) => gruppo.includes(s)).length >= minimoMeta(gruppo.length)) break;
@@ -186,10 +188,11 @@ const corso = (id: string, codice: string, nome: string, extra: Partial<Corso>):
   programma_pratico: PRATICO.id,
   data_inizio: INIZIO,
   data_fine: '2026-10-02',
+  durata_settimane: 13,
   maintenance_organization: '1° Reggimento AVES "Antares" – appr. DAAA n. 00/ESEMPIO',
   location: 'Viterbo',
-  ora_inizio: '08:30',
-  minuti_giorno: [360, 360, 360, 360, 180],
+  aula: 'Aula N.1',
+  gruppo_firma: 'Col. Giorgio ESEMPIO',
   attivo: true,
   created_at: ISTANTE_BASE,
   updated_at: ISTANTE_BASE,
@@ -210,6 +213,7 @@ function lezioniEsempio(corsoId: string, inizio: string, settimane: number, doce
         minuti: p.minuti,
         materia: p.materia,
         istruttore_id: p.istruttore_id,
+        aula: '',
         tipo: 'lezione',
         validata: false,
         validata_da: null,
@@ -274,8 +278,8 @@ export function datiEsempio(): Dati {
   const anagrafiche: Anagrafica[] = tutti
     .filter((p) => p.anagrafica)
     .map((p) => {
-      const [grado, nome, cognome, data_nascita, citta_nascita, maml] = p.anagrafica!;
-      return { user_id: p.id, grado, nome, cognome, data_nascita, citta_nascita, maml, updated_at: '2026-07-06T09:00:00.000Z', updated_by: p.id };
+      const [grado, nome, cognome, data_nascita, citta_nascita, maml, ente] = p.anagrafica!;
+      return { user_id: p.id, grado, nome, cognome, data_nascita, citta_nascita, maml, ente, updated_at: '2026-07-06T09:00:00.000Z', updated_by: p.id };
     });
   const fontana = utente('u-fontana', 'simone.fontana', 'trainee');
   fontana.created_at = fontana.updated_at = '2026-09-21T10:00:00.000Z';
@@ -285,17 +289,19 @@ export function datiEsempio(): Dati {
     corso(CORSO_2, 'T1-2026/2', 'T1 Type Training CH-47F Cat. B1.3 – 2° corso 2026', {
       data_inizio: '2026-09-14',
       data_fine: '2027-03-31',
+      durata_settimane: 28,
       programma_pratico: null,
       created_at: '2026-09-10T08:00:00.000Z',
     }),
   ];
 
   const utenti: Utente[] = [
-    utente('u-tm', 'tm.ferri', 'admin', 'Magg. Luca Ferri'),
-    utente('u-neri', 'marco.neri', 'direttore', 'Cap. Marco Neri'),
-    utente('u-rinaldi', 'paolo.rinaldi', 'instructor', 'Mar. Ca. Paolo Rinaldi', 'ist-rinaldi'),
-    utente('u-colombo', 'andrea.colombo', 'instructor', 'Lgt. Andrea Colombo', 'ist-colombo'),
-    utente('u-greco', 'stefano.greco', 'instructor', '1° Mar. Stefano Greco', 'ist-greco'),
+    utente('u-tm', 'tm.ferri', 'admin', ['Magg.', 'Luca', 'Ferri']),
+    // il direttore è un istruttore come gli altri: l'incarico sta nell'iscrizione ai due corsi
+    utente('u-neri', 'marco.neri', 'instructor', ['Cap.', 'Marco', 'Neri']),
+    utente('u-rinaldi', 'paolo.rinaldi', 'instructor', ['Mar. Ca.', 'Paolo', 'Rinaldi'], 'ist-rinaldi'),
+    utente('u-colombo', 'andrea.colombo', 'instructor', ['Lgt.', 'Andrea', 'Colombo'], 'ist-colombo'),
+    utente('u-greco', 'stefano.greco', 'instructor', ['1° Mar.', 'Stefano', 'Greco'], 'ist-greco'),
     ...FREQUENTATORI.filter((p) => p.id !== 'u-fontana').map((p) => utente(p.id, p.username, 'trainee')),
     fontana,
     ...NUOVI.map((p) => utente(p.id, p.username, 'trainee')),
@@ -350,9 +356,10 @@ export function datiEsempio(): Dati {
     corso_id: CORSO_1,
     data: '2026-09-17',
     ordine: 0,
-    minuti: 120,
+    minuti: 60,
     materia: lezioni1.find((l) => l.data === giorni1[3])!.materia,
     istruttore_id: 'u-rinaldi',
+    aula: 'Aula N.2',
     tipo: 'recupero',
     validata: true,
     validata_da: 'u-neri',

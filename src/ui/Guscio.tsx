@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { ActionIcon, Drawer, Select, Tooltip, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
 import { IconDots, IconLogout, IconMoon, IconRefresh, IconSun, IconSwitchHorizontal } from '@tabler/icons-react';
 import { corsiDi, oggiISO } from '../dominio/motore';
-import { ETICHETTA_RUOLO } from '../dominio/tipi';
+import { ETICHETTA_RUOLO, ETICHETTA_RUOLO_CORSO } from '../dominio/tipi';
 import { avanzamento, mediaPratica, nomeUtente } from '../dominio/viste';
 import { link, menuPer, ricordaCorso, useCorso, useFrequentatore, useRuoloCorso, type Voce } from './navigazione';
 import { naviga, usePosizione } from './router';
@@ -129,7 +129,7 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
         <div className="indice-piede">
           <div style={{ fontWeight: 600 }}>{nomeUtente(dati, utente.id)}</div>
           <div className="debole">
-            {ETICHETTA_RUOLO[utente.ruolo]} · {utente.username}
+            {ruolo === 'direttore' ? ETICHETTA_RUOLO_CORSO.direttore : ETICHETTA_RUOLO[utente.ruolo]} · {utente.username}
           </div>
           <button type="button" onClick={() => void esci()} style={{ all: 'unset', cursor: 'pointer', marginTop: 10, display: 'inline-flex', gap: 6, alignItems: 'center', fontWeight: 600 }}>
             <IconLogout size={16} aria-hidden /> Esci

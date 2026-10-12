@@ -2,7 +2,7 @@
 //
 // Operazioni riservate al Training Manager che richiedono la chiave di servizio:
 // - crea:     nuovo account (Supabase Auth + profilo) con password provvisoria;
-// - modifica: nome, collegamento all'elenco istruttori, attivazione/disattivazione, nuova password provvisoria.
+// - modifica: grado, nome e cognome, collegamento all'elenco istruttori, attivazione/disattivazione, nuova password provvisoria.
 // Da pubblicare con "Verify JWT" disattivato: il chiamante è verificato qui dentro.
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -13,7 +13,7 @@ const CORS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 const RE_USERNAME = /^[a-z0-9][a-z0-9._-]{2,39}$/;
-const RUOLI = ['admin', 'direttore', 'instructor', 'trainee'];
+const RUOLI = ['admin', 'instructor', 'trainee'];
 
 const risposta = (stato: number, corpo: Record<string, unknown>) =>
   new Response(JSON.stringify(corpo), { status: stato, headers: { ...CORS, 'Content-Type': 'application/json; charset=utf-8' } });
@@ -81,7 +81,9 @@ Deno.serve(async (req: Request) => {
       id: creato.user.id,
       username,
       ruolo,
+      grado: String(c.grado ?? '').trim(),
       nome,
+      cognome: String(c.cognome ?? '').trim(),
       istruttore_id: ruolo === 'instructor' ? istruttore : null,
       deve_cambiare_password: true,
     });
@@ -114,7 +116,9 @@ Deno.serve(async (req: Request) => {
     const { error: e2 } = await admin
       .from('profili')
       .update({
+        grado: String(c.grado ?? p.grado).trim(),
         nome: String(c.nome ?? p.nome).trim(),
+        cognome: String(c.cognome ?? p.cognome).trim(),
         attivo,
         istruttore_id: p.ruolo === 'instructor' ? istruttore : null,
         deve_cambiare_password: password ? true : p.deve_cambiare_password,

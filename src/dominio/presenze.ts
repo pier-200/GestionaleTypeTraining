@@ -1,6 +1,6 @@
-import { indiceGiorno, orarioLezione } from './pianificazione';
+import { indiceGiorno, orarioPeriodo } from './pianificazione';
 import { materiaDi, type Materia, type ProgrammaTeorico } from './programmi';
-import type { Corso, ID, Lezione, Presenza, Rapportino } from './tipi';
+import type { ID, Lezione, Presenza, Rapportino } from './tipi';
 
 /**
  * Rapportino presenze e conteggio delle assenze della parte teorica.
@@ -29,17 +29,8 @@ export interface Orario {
   fine: string;
 }
 
-/** Orario di ogni lezione, ricavato dall'ora di inizio del corso e dalla durata delle lezioni che precedono. */
-export function orariLezioni(corso: Pick<Corso, 'ora_inizio'>, lezioni: readonly Lezione[]): Map<ID, Orario> {
-  const perGiorno = new Map<string, Lezione[]>();
-  for (const l of lezioni) perGiorno.set(l.data, [...(perGiorno.get(l.data) ?? []), l]);
-  const orari = new Map<ID, Orario>();
-  for (const [, delGiorno] of perGiorno) {
-    const ordinate = [...delGiorno].sort((a, b) => a.ordine - b.ordine);
-    for (const l of ordinate) orari.set(l.id, orarioLezione(corso, ordinate, l.ordine));
-  }
-  return orari;
-}
+/** Orario di ogni lezione: i periodi hanno orari fissi. */
+export const orariLezioni = (lezioni: readonly Lezione[]): Map<ID, Orario> => new Map(lezioni.map((l) => [l.id, orarioPeriodo(l.ordine, l.minuti)]));
 
 /** Presenza del frequentatore in quel giorno: senza rapportino non c'è rilevazione. */
 const presenzaDi = (presenze: readonly Presenza[], data: string, userId: ID) => presenze.find((p) => p.data === data && p.user_id === userId);
@@ -89,13 +80,11 @@ export interface SituazioneAssenze {
 /** Situazione delle assenze di un frequentatore: per lezione, per materia e idoneità all'esame. */
 export function assenzeDi(
   programma: ProgrammaTeorico,
-  corso: Pick<Corso, 'ora_inizio'>,
   lezioni: readonly Lezione[],
   rapportini: readonly Rapportino[],
   presenze: readonly Presenza[],
   userId: ID,
 ): SituazioneAssenze {
-  const orari = orariLezioni(corso, lezioni);
   const rilevate = new Map(rapportini.map((r) => [r.data, r]));
   const mie = presenze.filter((p) => p.user_id === userId);
   const assenze: AssenzaLezione[] = [];
@@ -104,7 +93,7 @@ export function assenzeDi(
   for (const l of [...lezioni].sort((a, b) => a.data.localeCompare(b.data) || a.ordine - b.ordine)) {
     const rapportino = rilevate.get(l.data);
     if (!rapportino) continue; // giornata non rilevata: nessuna assenza da conteggiare
-    const orario = orari.get(l.id) ?? { inizio: corso.ora_inizio, fine: corso.ora_inizio };
+    const orario = orarioPeriodo(l.ordine, l.minuti);
     const presenza = presenzaDi(mie, l.data, userId);
     const assente = assenteAllaLezione(presenza, orario);
     if (l.tipo === 'recupero') {

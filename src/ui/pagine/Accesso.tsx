@@ -99,7 +99,7 @@ export function Accesso() {
                         <strong>{u.ruolo === 'trainee' && !s?.registrazioni.length && !esempio.anagrafiche.some((a) => a.user_id === u.id) ? `${u.username} (nuovo account)` : nomeUtente(esempio, u.id)}</strong>
                         <span className="debole" style={{ display: 'block', fontSize: 'var(--fs-s)' }}>
                           {ETICHETTA_RUOLO[u.ruolo]}
-                          {u.ruolo === 'instructor' ? ' · sola lettura' : u.ruolo === 'admin' ? ' · pieni poteri' : ''}
+                          {esempio.iscrizioni.some((i) => i.user_id === u.id && i.ruolo === 'direttore') ? ' · direttore dei suoi corsi' : u.ruolo === 'instructor' ? ' · sola lettura' : u.ruolo === 'admin' ? ' · pieni poteri' : ''}
                         </span>
                       </span>
                       {s ? (

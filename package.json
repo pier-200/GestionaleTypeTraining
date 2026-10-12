@@ -12,6 +12,7 @@
     "test": "vitest run",
     "e2e": "node tests/e2e.mjs",
     "programmi": "cd scripts && py -3.11 import_programma_mtt.py && py -3.11 import_catalogo.py",
+    "modulo": "py -3.11 scripts/modulo_settimanale.py",
     "pubblica": "node scripts/pubblica.mjs"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "@mantine/notifications": "^9.6.2",
     "@supabase/supabase-js": "^2.116.0",
     "@tabler/icons-react": "^3.47.0",
+    "fflate": "^0.8.3",
     "pdf-lib": "^1.17.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

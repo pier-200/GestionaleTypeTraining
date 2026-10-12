@@ -1,7 +1,7 @@
 import type { Config } from '../../config';
 import { ErroreApp } from '../../dominio/errori';
 import { RE_USERNAME, applica, errorePassword, oggiISO, type Comando, type Esito } from '../../dominio/motore';
-import { datiVuoti, type Dati, type Utente } from '../../dominio/tipi';
+import { aggiornaDati, datiVuoti, type Dati, type Utente } from '../../dominio/tipi';
 import { archivio, type Backend, type DatiPrimoAvvio, type Sessione } from '../tipi';
 import { ApiGitHub, ConflittoRef, type VoceAlberoGit } from './api';
 import { bytesDaTesto, nuovoUuid, testoDaBytes } from './crittografia';
@@ -70,7 +70,7 @@ function daFile(file: Map<string, string>): Dati {
     return j.elementi ?? [];
   };
   const raccogli = <T,>(prefisso: string) => [...file].filter(([p]) => p.startsWith(prefisso)).flatMap(([, t]) => elenco<T>(t));
-  return {
+  return aggiornaDati({
     utenti: elenco(file.get('db/utenti.json')),
     corsi: elenco(file.get('db/corsi.json')),
     iscrizioni: elenco(file.get('db/iscrizioni.json')),
@@ -83,7 +83,7 @@ function daFile(file: Map<string, string>): Dati {
     registrazioni: raccogli('db/registrazioni/'),
     lezioni: raccogli('db/lezioni/'),
     presenze: raccogli('db/presenze/'),
-  };
+  });
 }
 
 /**
@@ -188,7 +188,7 @@ export class GitHubBackend implements Backend {
     }
     if (!admin) {
       const ora = new Date().toISOString();
-      admin = { id: nuovoUuid(), username, ruolo: 'admin', nome: d.nome.trim(), istruttore_id: null, attivo: true, deve_cambiare_password: false, created_at: ora, updated_at: ora };
+      admin = { id: nuovoUuid(), username, ruolo: 'admin', grado: '', nome: d.nome.trim(), cognome: '', istruttore_id: null, attivo: true, deve_cambiare_password: false, created_at: ora, updated_at: ora };
       await this.salva({ ...datiVuoti(), utenti: [admin] }, `${username}: configurazione iniziale`);
     }
     const { keyring, chiavi } = await creaKeyring(token, username, d.password);

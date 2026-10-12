@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, CopyButton, Drawer, Group, SegmentedControl, Select, Stack, Switch, Tabs, Text, TextInput } from '@mantine/core';
+import { Button, CopyButton, Drawer, Group, SegmentedControl, Select, SimpleGrid, Stack, Switch, Tabs, Text, TextInput } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconCopy, IconPencil, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
@@ -43,7 +43,9 @@ function FormAccount({ esistente, chiudi }: { esistente: Utente | null; chiudi: 
   const { dati, esegui, utente: io } = useStato();
   const [ruolo, setRuolo] = useState<Ruolo>(esistente?.ruolo ?? 'trainee');
   const [username, setUsername] = useState(esistente?.username ?? '');
+  const [grado, setGrado] = useState(esistente?.grado ?? '');
   const [nome, setNome] = useState(esistente?.nome ?? '');
+  const [cognome, setCognome] = useState(esistente?.cognome ?? '');
   const [istruttore, setIstruttore] = useState<string | null>(esistente?.istruttore_id ?? null);
   const [attivo, setAttivo] = useState(esistente?.attivo ?? true);
   const [password, setPassword] = useState(esistente ? '' : generaPassword());
@@ -70,10 +72,10 @@ function FormAccount({ esistente, chiudi }: { esistente: Utente | null; chiudi: 
         setAttesa(true);
         const ok = esistente
           ? await esegui(
-              { tipo: 'utente.modifica', utente: { id: esistente.id, nome, attivo, istruttore_id: ruolo === 'instructor' ? istruttore : null }, password: password || undefined },
+              { tipo: 'utente.modifica', utente: { id: esistente.id, grado, nome, cognome, attivo, istruttore_id: ruolo === 'instructor' ? istruttore : null }, password: password || undefined },
               'Account aggiornato',
             )
-          : await esegui({ tipo: 'utente.crea', utente: { id: nuovoUuid(), username: u, ruolo, nome, istruttore_id: ruolo === 'instructor' ? istruttore : null }, password }, 'Account creato');
+          : await esegui({ tipo: 'utente.crea', utente: { id: nuovoUuid(), username: u, ruolo, grado, nome, cognome, istruttore_id: ruolo === 'instructor' ? istruttore : null }, password }, 'Account creato');
         setAttesa(false);
         if (!ok) return;
         if (password && attivo) setFatto({ username: esistente?.username ?? u, password });
@@ -93,20 +95,30 @@ function FormAccount({ esistente, chiudi }: { esistente: Utente | null; chiudi: 
               data={[
                 { value: 'trainee', label: 'Frequentatore' },
                 { value: 'instructor', label: 'Istruttore' },
-                { value: 'direttore', label: 'Direttore' },
                 { value: 'admin', label: 'Training Mgr' },
               ]}
             />
+            {ruolo === 'instructor' && (
+              <Text size="xs" c="dimmed" mt={6}>
+                Il direttore di un corso è un istruttore: l’incarico si assegna nei dati del corso.
+              </Text>
+            )}
           </div>
         )}
         <TextInput label="Username" value={username} onChange={(e) => setUsername(e.currentTarget.value)} disabled={Boolean(esistente)} error={erroreUsername} placeholder="nome.cognome" required autoCapitalize="none" />
-        <TextInput
-          label={ruolo === 'trainee' ? 'Nome (facoltativo)' : 'Grado, nome e cognome'}
-          description={ruolo === 'trainee' ? 'Il frequentatore compila i propri Personal Data al primo accesso.' : undefined}
-          value={nome}
-          onChange={(e) => setNome(e.currentTarget.value)}
-          required={ruolo !== 'trainee'}
-        />
+        {ruolo === 'trainee' ? (
+          <Text size="sm" className="debole">
+            Il frequentatore compila i propri Personal Data (grado, nome, cognome, ente) al primo accesso.
+          </Text>
+        ) : (
+          <>
+            <TextInput label="Grado" placeholder="es. Mar. Ca." value={grado} onChange={(e) => setGrado(e.currentTarget.value)} required />
+            <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
+              <TextInput label="Nome" value={nome} onChange={(e) => setNome(e.currentTarget.value)} required />
+              <TextInput label="Cognome" description={esistente && !esistente.cognome ? 'Dividere il nominativo nei tre campi.' : undefined} value={cognome} onChange={(e) => setCognome(e.currentTarget.value)} required />
+            </SimpleGrid>
+          </>
+        )}
         {ruolo === 'instructor' && (
           <Select
             label="Collegato all'elenco istruttori"
@@ -182,8 +194,9 @@ export function Account() {
   const [account, setAccount] = useState<Utente | 'nuovo' | null>(null);
   const [istruttore, setIstruttore] = useState<Istruttore | 'nuovo' | null>(null);
   if (!dati || !backend) return null;
-  const ordine: Record<Ruolo, number> = { admin: 0, direttore: 1, instructor: 2, trainee: 3 };
+  const ordine: Record<Ruolo, number> = { admin: 0, instructor: 1, trainee: 2 };
   const utenti = [...dati.utenti].sort((a, b) => ordine[a.ruolo] - ordine[b.ruolo] || Number(b.attivo) - Number(a.attivo) || chiaveOrdine(dati, a).localeCompare(chiaveOrdine(dati, b)));
+  const direttori = new Set(dati.iscrizioni.filter((i) => i.ruolo === 'direttore').map((i) => i.user_id));
   const cassetto = { position: mobile ? ('bottom' as const) : ('right' as const), size: mobile ? '92%' : 460 };
 
   return (
@@ -215,7 +228,10 @@ export function Account() {
                   <tr key={u.id} style={u.attivo ? undefined : { color: 'var(--testo-3)' }}>
                     <td style={{ fontWeight: 600, minWidth: 180 }}>{nomeUtente(dati, u.id)}</td>
                     <td className="cifre">{u.username}</td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{ETICHETTA_RUOLO[u.ruolo]}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      {ETICHETTA_RUOLO[u.ruolo]}
+                      {direttori.has(u.id) && ' · direttore di corso'}
+                    </td>
                     <td style={{ whiteSpace: 'nowrap' }}>{!u.attivo ? 'Disattivato' : u.deve_cambiare_password ? 'Password provvisoria' : 'Attivo'}</td>
                     <td>
                       <Button size="compact-sm" variant="subtle" leftSection={<IconPencil size={15} />} onClick={() => setAccount(u)}>

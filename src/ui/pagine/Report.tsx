@@ -159,7 +159,7 @@ function ReportDi({ f, corso }: { f: Utente; corso: Corso }) {
         <span className="etichetta">Esito complessivo</span>
         <Timbro conforme={r.conforme} />
         <span className="debole">
-          ≥ 50% per ciascun modulo e task type · ≥ 1 task per ciascun chapter
+          ≥ 50% dei task per ciascun task type, chapter e modulo
         </span>
       </div>
 
@@ -174,11 +174,8 @@ function ReportDi({ f, corso }: { f: Utente; corso: Corso }) {
       <section className="sezione cr-pagina">
         <header>
           <h2 className="titolo-sezione">4.2 Percentage by chapter</h2>
-          <span className="etichetta">almeno 1 task per chapter</span>
+          <span className="etichetta">soglia 50%</span>
         </header>
-        <p className="debole" style={{ marginTop: 0 }}>
-          La percentuale per chapter è riportata a titolo informativo: il requisito è almeno un task eseguito per ciascun chapter.
-        </p>
         <Tabella
           colonna="Chapter"
           righe={r.perChapter}
@@ -187,7 +184,7 @@ function ReportDi({ f, corso }: { f: Utente; corso: Corso }) {
             ['TOTAL task', r.totale],
           ]}
           separa={(riga, i) => i > 0 && moduloDi.get(riga.codice) !== moduloDi.get(r.perChapter[i - 1].codice)}
-          requisito="≥ 1 task"
+          requisito="≥ 50%"
         />
       </section>
 

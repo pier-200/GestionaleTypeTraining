@@ -40,10 +40,11 @@ export function FormAnagrafica({ f, sola, dopo }: { f: Utente; sola: boolean; do
     data_nascita: a?.data_nascita ?? '',
     citta_nascita: a?.citta_nascita ?? '',
     maml: a?.maml ?? '',
+    ente: a?.ente ?? '',
   });
   const [attesa, setAttesa] = useState(false);
   const campo = (k: keyof typeof v, label: string, extra: Record<string, unknown> = {}) => (
-    <TextInput label={label} value={v[k]} onChange={(e) => setV({ ...v, [k]: e.currentTarget.value })} readOnly={sola} variant={sola ? 'filled' : 'default'} required={!sola && k !== 'maml'} {...extra} />
+    <TextInput label={label} value={v[k]} onChange={(e) => setV({ ...v, [k]: e.currentTarget.value })} readOnly={sola} variant={sola ? 'filled' : 'default'} required={!sola && k !== 'maml' && k !== 'ente'} {...extra} />
   );
   return (
     <form
@@ -66,6 +67,7 @@ export function FormAnagrafica({ f, sola, dopo }: { f: Utente; sola: boolean; do
           {campo('citta_nascita', 'Place of birth')}
         </SimpleGrid>
         {campo('maml', 'MAML n. (se posseduta)', { description: 'Compare nell’intestazione del Compliance Report.' })}
+        {campo('ente', 'Ente di appartenenza', { description: 'Compare nell’elenco dei frequentatori del programma settimanale.' })}
         {!sola && (
           <Button type="submit" loading={attesa} style={{ alignSelf: 'flex-start' }}>
             Salva personal data

@@ -37,7 +37,7 @@ export function Rapportino() {
   const validato = rapportino?.validato_il != null;
   const salvate = dati.presenze.filter((p) => p.corso_id === corso.id && p.data === giorno);
   const delGiorno = lezioniVisibili(dati, corso.id, ruolo).filter((l) => l.data === giorno);
-  const orari = orariLezioni(corso, delGiorno);
+  const orari = orariLezioni(delGiorno);
   const [standardDalle, standardAlle] = orarioStandard(giorno);
 
   const iniziali = (): Record<ID, CampiPresenza> =>

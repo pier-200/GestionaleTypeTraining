@@ -4,8 +4,8 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
 import { ruoloNelCorso } from '../../dominio/motore';
 import { programmaPratico, programmaTeorico } from '../../dominio/programmi';
-import { ETICHETTA_RUOLO_CORSO, type RuoloCorso } from '../../dominio/tipi';
-import { chiaveOrdine, formatoData, frequentatori, iscritti, nomeUtente } from '../../dominio/viste';
+import { ETICHETTA_RUOLO, type RuoloCorso } from '../../dominio/tipi';
+import { chiaveOrdine, direttoreDi, formatoData, frequentatori, iscritti, nomeUtente } from '../../dominio/viste';
 import { IntestazionePagina, Sezione } from '../componenti/disegno';
 import { FormTraining } from './Dati';
 import { useCorso } from '../navigazione';
@@ -15,7 +15,7 @@ import { useStato } from '../stato';
 export function Corso() {
   const { dati, utente, esegui } = useStato();
   const corso = useCorso();
-  const [nuovo, setNuovo] = useState<{ user_id: string | null; ruolo: RuoloCorso }>({ user_id: null, ruolo: 'trainee' });
+  const [nuovo, setNuovo] = useState<string | null>(null);
   const [scelti, setScelti] = useState<string[]>([]);
   if (!dati || !utente || !corso) return null;
   const mio = ruoloNelCorso(dati, utente, corso.id);
@@ -23,8 +23,9 @@ export function Corso() {
   const gruppi: [RuoloCorso, string][] = [
     ['trainee', 'Frequentatori'],
     ['instructor', 'Istruttori'],
-    ['direttore', 'Direzione del corso'],
+    ['direttore', 'Direttore del corso'],
   ];
+  const direttore = direttoreDi(dati, corso.id);
   const iscrivibili = dati.utenti
     .filter((u) => u.attivo && u.ruolo !== 'admin' && !dati.iscrizioni.some((i) => i.corso_id === corso.id && i.user_id === u.id))
     .sort((a, b) => chiaveOrdine(dati, a).localeCompare(chiaveOrdine(dati, b)));
@@ -32,7 +33,12 @@ export function Corso() {
 
   return (
     <>
-      <IntestazionePagina titolo={corso.nome} sotto={`${corso.codice} · ${formatoData(corso.data_inizio)} – ${formatoData(corso.data_fine)} · ${corso.location || 'sede da definire'}`} />
+      <IntestazionePagina
+        titolo={corso.nome}
+        sotto={[corso.codice, `${formatoData(corso.data_inizio)} – ${formatoData(corso.data_fine)}`, corso.durata_settimane && `${corso.durata_settimane} settimane`, corso.location || 'sede da definire', corso.aula]
+          .filter(Boolean)
+          .join(' · ')}
+      />
 
       <div className="cartiglio riepilogo-corso">
         <div>
@@ -44,10 +50,8 @@ export function Corso() {
           <div className="valore">{programmaPratico(corso.programma_pratico)?.nome ?? '—'}</div>
         </div>
         <div>
-          <span className="etichetta">Lezioni al giorno</span>
-          <div className="valore cifre">
-            {corso.minuti_giorno.map((m) => m / 60).join(' · ')} h · dalle {corso.ora_inizio}
-          </div>
+          <span className="etichetta">Direttore del corso</span>
+          <div className="valore">{direttore ? nomeUtente(dati, direttore.id) : 'da assegnare'}</div>
         </div>
       </div>
 
@@ -58,29 +62,22 @@ export function Corso() {
               label="Aggiungi al corso"
               placeholder="Scegli un account"
               searchable
-              value={nuovo.user_id}
-              onChange={(v) => setNuovo({ ...nuovo, user_id: v })}
-              data={iscrivibili.map((u) => ({ value: u.id, label: `${nomeUtente(dati, u.id)} · ${u.username}` }))}
+              description="Entra come frequentatore o come istruttore, secondo l’account. Il direttore si sceglie tra gli istruttori, in «Modifica» del corso."
+              value={nuovo}
+              onChange={setNuovo}
+              data={iscrivibili.map((u) => ({ value: u.id, label: `${nomeUtente(dati, u.id)} · ${u.username} · ${ETICHETTA_RUOLO[u.ruolo]}` }))}
               comboboxProps={{ withinPortal: true }}
               style={{ flex: '1 1 260px' }}
               nothingFoundMessage="Nessun account disponibile"
             />
-            <Select
-              label="Come"
-              value={nuovo.ruolo}
-              onChange={(v) => setNuovo({ ...nuovo, ruolo: (v as RuoloCorso) ?? 'trainee' })}
-              data={gruppi.map(([value, label]) => ({ value, label: ETICHETTA_RUOLO_CORSO[value as RuoloCorso] || label }))}
-              comboboxProps={{ withinPortal: true }}
-              style={{ width: 170 }}
-            />
             <Button
               leftSection={<IconPlus size={17} />}
-              disabled={!nuovo.user_id}
+              disabled={!nuovo}
               onClick={async () => {
-                if (!nuovo.user_id) return;
-                if (await esegui({ tipo: 'corso.iscrivi', iscrizione: { id: nuovoUuid(), corso_id: corso.id, user_id: nuovo.user_id, ruolo: nuovo.ruolo } }, 'Iscritto al corso')) {
-                  setNuovo({ user_id: null, ruolo: nuovo.ruolo });
-                }
+                const account = dati.utenti.find((u) => u.id === nuovo);
+                if (!account) return;
+                const ruolo = account.ruolo === 'trainee' ? 'trainee' : 'instructor';
+                if (await esegui({ tipo: 'corso.iscrivi', iscrizione: { id: nuovoUuid(), corso_id: corso.id, user_id: account.id, ruolo } }, 'Iscritto al corso')) setNuovo(null);
               }}
             >
               Iscrivi

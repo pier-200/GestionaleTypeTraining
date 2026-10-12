@@ -6,7 +6,8 @@
 -- Sicurezza (Row Level Security), sempre limitata ai corsi a cui si è iscritti:
 --   frequentatore  legge e scrive solo le proprie righe (Personal Data, logbook);
 --   istruttore     legge tutto il corso, non scrive;
---   direttore      come l'istruttore, più programma teorico, iscrizioni, dati del corso e validazioni;
+--   direttore      è uno degli istruttori (uno solo per corso, lo assegna il Training Manager): in quel corso
+--                  ha in più programma teorico, iscrizioni, dati del corso e validazioni;
 --   rapportino     lo compila chiunque frequenti il corso, lo valida chi guida il corso;
 --   admin (TM)     tutto, su tutti i corsi; crea gli account con la Edge Function "gestione-utenti".
 
@@ -27,14 +28,23 @@ create unique index if not exists istruttori_unico on public.istruttori (lower(g
 create table if not exists public.profili (
   id uuid primary key references auth.users on delete cascade,
   username text not null unique check (username ~ '^[a-z0-9][a-z0-9._-]{2,39}$'),
-  ruolo text not null check (ruolo in ('admin', 'direttore', 'instructor', 'trainee')),
+  ruolo text not null check (ruolo in ('admin', 'instructor', 'trainee')),
+  -- grado, nome e cognome di Training Manager e istruttori (i frequentatori hanno i Personal Data)
+  grado text not null default '' check (length(grado) <= 60),
   nome text not null default '' check (length(nome) <= 100),
+  cognome text not null default '' check (length(cognome) <= 80),
   attivo boolean not null default true,
   istruttore_id uuid references public.istruttori on delete set null,
   deve_cambiare_password boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+-- aggiornamento di installazioni precedenti: «direttore» non è più un tipo di account ma un incarico nel corso
+alter table public.profili add column if not exists grado text not null default '';
+alter table public.profili add column if not exists cognome text not null default '';
+alter table public.profili drop constraint if exists profili_ruolo_check;
+update public.profili set ruolo = 'instructor' where ruolo = 'direttore';
+alter table public.profili add constraint profili_ruolo_check check (ruolo in ('admin', 'instructor', 'trainee'));
 
 create table if not exists public.corsi (
   id uuid primary key default gen_random_uuid(),
@@ -46,20 +56,28 @@ create table if not exists public.corsi (
   programma_teorico text,
   programma_pratico text,
   data_inizio date,
+  -- data stimata di fine corso e durata prevista: compaiono sul programma settimanale
   data_fine date,
+  durata_settimane int check (durata_settimane between 1 and 104),
   maintenance_organization text not null default '' check (length(maintenance_organization) <= 200),
   location text not null default '' check (length(location) <= 100),
-  ora_inizio text not null default '08:30' check (ora_inizio ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'),
-  minuti_giorno int[] not null default '{360,360,360,360,180}',
+  -- aula proposta per le lezioni e gruppo firma del comandante in calce al programma settimanale
+  aula text not null default '' check (length(aula) <= 40),
+  gruppo_firma text not null default '' check (length(gruppo_firma) <= 120),
   attivo boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (data_fine is null or data_inizio is null or data_fine >= data_inizio),
-  check (array_length(minuti_giorno, 1) = 5)
+  check (data_fine is null or data_inizio is null or data_fine >= data_inizio)
 );
 alter table public.corsi add column if not exists mds text not null default '';
 alter table public.corsi add column if not exists categoria text not null default '';
 alter table public.corsi drop constraint if exists corsi_check;
+alter table public.corsi add column if not exists durata_settimane int check (durata_settimane between 1 and 104);
+alter table public.corsi add column if not exists aula text not null default '' check (length(aula) <= 40);
+alter table public.corsi add column if not exists gruppo_firma text not null default '' check (length(gruppo_firma) <= 120);
+-- gli orari dei periodi sono fissi e uguali per tutti i corsi (src/dominio/pianificazione.ts)
+alter table public.corsi drop column if exists ora_inizio;
+alter table public.corsi drop column if exists minuti_giorno;
 
 create table if not exists public.iscrizioni (
   id uuid primary key default gen_random_uuid(),
@@ -70,6 +88,8 @@ create table if not exists public.iscrizioni (
   unique (corso_id, user_id)
 );
 create index if not exists iscrizioni_utente on public.iscrizioni (user_id);
+-- un solo direttore per corso
+create unique index if not exists iscrizioni_un_direttore on public.iscrizioni (corso_id) where ruolo = 'direttore';
 
 create table if not exists public.anagrafiche (
   user_id uuid primary key references public.profili on delete cascade,
@@ -79,9 +99,12 @@ create table if not exists public.anagrafiche (
   data_nascita date not null check (data_nascita <= current_date),
   citta_nascita text not null check (length(trim(citta_nascita)) between 1 and 80),
   maml text not null default '' check (length(maml) <= 40),
+  -- ente di appartenenza: compare nell'elenco dei frequentatori del programma settimanale
+  ente text not null default '' check (length(ente) <= 60),
   updated_at timestamptz not null default now(),
   updated_by uuid
 );
+alter table public.anagrafiche add column if not exists ente text not null default '' check (length(ente) <= 60);
 
 create table if not exists public.training_data (
   corso_id uuid not null references public.corsi on delete cascade,
@@ -121,11 +144,13 @@ create table if not exists public.lezioni (
   corso_id uuid not null references public.corsi on delete cascade,
   data date not null,
   ordine int not null check (ordine between 0 and 40),
-  -- periodi componibili a quarti d'ora (15, 30, 45 minuti e multipli)
-  minuti int not null check (minuti between 15 and 600 and minuti % 15 = 0),
+  -- una lezione dura al massimo un'ora (poi la pausa) e si compone a quarti d'ora
+  minuti int not null check (minuti between 15 and 60 and minuti % 15 = 0),
   -- id della materia nel programma teorico del corso
   materia text not null,
   istruttore_id uuid references public.profili on delete set null,
+  -- aula del periodo; vuota = aula del corso
+  aula text not null default '' check (length(aula) <= 40),
   -- lezione, recupero oppure periodo non didattico
   tipo text not null default 'lezione' check (tipo in ('lezione', 'recupero', 'meo', 'sospensione', 'esame')),
   -- il programma è visibile ai frequentatori solo dopo la validazione
@@ -151,7 +176,9 @@ alter table public.lezioni add column if not exists validata_il timestamptz;
 alter table public.lezioni drop constraint if exists lezioni_ordine_check;
 alter table public.lezioni add constraint lezioni_ordine_check check (ordine between 0 and 40);
 alter table public.lezioni drop constraint if exists lezioni_minuti_check;
-alter table public.lezioni add constraint lezioni_minuti_check check (minuti between 15 and 600 and minuti % 15 = 0);
+-- "not valid": le lezioni più lunghe di installazioni precedenti restano, le nuove rispettano l'ora
+alter table public.lezioni add constraint lezioni_minuti_check check (minuti between 15 and 60 and minuti % 15 = 0) not valid;
+alter table public.lezioni add column if not exists aula text not null default '' check (length(aula) <= 40);
 
 -- rapportino presenze: una riga per giornata di corso, compilata dai frequentatori e validata da chi guida
 create table if not exists public.rapportini (
@@ -246,11 +273,18 @@ language sql stable security definer set search_path = public as $$
     select 1 from public.iscrizioni i where i.corso_id = c and i.user_id = auth.uid()))
 $$;
 
--- guida il corso: Training Manager o direttore iscritto
+-- guida il corso: Training Manager o l'istruttore che ne è direttore
 create or replace function public.ptt_guida(c uuid) returns boolean
 language sql stable security definer set search_path = public as $$
   select public.ptt_e_admin() or exists (
     select 1 from public.iscrizioni i where i.corso_id = c and i.user_id = auth.uid() and i.ruolo = 'direttore')
+$$;
+
+-- dirige almeno un corso (o è Training Manager): cura l'elenco degli istruttori pratici e le materie assegnate
+create or replace function public.ptt_dirige() returns boolean
+language sql stable security definer set search_path = public as $$
+  select public.ptt_e_admin() or (public.ptt_ruolo() is not null and exists (
+    select 1 from public.iscrizioni i where i.user_id = auth.uid() and i.ruolo = 'direttore'))
 $$;
 
 -- fa parte dello staff (direttore o istruttore) di un corso frequentato dall'utente indicato
@@ -485,8 +519,10 @@ create policy eliminazione on public.corsi for delete to authenticated using (pu
 drop policy if exists lettura on public.iscrizioni;
 create policy lettura on public.iscrizioni for select to authenticated using (public.ptt_membro(corso_id));
 drop policy if exists scrittura on public.iscrizioni;
+-- chi guida il corso iscrive frequentatori e istruttori; il direttore lo assegna solo il Training Manager
 create policy scrittura on public.iscrizioni for all to authenticated
-  using (public.ptt_guida(corso_id)) with check (public.ptt_guida(corso_id));
+  using (public.ptt_guida(corso_id) and (ruolo <> 'direttore' or public.ptt_e_admin()))
+  with check (public.ptt_guida(corso_id) and (ruolo <> 'direttore' or public.ptt_e_admin()));
 
 drop policy if exists lettura on public.anagrafiche;
 create policy lettura on public.anagrafiche for select to authenticated
@@ -506,10 +542,10 @@ create policy scrittura on public.training_data for all to authenticated
 drop policy if exists lettura on public.istruttori;
 create policy lettura on public.istruttori for select to authenticated using (public.ptt_ruolo() is not null);
 drop policy if exists inserimento on public.istruttori;
-create policy inserimento on public.istruttori for insert to authenticated with check (public.ptt_ruolo() in ('admin', 'direttore', 'trainee'));
+create policy inserimento on public.istruttori for insert to authenticated with check (public.ptt_dirige() or public.ptt_ruolo() = 'trainee');
 drop policy if exists modifica on public.istruttori;
 create policy modifica on public.istruttori for update to authenticated
-  using (public.ptt_ruolo() in ('admin', 'direttore')) with check (public.ptt_ruolo() in ('admin', 'direttore'));
+  using (public.ptt_dirige()) with check (public.ptt_dirige());
 
 drop policy if exists lettura on public.registrazioni;
 create policy lettura on public.registrazioni for select to authenticated
@@ -554,7 +590,7 @@ drop policy if exists lettura on public.abilitazioni;
 create policy lettura on public.abilitazioni for select to authenticated using (public.ptt_ruolo() is not null);
 drop policy if exists scrittura on public.abilitazioni;
 create policy scrittura on public.abilitazioni for all to authenticated
-  using (public.ptt_ruolo() in ('admin', 'direttore')) with check (public.ptt_ruolo() in ('admin', 'direttore'));
+  using (public.ptt_dirige()) with check (public.ptt_dirige());
 
 -- ---------------------------------------------------------------------------
 -- Permessi e tempo reale

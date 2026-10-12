@@ -1,6 +1,6 @@
 import { IconAlertTriangleFilled, IconCircleCheckFilled } from '@tabler/icons-react';
 import { oggiISO, ruoloNelCorso } from '../../dominio/motore';
-import { statoTeorico } from '../../dominio/pianificazione';
+import { MINUTI_SETTIMANA, statoTeorico } from '../../dominio/pianificazione';
 import { chapterMateria, oreDaMinuti, programmaTeorico } from '../../dominio/programmi';
 import { formatoData, lezioniVisibili, nomeUtente, ore } from '../../dominio/viste';
 import { IntestazionePagina, Quota, ScalaQuote, Sezione } from '../componenti/disegno';
@@ -15,8 +15,7 @@ export function Teoria() {
   if (!dati || !utente || !corso || !programma) return null;
   const lezioni = lezioniVisibili(dati, corso.id, ruoloNelCorso(dati, utente, corso.id));
   const stato = statoTeorico(programma, lezioni, oggiISO());
-  const settimanali = corso.minuti_giorno.reduce((s, m) => s + m, 0);
-  const settimane = settimanali ? Math.ceil(stato.totale.residui / settimanali) : 0;
+  const settimane = Math.ceil(stato.totale.residui / MINUTI_SETTIMANA);
   const ultima = lezioni.at(-1)?.data;
   const istruttoriDiMateria = (materia: string) =>
     [...new Set(lezioni.filter((l) => l.materia === materia && l.istruttore_id).map((l) => l.istruttore_id!))].map((id) => nomeUtente(dati, id)).join(', ');

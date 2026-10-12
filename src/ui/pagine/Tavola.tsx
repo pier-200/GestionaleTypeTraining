@@ -57,7 +57,7 @@ function TavolaDi({ f, corso }: { f: Utente; corso: Corso }) {
                 {[
                   { nome: 'Moduli al 50%', fatti: s.report.perModulo.length - moduli.length, tot: s.report.perModulo.length },
                   { nome: 'Task type al 50%', fatti: tipiApplicabili.length - tipi.length, tot: tipiApplicabili.length },
-                  { nome: 'Chapter con almeno 1 task', fatti: s.report.perChapter.length - chapter.length, tot: s.report.perChapter.length },
+                  { nome: 'Chapter al 50%', fatti: s.report.perChapter.length - chapter.length, tot: s.report.perChapter.length },
                 ].map((r) => (
                   <div key={r.nome} className={`requisito ${r.fatti === r.tot ? 'si' : ''}`}>
                     {r.fatti === r.tot ? <IconCircleCheckFilled size={20} aria-label="soddisfatto" /> : <IconAlertTriangleFilled size={20} color="var(--rosso)" aria-label="non soddisfatto" />}
@@ -78,13 +78,13 @@ function TavolaDi({ f, corso }: { f: Utente; corso: Corso }) {
           </div>
           {chapter.length > 0 && (
             <div className="t-ch">
-              <Sezione titolo={`Chapter senza task · ${chapter.length}`}>
+              <Sezione titolo={`Chapter sotto il 50% · ${chapter.length}`}>
                 <p className="debole" style={{ margin: '0 0 10px', fontSize: 'var(--fs-m)' }}>
-                  Serve almeno un task eseguito per ciascun chapter. Tocca un codice per vederne i task.
+                  Serve almeno il 50% dei task di ciascun chapter. Tocca un codice per vederne i task.
                 </p>
                 <div className="palloncini">
                   {chapter.map((c) => (
-                    <a key={c.codice} href={link('/logbook', `ch=${encodeURIComponent(c.codice)}`)} title={chapterPerCodice.get(c.codice)?.titolo} aria-label={`Chapter ${c.codice}, ${chapterPerCodice.get(c.codice)?.titolo}: nessun task`}>
+                    <a key={c.codice} href={link('/logbook', `ch=${encodeURIComponent(c.codice)}`)} title={chapterPerCodice.get(c.codice)?.titolo} aria-label={`Chapter ${c.codice}, ${chapterPerCodice.get(c.codice)?.titolo}: mancano ${c.mancano} task`}>
                       <Palloncino codice={c.codice} stato="manca" />
                     </a>
                   ))}

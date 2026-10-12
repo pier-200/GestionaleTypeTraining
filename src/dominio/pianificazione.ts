@@ -1,19 +1,31 @@
 import { type Materia, type ProgrammaTeorico } from './programmi';
-import type { Corso, Lezione } from './tipi';
+import type { Lezione } from './tipi';
 
 /**
  * Parte teorica: programma settimanale e conto a scalare.
  * Le lezioni seguono l'ordine del programma; una materia lunga si spezza su più giorni.
  */
 
-/** Minuti di lezione da lunedì a venerdì: 6 ore fino al giovedì, 3 il venerdì. */
-export const MINUTI_GIORNO = [360, 360, 360, 360, 180];
-
-/** Durata di un periodo: la giornata ha 6 periodi dal lunedì al giovedì e 3 il venerdì. */
+/** Durata massima di una lezione: un'ora, poi la pausa. */
 export const MINUTI_PERIODO = 60;
 
+/**
+ * Orari dei periodi, uguali per tutti i corsi (modulo «Programma settimanale»):
+ * dopo ogni ora 10 minuti di pausa, 20 a metà mattina, pranzo dalle 13 alle 14.
+ */
+export const ORARI_PERIODI = ['08:20', '09:30', '10:50', '12:00', '14:00', '15:10'] as const;
+
+/** Periodi da lunedì a venerdì: 6 fino al giovedì, i primi 3 il venerdì. */
+export const PERIODI_GIORNO = [6, 6, 6, 6, 3];
+
+/** Minuti di lezione di una settimana piena. */
+export const MINUTI_SETTIMANA = PERIODI_GIORNO.reduce((s, p) => s + p, 0) * MINUTI_PERIODO;
+
+/** Aule proposte negli elenchi: se ne può sempre scrivere un'altra. */
+export const AULE = ['Aula N.1', 'Aula N.2', 'Aula N.3', 'Aula N.4'];
+
 /** Quanti periodi prevede il giorno indicato (0 = lunedì). */
-export const periodiDelGiorno = (minutiGiorno: readonly number[], giorno: number) => Math.round((minutiGiorno[giorno] ?? 0) / MINUTI_PERIODO);
+export const periodiDelGiorno = (giorno: number) => PERIODI_GIORNO[giorno] ?? 0;
 
 const giorno = (iso: string) => new Date(`${iso}T00:00:00Z`);
 const aIso = (d: Date) => d.toISOString().slice(0, 10);
@@ -105,7 +117,6 @@ export interface Proposta {
 type ID = string;
 
 export interface OpzioniSettimana {
-  minutiGiorno?: number[];
   /** Giorni da saltare (festività, esami…). */
   salta?: readonly string[];
   /** Istruttore da proporre per ciascuna materia. */
@@ -117,7 +128,6 @@ export interface OpzioniSettimana {
  * ancora liberi con le materie residue, nell'ordine del programma.
  */
 export function generaSettimana(programma: ProgrammaTeorico, lezioni: readonly Lezione[], lunedi: string, opzioni: OpzioniSettimana = {}): Proposta[] {
-  const capienza = opzioni.minutiGiorno ?? MINUTI_GIORNO;
   const salta = new Set(opzioni.salta ?? []);
   const residui = new Map(statoTeorico(programma, lezioni).materie.map((r) => [r.materia.id, r.residui]));
   const proposte: Proposta[] = [];
@@ -125,7 +135,7 @@ export function generaSettimana(programma: ProgrammaTeorico, lezioni: readonly L
   // la giornata è una griglia di periodi: si riempiono solo quelli ancora vuoti
   giorniSettimana(lunedi).forEach((data, i) => {
     if (salta.has(data)) return;
-    for (let ordine = 0; ordine < periodiDelGiorno(capienza, i); ordine++) {
+    for (let ordine = 0; ordine < periodiDelGiorno(i); ordine++) {
       if (lezioni.some((l) => l.data === data && l.ordine === ordine)) continue;
       const materia = programma.materie.find((m) => (residui.get(m.id) ?? 0) > 0);
       if (!materia) return;
@@ -137,17 +147,18 @@ export function generaSettimana(programma: ProgrammaTeorico, lezioni: readonly L
   return proposte;
 }
 
-/**
- * Orario di un periodo, dall'ora di inizio del corso e dalla durata dei periodi che lo precedono.
- * I periodi ancora vuoti valgono un'ora: la griglia della giornata resta allineata.
- */
-export function orarioLezione(corso: Pick<Corso, 'ora_inizio'>, delGiorno: readonly { ordine: number; minuti: number }[], ordine: number) {
-  const [h, m] = (corso.ora_inizio || '08:30').split(':').map(Number);
-  let prima = 0;
-  for (let i = 0; i < ordine; i++) prima += delGiorno.find((l) => l.ordine === i)?.minuti ?? MINUTI_PERIODO;
-  const inizio = h * 60 + m + prima;
-  const corrente = delGiorno.find((l) => l.ordine === ordine);
-  const fine = inizio + (corrente?.minuti ?? MINUTI_PERIODO);
-  const fmt = (t: number) => `${String(Math.floor(t / 60) % 24).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
-  return { inizio: fmt(inizio), fine: fmt(fine) };
+const inMinuti = (orario: string) => Number(orario.slice(0, 2)) * 60 + Number(orario.slice(3));
+const inOrario = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
+/** Orario di un periodo: l'inizio è fisso, la fine segue la durata della lezione (un'ora al massimo). */
+export function orarioPeriodo(ordine: number, durata = MINUTI_PERIODO) {
+  const inizio = ORARI_PERIODI[ordine] ?? ORARI_PERIODI[0];
+  return { inizio, fine: inOrario(inMinuti(inizio) + durata) };
+}
+
+/** Settimana di corso (1 = quella della data di inizio) e settimane di ritardo oltre la data stimata di fine. */
+export function settimanaDiCorso(corso: { data_inizio: string | null; data_fine: string | null }, lunedi: string) {
+  const settimane = (da: string) => Math.round((giorno(lunedi).getTime() - giorno(lunediDi(da)).getTime()) / (7 * 86_400_000));
+  const numero = corso.data_inizio ? settimane(corso.data_inizio) + 1 : null;
+  return { numero: numero != null && numero > 0 ? numero : null, ritardo: corso.data_fine ? Math.max(0, settimane(corso.data_fine)) : 0 };
 }

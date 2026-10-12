@@ -144,8 +144,8 @@ Per ogni task type: task totali previsti, task eseguiti, percentuale. Soglia ric
 
 **b) Percentage by Chapter**
 Per ogni chapter: task totali, task eseguiti, percentuale.
-- La colonna percentuale va **riportata**, ma **non** è richiesto il 50% per chapter.
-- Il requisito per chapter è: **almeno 1 task eseguito**.
+- Soglia richiesta: **≥ 50%** dei task di ciascun chapter, come per task type e moduli (regola in vigore dal
+  12/10/2026; prima bastava un task per chapter).
 
 **c) Percentage by Module**
 Per ogni modulo: task totali, task eseguiti, percentuale. Soglia richiesta: **≥ 50%**.
@@ -173,7 +173,7 @@ Un frequentatore è **conforme** quando sono vere tutte e tre le condizioni:
 
 1. **≥ 50%** dei task eseguiti per **ciascun modulo**;
 2. **≥ 50%** dei task eseguiti per **ciascun task type**;
-3. **≥ 1** task eseguito per **ciascun chapter**.
+3. **≥ 50%** dei task eseguiti per **ciascun chapter** (dal 12/10/2026, come dal Compliance Report).
 
 Calcolo: `percentuale = task distinti eseguiti / task previsti × 100`. Più registrazioni dello stesso task contano **una volta** ai fini della percentuale (verificare che il PDF non disponga diversamente).
 

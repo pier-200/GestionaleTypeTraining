@@ -230,7 +230,7 @@ function LogbookDi({ f, corso }: { f: Utente; corso: Corso }) {
                 return (
                   <div key={c.codice} className="chapter">
                     <div className="chapter-testa">
-                      <Palloncino codice={c.codice} stato={rc.eseguiti ? 'fatto' : 'manca'} />
+                      <Palloncino codice={c.codice} stato={rc.conforme === false ? 'manca' : 'fatto'} />
                       <span className="titolo-chapter">{c.titolo}</span>
                       <span className="cifre debole" style={{ fontWeight: 600 }}>
                         {rc.eseguiti}/{rc.previsti}

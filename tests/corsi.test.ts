@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { datiEsempio } from '../src/dati/esempio';
-import { applica, type CampiCorso, type Comando } from '../src/dominio/motore';
+import { applica, type CampiCorso, type CampiLezione, type Comando } from '../src/dominio/motore';
 import { assenzeDi } from '../src/dominio/presenze';
+import { orarioPeriodo, settimanaDiCorso } from '../src/dominio/pianificazione';
 import { MDS, PROGRAMMI_TEORICI, programmiPer, soloTeorica } from '../src/dominio/programmi';
-import type { Lezione, Rapportino, Presenza } from '../src/dominio/tipi';
+import type { Rapportino, Presenza } from '../src/dominio/tipi';
 
 /** Mezzi, categorie e periodi del programma settimanale. */
 
@@ -22,10 +23,11 @@ const corso = (extra: Partial<CampiCorso> = {}): Comando => ({
     categoria: 'B1.3',
     data_inizio: null,
     data_fine: null,
+    durata_settimane: null,
     maintenance_organization: '',
     location: '',
-    ora_inizio: '08:30',
-    minuti_giorno: [360, 360, 360, 360, 180],
+    aula: '',
+    gruppo_firma: '',
     attivo: true,
     ...extra,
   },
@@ -73,7 +75,7 @@ describe('mezzi e categorie', () => {
 });
 
 describe('periodi del programma', () => {
-  const lezione = (ordine: number, extra: Partial<Lezione> = {}) => ({
+  const lezione = (ordine: number, extra: Partial<CampiLezione> = {}): CampiLezione => ({
     id: `p${ordine}`,
     corso_id: C2,
     data: '2026-10-05',
@@ -81,9 +83,27 @@ describe('periodi del programma', () => {
     minuti: 60,
     materia: TEORICO.materie[0].id,
     istruttore_id: 'u-rinaldi',
+    aula: '',
     tipo: 'lezione' as const,
     note: '',
     ...extra,
+  });
+
+  it('gli orari dei periodi sono fissi: un’ora al massimo, poi la pausa; pranzo dalle 13 alle 14', () => {
+    expect([0, 1, 2, 3, 4, 5].map((p) => orarioPeriodo(p)).map((o) => `${o.inizio}-${o.fine}`)).toEqual(['08:20-09:20', '09:30-10:30', '10:50-11:50', '12:00-13:00', '14:00-15:00', '15:10-16:10']);
+    expect(orarioPeriodo(5, 45)).toEqual({ inizio: '15:10', fine: '15:55' });
+    const cmd = (minuti: number): Comando => ({ tipo: 'lezioni.sostituisci', corso_id: C2, giorni: ['2026-10-05'], lezioni: [lezione(0, { minuti })] });
+    expect(applica(dati, cmd(45), ctx('u-neri')).dati.lezioni.find((l) => l.id === 'p0')!.minuti).toBe(45);
+    expect(() => applica(dati, cmd(75), ctx('u-neri'))).toThrow(/Durata/);
+  });
+
+  it('settimana di corso e ritardo si contano dai lunedì di inizio e di fine stimata', () => {
+    const corso = { data_inizio: '2026-05-11', data_fine: '2026-12-04' };
+    expect(settimanaDiCorso(corso, '2026-05-11')).toEqual({ numero: 1, ritardo: 0 });
+    expect(settimanaDiCorso(corso, '2026-07-13')).toEqual({ numero: 10, ritardo: 0 });
+    expect(settimanaDiCorso(corso, '2026-11-30').ritardo).toBe(0); // la settimana della fine stimata non è in ritardo
+    expect(settimanaDiCorso(corso, '2026-12-14').ritardo).toBe(2);
+    expect(settimanaDiCorso({ data_inizio: null, data_fine: null }, '2026-12-14')).toEqual({ numero: null, ritardo: 0 });
   });
 
   it('la giornata ha 6 periodi dal lunedì al giovedì e 3 il venerdì', () => {
@@ -107,10 +127,10 @@ describe('periodi del programma', () => {
       ['esame', ''],
     ]);
     // un periodo non didattico non produce assenze nemmeno per chi manca
-    const lezioni = dopo.lezioni.filter((l) => l.data === '2026-10-05').map((l) => ({ ...l, corso_id: C2 }) as Lezione);
+    const lezioni = dopo.lezioni.filter((l) => l.data === '2026-10-05');
     const rapportini: Rapportino[] = [{ id: 'r', corso_id: C2, data: '2026-10-05', note: '', compilato_da: null, compilato_il: '', validato_da: null, validato_il: 'x' }];
     const presenze: Presenza[] = [{ id: 'p', corso_id: C2, data: '2026-10-05', user_id: 'u-marchetti', stato: 'assente', dalle: null, alle: null, motivo: '' }];
-    expect(assenzeDi(TEORICO, dati.corsi[1], lezioni, rapportini, presenze, 'u-marchetti').minuti).toBe(0);
+    expect(assenzeDi(TEORICO, lezioni, rapportini, presenze, 'u-marchetti').minuti).toBe(0);
     expect(() => applica(dati, { ...speciale, lezioni: [lezione(0, { materia: 'inesistente' })] }, ctx('u-neri'))).toThrow(/Materia/);
   });
 });

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { datiEsempio } from '../src/dati/esempio';
+import { aggiornaDati, type Dati } from '../src/dominio/tipi';
 import { calcolaReport, requisitiMancanti } from '../src/dominio/compliance';
-import { applica, type Comando } from '../src/dominio/motore';
+import { applica, ruoloNelCorso, type Comando } from '../src/dominio/motore';
 import { generaSettimana, lunediDi, statoTeorico } from '../src/dominio/pianificazione';
 import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI } from '../src/dominio/programmi';
 import { registrazioniDi } from '../src/dominio/viste';
@@ -41,6 +42,18 @@ describe('compliance', () => {
     expect(calcolaReport([...tre.slice(0, 2), tre[0], tre[0]], PRATICO).perModulo[7]).toMatchObject({ eseguiti: 2, conforme: false, mancano: 1 });
   });
 
+  it('serve il 50% dei task di ogni chapter, non uno solo', () => {
+    const chapter = (codice: string) => PRATICO.task.filter((t) => t.chapter === codice);
+    const lungo = PRATICO.chapter.map((c) => chapter(c.codice)).find((t) => t.length >= 4)!;
+    const meta = Math.ceil(lungo.length / 2);
+    const riga = (quanti: number) => calcolaReport(lungo.slice(0, quanti).map((t) => ({ task_id: t.id })), PRATICO).perChapter.find((c) => c.codice === lungo[0].chapter)!;
+    expect(riga(1)).toMatchObject({ eseguiti: 1, conforme: false, mancano: meta - 1 });
+    expect(riga(meta)).toMatchObject({ conforme: true, mancano: 0 });
+    // un task per chapter non basta più a essere conformi
+    const unoPerChapter = PRATICO.chapter.map((c) => ({ task_id: chapter(c.codice)[0].id }));
+    expect(requisitiMancanti(calcolaReport(unoPerChapter, PRATICO)).chapter.length).toBeGreaterThan(0);
+  });
+
   it('situazione esempio: esiti attesi', () => {
     expect(report('u-romano').conforme).toBe(true);
     const bruno = requisitiMancanti(report('u-bruno'));
@@ -60,8 +73,8 @@ describe('pianificazione', () => {
     for (const p of proposte) perGiorno.set(p.data, (perGiorno.get(p.data) ?? 0) + p.minuti);
     expect([...perGiorno.values()]).toEqual([360, 360, 360, 360, 180]);
     expect(proposte[0]).toMatchObject({ data: '2026-09-14', ordine: 0, materia: TEORICO.materie[0].id });
-    // una materia lunga si spezza fra i giorni, senza superare la capienza
-    expect(proposte.every((p) => p.minuti <= 360 && p.minuti % 60 === 0)).toBe(true);
+    // una materia lunga si spezza in lezioni di un'ora al massimo
+    expect(proposte.every((p) => p.minuti === 60)).toBe(true);
   });
 
   it('non tocca i giorni già pieni e scala le ore residue', () => {
@@ -73,7 +86,7 @@ describe('pianificazione', () => {
     expect(generaSettimana(TEORICO, lezioni, lunedi)).toEqual([]);
     const dopo = generaSettimana(TEORICO, lezioni, '2026-09-28');
     expect(dopo.length).toBeGreaterThan(0);
-    expect(statoTeorico(TEORICO, [...lezioni, ...dopo.map((p, i) => ({ ...p, id: String(i), corso_id: C2, tipo: 'lezione' as const, validata: false, validata_da: null, validata_il: null, note: '', creato_il: '', modificato_il: '', modificato_da: null }))]).totale.pianificati).toBe(
+    expect(statoTeorico(TEORICO, [...lezioni, ...dopo.map((p, i) => ({ ...p, id: String(i), corso_id: C2, aula: '', tipo: 'lezione' as const, validata: false, validata_da: null, validata_il: null, note: '', creato_il: '', modificato_il: '', modificato_da: null }))]).totale.pianificati).toBe(
       stato.totale.pianificati + dopo.reduce((s, p) => s + p.minuti, 0),
     );
   });
@@ -106,16 +119,16 @@ describe('motore', () => {
   });
 
   it('solo il TM crea account e corsi; la disattivazione revoca le credenziali', () => {
-    const crea: Comando = { tipo: 'utente.crea', utente: { id: 'x', username: 'nuovo.utente', ruolo: 'trainee', nome: '', istruttore_id: null }, password: 'password123' };
+    const crea: Comando = { tipo: 'utente.crea', utente: { id: 'x', username: 'nuovo.utente', ruolo: 'trainee', grado: '', nome: '', cognome: '', istruttore_id: null }, password: 'password123' };
     expect(() => applica(dati, crea, ctx('u-gallo'))).toThrow();
     expect(applica(dati, crea, ctx('u-tm')).effetti).toEqual([{ tipo: 'credenziali.imposta', username: 'nuovo.utente', password: 'password123', admin: false }]);
     expect(() => applica(dati, { ...crea, password: 'ab' }, ctx('u-tm'))).toThrow(/4 caratteri/);
-    const off = applica(dati, { tipo: 'utente.modifica', utente: { id: 'u-gallo', nome: '', attivo: false, istruttore_id: null } }, ctx('u-tm'));
+    const off = applica(dati, { tipo: 'utente.modifica', utente: { id: 'u-gallo', grado: '', nome: '', cognome: '', attivo: false, istruttore_id: null } }, ctx('u-tm'));
     expect(off.effetti).toEqual([{ tipo: 'credenziali.rimuovi', username: 'matteo.gallo' }]);
     expect(() => applica(off.dati, reg('u-gallo'), ctx('u-gallo'))).toThrow(/non abilitato/);
     const corso: Comando = {
       tipo: 'corso.salva',
-      corso: { id: 'c-x', codice: 'T1-2027/1', nome: 'Nuovo corso', mds: 'CH-47F', categoria: 'B1.3', data_inizio: null, data_fine: null, maintenance_organization: '', location: '', ora_inizio: '08:30', minuti_giorno: [360, 360, 360, 360, 180], attivo: true },
+      corso: { id: 'c-x', codice: 'T1-2027/1', nome: 'Nuovo corso', mds: 'CH-47F', categoria: 'B1.3', data_inizio: null, data_fine: null, durata_settimane: null, maintenance_organization: '', location: '', aula: '', gruppo_firma: '', attivo: true },
     };
     expect(() => applica(dati, corso, ctx('u-neri'))).toThrow(/Training Manager/);
     expect(applica(dati, corso, ctx('u-tm')).dati.corsi).toHaveLength(3);
@@ -123,7 +136,7 @@ describe('motore', () => {
 
   it('il direttore prepara il programma del suo corso, l’istruttore no', () => {
     const giorni = ['2026-10-05'];
-    const lezioni = [{ id: 'l-x', corso_id: C2, data: '2026-10-05', ordine: 0, minuti: 120, materia: TEORICO.materie[0].id, istruttore_id: 'u-rinaldi', tipo: 'lezione' as const, note: '' }];
+    const lezioni = [{ id: 'l-x', corso_id: C2, data: '2026-10-05', ordine: 0, minuti: 60, materia: TEORICO.materie[0].id, istruttore_id: 'u-rinaldi', aula: '', tipo: 'lezione' as const, note: '' }];
     const cmd: Comando = { tipo: 'lezioni.sostituisci', corso_id: C2, giorni, lezioni };
     expect(applica(dati, cmd, ctx('u-neri')).dati.lezioni.some((l) => l.id === 'l-x')).toBe(true);
     expect(() => applica(dati, cmd, ctx('u-rinaldi'))).toThrow(/Training Manager|permessi/);
@@ -145,6 +158,49 @@ describe('motore', () => {
     expect(applica(dati, ok, ctx('u-neri')).dati.iscrizioni.some((i) => i.id === 'i-x')).toBe(true);
     expect(() => applica(dati, { tipo: 'corso.iscrivi', iscrizione: { id: 'i-y', corso_id: C2, user_id: 'u-costa', ruolo: 'instructor' } }, ctx('u-tm'))).toThrow(/frequentatore/);
     expect(() => applica(dati, ok, ctx('u-rinaldi'))).toThrow(/Training Manager|permessi/);
+  });
+
+  it('il direttore è un istruttore a cui il TM affida il corso: uno solo, e solo in quel corso', () => {
+    const corso = (d: Dati) => d.corsi.find((c) => c.id === C2)!;
+    const utente = (d: Dati, id: string) => d.utenti.find((u) => u.id === id)!;
+    const affida = (direttore_id: string | null, chi = 'u-tm', d = dati) => applica(d, { tipo: 'corso.salva', corso: corso(d), direttore_id }, ctx(chi)).dati;
+    // nessun account è «direttore»: lo si è nel corso
+    expect(dati.utenti.map((u) => u.ruolo)).not.toContain('direttore');
+    expect([ruoloNelCorso(dati, utente(dati, 'u-neri'), C2), ruoloNelCorso(dati, utente(dati, 'u-rinaldi'), C2)]).toEqual(['direttore', 'instructor']);
+
+    const dopo = affida('u-rinaldi');
+    expect(dopo.iscrizioni.filter((i) => i.corso_id === C2 && i.ruolo === 'direttore').map((i) => i.user_id)).toEqual(['u-rinaldi']);
+    expect(ruoloNelCorso(dopo, utente(dopo, 'u-neri'), C2)).toBe('instructor'); // chi lascia resta istruttore
+    expect(ruoloNelCorso(dopo, utente(dopo, 'u-neri'), C1)).toBe('direttore'); // l'altro corso non cambia
+    const lezioni = [{ id: 'l-d', corso_id: C2, data: '2026-10-05', ordine: 0, minuti: 60, materia: TEORICO.materie[0].id, istruttore_id: null, aula: '', tipo: 'lezione' as const, note: '' }];
+    const cmd: Comando = { tipo: 'lezioni.sostituisci', corso_id: C2, giorni: ['2026-10-05'], lezioni };
+    expect(applica(dopo, cmd, ctx('u-rinaldi')).dati.lezioni.some((l) => l.id === 'l-d')).toBe(true);
+    expect(() => applica(dopo, cmd, ctx('u-neri'))).toThrow(/Training Manager|permessi/);
+
+    // un istruttore non ancora nel corso viene iscritto; un frequentatore non può dirigere
+    expect(affida('u-colombo').iscrizioni.filter((i) => i.corso_id === C2 && i.user_id === 'u-colombo').map((i) => i.ruolo)).toEqual(['direttore']);
+    expect(() => affida('u-marchetti')).toThrow(/istruttori/);
+    expect(affida(null).iscrizioni.some((i) => i.corso_id === C2 && i.ruolo === 'direttore')).toBe(false);
+    // il direttore modifica i dati del corso ma non passa l'incarico; senza indicarlo resta com'è
+    expect(() => affida('u-rinaldi', 'u-neri')).toThrow(/Training Manager/);
+    const ritoccato = applica(dati, { tipo: 'corso.salva', corso: { ...corso(dati), aula: 'Aula N.3' } }, ctx('u-neri')).dati;
+    expect([corso(ritoccato).aula, ruoloNelCorso(ritoccato, utente(ritoccato, 'u-neri'), C2)]).toEqual(['Aula N.3', 'direttore']);
+    expect(() => applica(dati, { tipo: 'corso.iscrivi', iscrizione: { id: 'i-d', corso_id: C2, user_id: 'u-colombo', ruolo: 'direttore' } }, ctx('u-tm'))).toThrow(/dati del corso/);
+    expect(() => applica(dati, { tipo: 'utente.crea', utente: { id: 'x', username: 'vecchio.ruolo', ruolo: 'direttore' as never, grado: 'Cap.', nome: 'A', cognome: 'B', istruttore_id: null }, password: 'password123' }, ctx('u-tm'))).toThrow(/Ruolo/);
+  });
+
+  it('i dati di versioni precedenti si aggiornano: l’account «direttore» diventa istruttore e l’incarico resta nel corso', () => {
+    const vecchi = JSON.parse(JSON.stringify(dati)) as Dati;
+    const neri = vecchi.utenti.find((u) => u.id === 'u-neri')! as unknown as Record<string, unknown>;
+    Object.assign(neri, { ruolo: 'direttore', nome: 'Cap. Marco Neri' });
+    delete neri.grado;
+    delete neri.cognome;
+    for (const c of vecchi.corsi as unknown as Record<string, unknown>[]) delete c.aula;
+    const nuovi = aggiornaDati(vecchi);
+    const u = nuovi.utenti.find((x) => x.id === 'u-neri')!;
+    expect([u.ruolo, u.grado, u.nome, u.cognome]).toEqual(['instructor', '', 'Cap. Marco Neri', '']);
+    expect(ruoloNelCorso(nuovi, u, C1)).toBe('direttore');
+    expect(nuovi.corsi.every((c) => c.aula === '')).toBe(true);
   });
 
   it('istruttori duplicati rifiutati', () => {

@@ -1,10 +1,10 @@
-import { chapterMateria, indice, materiaDi, programmaPratico, programmaTeorico, type ProgrammaPratico } from './dominio/programmi';
+import { indice, programmaPratico, programmaTeorico, type ProgrammaPratico } from './dominio/programmi';
 import type { Report, RigaReport } from './dominio/compliance';
-import { oggiISO, type CampiLezione } from './dominio/motore';
-import { NOMI_GIORNI, giorniSettimana, orarioLezione, statoTeorico } from './dominio/pianificazione';
+import { oggiISO } from './dominio/motore';
+import { statoTeorico } from './dominio/pianificazione';
 import { assenzeDi } from './dominio/presenze';
-import { ETICHETTA_CERTIFICATO, ETICHETTA_PERIODO, ETICHETTA_STATO_CERTIFICATO, conMateria, type Corso, type Dati, type Registrazione, type Utente } from './dominio/tipi';
-import { esecuzione, formatoData, frequentatori, iscritti, istruttoriDi, lezioniDi, nomeIstruttore, nomeUtente, presenzeDi, rapportiniDi, situazione } from './dominio/viste';
+import { ETICHETTA_CERTIFICATO, ETICHETTA_STATO_CERTIFICATO, type Corso, type Dati, type Registrazione, type Utente } from './dominio/tipi';
+import { esecuzione, frequentatori, iscritti, istruttoriDi, lezioniDi, nomeIstruttore, nomeUtente, presenzeDi, rapportiniDi, situazione } from './dominio/viste';
 
 /** Esportazioni (PROGETTO_Logbook_PTT.md §5): Excel del singolo frequentatore, Excel complessivo, CSV. */
 
@@ -50,7 +50,7 @@ export function scarica(blob: Blob, nomeFile: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
-const pulisciNome = (s: string) => s.normalize('NFKD').replace(/[^\w-]+/g, '_').replace(/_+/g, '_');
+export const pulisciNome = (s: string) => s.normalize('NFKD').replace(/[^\w-]+/g, '_').replace(/_+/g, '_');
 
 function righeReport(titolo: string, colonna: string, righe: RigaReport[], requisito: string): Cella[][] {
   return [
@@ -69,7 +69,7 @@ function foglioCompliance(report: Report): Foglio {
       ...righeReport('4.1 Percentage by task type', 'Type of task', report.perTipo, '≥ 50%'),
       tot('TOTALE', report.totale),
       [],
-      ...righeReport('4.2 Percentage by chapter', 'Chapter', report.perChapter, '≥ 1 task'),
+      ...righeReport('4.2 Percentage by chapter', 'Chapter', report.perChapter, '≥ 50%'),
       tot('TOTAL task (module AER(EP).P-66)', report.totaleP66),
       tot('TOTAL task', report.totale),
       [],
@@ -154,7 +154,7 @@ export async function esportaCorso(dati: Dati, corso: Corso) {
     nome: 'Riepilogo',
     larghezze: [18, 16, 18, 16, 8, 10, 10, ...programma.moduli.map(() => 9), ...tipi.map(() => 9), 10, 30, 15],
     righe: [
-      intestazione('Grado', 'Nome', 'Cognome', 'Username', 'Attivo', 'Task eseguiti', '% totale', ...programma.moduli.map((m) => `% Mod. ${m.numero}`), ...tipi.map((t) => `% ${t}`), 'Chapter scoperti', 'Elenco chapter scoperti', 'Esito'),
+      intestazione('Grado', 'Nome', 'Cognome', 'Username', 'Attivo', 'Task eseguiti', '% totale', ...programma.moduli.map((m) => `% Mod. ${m.numero}`), ...tipi.map((t) => `% ${t}`), 'Chapter sotto il 50%', 'Elenco chapter sotto il 50%', 'Esito'),
       ...elenco.map((s) => {
         const a = dati.anagrafiche.find((x) => x.user_id === s.utente.id);
         return [
@@ -180,53 +180,6 @@ export async function esportaCorso(dati: Dati, corso: Corso) {
     righe: [intestazione(...COLONNE_CSV), ...righeCsv(dati, programma, dati.registrazioni.filter((r) => r.corso_id === corso.id)).map((r) => r.map((v, i) => (i === 7 ? data(String(v)) : v)))],
   };
   await scriviXlsx([riepilogo, grezzi], `Riepilogo_${pulisciNome(corso.codice)}_${oggiISO()}`);
-}
-
-/**
- * Programma settimanale della parte teorica in Excel: un foglio con i periodi giorno per giorno.
- * Formato provvisorio, da sostituire quando sarà disponibile il modulo ufficiale da compilare.
- */
-export async function esportaSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]) {
-  const programma = programmaTeorico(corso.programma_teorico);
-  if (!programma) throw new Error('Il corso non prevede la parte teorica.');
-  const giorni = giorniSettimana(lunedi);
-  const righe: Cella[][] = [
-    [{ v: 'Programma settimanale', b: true }, `${corso.codice} – ${corso.nome}`],
-    ['Programma', programma.nome],
-    ['Settimana', `dal ${formatoData(giorni[0])} al ${formatoData(giorni[4])}`],
-    ['Maintenance Organisation', corso.maintenance_organization || null],
-    ['Location', corso.location || null],
-    [],
-    intestazione('Giorno', 'Data', 'Dalle', 'Alle', 'Durata (min)', 'Modulo', 'Materia', 'Chapter', 'Istruttore', 'Tipo', 'Note'),
-  ];
-  let totale = 0;
-  giorni.forEach((giorno, i) => {
-    const delGiorno = lezioni.filter((l) => l.data === giorno).sort((a, b) => a.ordine - b.ordine);
-    if (!delGiorno.length) {
-      righe.push([NOMI_GIORNI[i], data(giorno), { v: '—', sfondo: GRIGIO }, null, null, null, { v: 'nessuna lezione', sfondo: GRIGIO }]);
-      return;
-    }
-    for (const l of delGiorno) {
-      const materia = conMateria(l.tipo) ? materiaDi(programma, l.materia) : undefined;
-      const orario = orarioLezione(corso, delGiorno, l.ordine);
-      totale += l.tipo === 'lezione' ? l.minuti : 0;
-      righe.push([
-        NOMI_GIORNI[i],
-        data(giorno),
-        orario.inizio,
-        orario.fine,
-        l.minuti,
-        materia ? `M${materia.modulo}` : null,
-        materia?.titolo ?? ETICHETTA_PERIODO[l.tipo],
-        materia ? chapterMateria(materia) : null,
-        nomeUtente(dati, l.istruttore_id),
-        ETICHETTA_PERIODO[l.tipo],
-        l.note || null,
-      ]);
-    }
-  });
-  righe.push([], [{ v: 'Totale ore a programma nella settimana', b: true }, null, null, null, { v: totale, b: true }]);
-  await scriviXlsx([{ nome: 'Programma settimanale', righe, larghezze: [12, 12, 8, 8, 12, 9, 44, 26, 26, 12, 30] }], `Programma_${pulisciNome(corso.codice)}_${lunedi}`);
 }
 
 /** Registro dei corsi e dei corsisti: il quadro d'insieme del Training Manager. */
@@ -269,7 +222,7 @@ export async function esportaRegistro(dati: Dati) {
         const lezioni = lezioniDi(dati, c.id);
         return frequentatori(dati, c.id, true).map((u) => {
           const a = dati.anagrafiche.find((x) => x.user_id === u.id);
-          const assenze = teorico ? assenzeDi(teorico, c, lezioni, rapportini, presenze, u.id) : null;
+          const assenze = teorico ? assenzeDi(teorico, lezioni, rapportini, presenze, u.id) : null;
           const report = pratico ? situazione(dati, c, u).report : null;
           return [
             a?.grado ?? null,

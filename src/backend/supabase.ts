@@ -190,10 +190,18 @@ export class SupabaseBackend implements Backend {
     // controllo preventivo con le stesse regole del database, per messaggi immediati e chiari
     applica(this.dati ?? (await this.caricaDati()), comando, { utenteId: this.utente.id, ora: new Date().toISOString(), oggi: oggiISO() });
     switch (comando.tipo) {
-      case 'corso.salva':
+      case 'corso.salva': {
         verifica(await this.sb.from('corsi').upsert(comando.corso));
         this.sporche.add('corsi');
+        if (comando.direttore_id === undefined) break;
+        // un solo direttore per corso: chi lascia l'incarico resta istruttore
+        const corso_id = comando.corso.id;
+        const uscente = this.sb.from('iscrizioni').update({ ruolo: 'instructor' }).eq('corso_id', corso_id).eq('ruolo', 'direttore');
+        verifica(await (comando.direttore_id ? uscente.neq('user_id', comando.direttore_id) : uscente));
+        if (comando.direttore_id) verifica(await this.sb.from('iscrizioni').upsert({ corso_id, user_id: comando.direttore_id, ruolo: 'direttore' }, { onConflict: 'corso_id,user_id' }));
+        this.sporche.add('iscrizioni');
         break;
+      }
       case 'corso.iscrivi':
         verifica(await this.sb.from('iscrizioni').insert(comando.iscrizione));
         this.sporche.add('iscrizioni');

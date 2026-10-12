@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Button, Drawer, Group, NumberInput, Select, SimpleGrid, Stack, Switch, TextInput } from '@mantine/core';
+import { Autocomplete, Button, Drawer, Group, NumberInput, Select, SimpleGrid, Stack, Switch, TextInput } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowRight, IconPlus } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
-import { statoTeorico } from '../../dominio/pianificazione';
+import { AULE, statoTeorico } from '../../dominio/pianificazione';
 import { MDS, mdsDi, programmaPratico, programmaTeorico, programmiPer, soloTeorica } from '../../dominio/programmi';
 import { corsiDi, ruoloNelCorso, type CampiCorso } from '../../dominio/motore';
 import type { Corso } from '../../dominio/tipi';
-import { formatoData, frequentatori, iscritti, lezioniVisibili, ore, situazione } from '../../dominio/viste';
+import { chiaveOrdine, direttoreDi, formatoData, frequentatori, iscritti, lezioniVisibili, nomeUtente, ore, situazione } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
 import { link, ricordaCorso } from '../navigazione';
 import { naviga } from '../router';
@@ -124,7 +124,9 @@ export function Corsi() {
 }
 
 function FormCorso({ esistente, chiudi }: { esistente: Corso | null; chiudi: (id?: string) => void }) {
-  const { esegui } = useStato();
+  const { dati, utente, esegui } = useStato();
+  const admin = utente?.ruolo === 'admin';
+  const [direttore, setDirettore] = useState<string | null>((esistente && dati && direttoreDi(dati, esistente.id)?.id) || null);
   const [v, setV] = useState<CampiCorso>(
     esistente ?? {
       id: nuovoUuid(),
@@ -134,27 +136,30 @@ function FormCorso({ esistente, chiudi }: { esistente: Corso | null; chiudi: (id
       categoria: MDS[0].categorie[0],
       data_inizio: null,
       data_fine: null,
+      durata_settimane: null,
       maintenance_organization: '',
       location: '',
-      ora_inizio: '08:30',
-      minuti_giorno: [360, 360, 360, 360, 180],
+      aula: AULE[0],
+      gruppo_firma: '',
       attivo: true,
     },
   );
   const [attesa, setAttesa] = useState(false);
-  const giorni = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven'];
+  if (!dati) return null;
+  const istruttori = dati.utenti.filter((u) => u.ruolo === 'instructor' && (u.attivo || u.id === direttore)).sort((a, b) => chiaveOrdine(dati, a).localeCompare(chiaveOrdine(dati, b)));
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
         setAttesa(true);
-        const ok = await esegui({ tipo: 'corso.salva', corso: v }, esistente ? 'Corso aggiornato' : 'Corso creato');
+        // il direttore lo assegna solo il Training Manager: gli altri lasciano l'incarico com'è
+        const ok = await esegui({ tipo: 'corso.salva', corso: v, ...(admin ? { direttore_id: direttore } : {}) }, esistente ? 'Corso aggiornato' : 'Corso creato');
         setAttesa(false);
         if (ok) chiudi(esistente ? undefined : v.id);
       }}
     >
       <Stack gap="md">
-        <TextInput label="Codice" description="Come compare negli elenchi, es. T1-2026/1" value={v.codice} onChange={(e) => setV({ ...v, codice: e.currentTarget.value })} required />
+        <TextInput label="Codice" description="L’ID del corso, come sul programma settimanale: es. 06-B1.3-CH" value={v.codice} onChange={(e) => setV({ ...v, codice: e.currentTarget.value })} required />
         <TextInput label="Nome del corso" value={v.nome} onChange={(e) => setV({ ...v, nome: e.currentTarget.value })} required />
         <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
           <Select
@@ -196,30 +201,35 @@ function FormCorso({ esistente, chiudi }: { esistente: Corso | null; chiudi: (id
             );
           })()}
         </div>
-        <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
+        <SimpleGrid cols={{ base: 1, xs: 3 }} spacing="sm">
           <TextInput type="date" label="Data di inizio" value={v.data_inizio ?? ''} onChange={(e) => setV({ ...v, data_inizio: e.currentTarget.value || null })} />
-          <TextInput type="date" label="Data di fine" value={v.data_fine ?? ''} onChange={(e) => setV({ ...v, data_fine: e.currentTarget.value || null })} />
+          <NumberInput label="Durata (settimane)" min={1} max={104} allowDecimal={false} value={v.durata_settimane ?? ''} onChange={(x) => setV({ ...v, durata_settimane: x === '' ? null : Number(x) })} />
+          <TextInput type="date" label="Data di fine stimata" value={v.data_fine ?? ''} onChange={(e) => setV({ ...v, data_fine: e.currentTarget.value || null })} />
         </SimpleGrid>
+        <Select
+          label="Direttore del corso"
+          description={admin ? 'Uno degli istruttori: in questo corso prepara e valida il programma e i rapportini.' : 'Lo assegna il Training Manager.'}
+          placeholder="da assegnare"
+          searchable
+          clearable
+          disabled={!admin}
+          value={direttore}
+          onChange={setDirettore}
+          data={istruttori.map((u) => ({ value: u.id, label: nomeUtente(dati, u.id) }))}
+          comboboxProps={{ withinPortal: true }}
+          nothingFoundMessage="Nessun account istruttore"
+        />
+        <Autocomplete label="Aula" description="Proposta per ogni lezione: sul singolo periodo si può cambiare." value={v.aula} onChange={(aula) => setV({ ...v, aula })} data={AULE} maxLength={40} comboboxProps={{ withinPortal: true }} />
+        <TextInput
+          label="Gruppo firma del comandante"
+          description="In calce al programma settimanale, sotto «IL COMANDANTE»."
+          placeholder="es. Ten. Col. Mario ROSSI"
+          value={v.gruppo_firma}
+          onChange={(e) => setV({ ...v, gruppo_firma: e.currentTarget.value })}
+          maxLength={120}
+        />
         <TextInput label="Maintenance organisation" description="Nome e numero di approvazione DAAA" value={v.maintenance_organization} onChange={(e) => setV({ ...v, maintenance_organization: e.currentTarget.value })} />
         <TextInput label="Location" value={v.location} onChange={(e) => setV({ ...v, location: e.currentTarget.value })} />
-        <TextInput type="time" label="Ora di inizio delle lezioni" value={v.ora_inizio} onChange={(e) => setV({ ...v, ora_inizio: e.currentTarget.value })} />
-        <div>
-          <span className="etichetta">Ore di lezione al giorno</span>
-          <SimpleGrid cols={5} spacing={6} mt={6}>
-            {giorni.map((g, i) => (
-              <NumberInput
-                key={g}
-                label={g}
-                size="xs"
-                min={0}
-                max={10}
-                hideControls
-                value={v.minuti_giorno[i] / 60}
-                onChange={(x) => setV({ ...v, minuti_giorno: v.minuti_giorno.map((m, j) => (j === i ? Number(x || 0) * 60 : m)) })}
-              />
-            ))}
-          </SimpleGrid>
-        </div>
         {esistente && <Switch label="Corso attivo" checked={v.attivo} onChange={(e) => setV({ ...v, attivo: e.currentTarget.checked })} />}
         <Group grow>
           <Button variant="default" onClick={() => chiudi()}>

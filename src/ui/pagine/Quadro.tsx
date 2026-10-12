@@ -162,7 +162,7 @@ export function Quadro() {
               <dd>{formatoPercentuale(s.report.totale.percentuale)}</dd>
             </div>
             <div>
-              <dt>Chapter scoperti</dt>
+              <dt>Chapter sotto il 50%</dt>
               <dd className={s.mancanti.chapter.length ? 'rosso' : 'si'}>{s.mancanti.chapter.length}</dd>
             </div>
             <div>

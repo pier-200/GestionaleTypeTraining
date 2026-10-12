@@ -28,6 +28,17 @@ Basta rieseguire **`database/schema.sql`** nel SQL Editor: aggiunge le tabelle `
 programma validato, compila il rapportino finché non è validato) e la pubblicazione realtime delle nuove tabelle.
 Non serve alcuna migrazione dei dati: le lezioni già inserite restano non validate finché il direttore non le valida.
 
+## Aggiornamento direttore per corso e modulo del programma settimanale (12/10/2026)
+
+- **Archivio GitHub (in uso)**: nessuna operazione. Al primo caricamento l'applicazione completa da sola i dati salvati
+  prima: un account «direttore» diventa «istruttore» e conserva l'incarico nei corsi che dirigeva. Per gli istruttori
+  già creati conviene aprire **Account → Modifica** e dividere il nominativo in grado, nome e cognome: il modulo del
+  programma settimanale usa «Grado Cognome» e «Grado COGNOME Nome». Per i corsi già creati, in **Corsi → Modifica** si
+  inseriscono durata in settimane, aula e gruppo firma del comandante.
+- **Supabase**: rieseguire **`database/schema.sql`** (toglie il ruolo «direttore» dagli account, aggiunge un solo
+  direttore per corso e i campi nuovi di corsi, lezioni, account e Personal Data, toglie ora di inizio e ore al giorno)
+  e ripubblicare la Edge Function `gestione-utenti`.
+
 ## Stato dell'installazione Supabase (22/09/2026)
 
 - Schema, sicurezza per corso (RLS) e tempo reale installati (`database/schema.sql`).
@@ -67,7 +78,8 @@ Per non dipendere dai token Supabase l'app lavora sull'**archivio GitHub**. Repo
      username, nome e password del Training Manager.
 
    Il token viene cifrato nel portachiavi e non va dato a nessuno.
-3. Da **Account** creare gli account di direttore, istruttori e frequentatori e iscriverli ai corsi.
+3. Da **Account** creare gli account di istruttori e frequentatori; da **Corsi** creare il corso scegliendo tra gli
+   istruttori il **direttore del corso**, poi iscrivere al corso gli altri istruttori e i frequentatori.
 
 > La password del Training Manager protegge il token dentro il portachiavi, che sta su un repository **pubblico**:
 > una password corta (per esempio `admin`) va bene per le prime prove, per i dati veri serve una password lunga e un

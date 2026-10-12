@@ -7,18 +7,32 @@ import type { Corso, Dati, ID, Istruttore, Lezione, Registrazione, RuoloCorso, U
 
 export const nomeIstruttore = (i: Pick<Istruttore, 'grado' | 'nome' | 'cognome'> | undefined) => (i ? `${i.grado} ${i.nome} ${i.cognome}` : '—');
 
+/** Grado, nome e cognome: dai Personal Data del frequentatore, altrimenti dall'account. */
+const nominativo = (dati: Dati, id: ID | null | undefined) => dati.anagrafiche.find((x) => x.user_id === id) ?? dati.utenti.find((x) => x.id === id);
+const unisci = (...parti: string[]) => parti.filter(Boolean).join(' ');
+
 export function nomeUtente(dati: Dati, id: ID | null | undefined): string {
-  if (!id) return '—';
-  const a = dati.anagrafiche.find((x) => x.user_id === id);
-  if (a) return `${a.grado} ${a.nome} ${a.cognome}`;
-  const u = dati.utenti.find((x) => x.id === id);
-  return u ? u.nome || u.username : '—';
+  const p = nominativo(dati, id);
+  if (!p) return '—';
+  return unisci(p.grado, p.nome, p.cognome) || dati.utenti.find((x) => x.id === id)?.username || '—';
+}
+
+/** «Grado COGNOME Nome», come sui moduli ufficiali (gli account non ancora divisi in tre campi restano come sono). */
+export function nomeModulo(dati: Dati, id: ID | null | undefined): string {
+  const p = nominativo(dati, id);
+  return p ? unisci(p.grado, p.cognome.toUpperCase(), p.nome) : '';
+}
+
+/** «Grado Cognome»: l'istruttore nella griglia e nel modulo del programma settimanale. */
+export function gradoCognome(dati: Dati, id: ID | null | undefined): string {
+  const p = nominativo(dati, id);
+  return p ? (p.cognome ? unisci(p.grado, p.cognome) : p.nome) : '';
 }
 
 /** Cognome e nome per ordinare gli elenchi. */
 export function chiaveOrdine(dati: Dati, u: Utente) {
-  const a = dati.anagrafiche.find((x) => x.user_id === u.id);
-  return (a ? `${a.cognome} ${a.nome}` : u.nome || u.username).toLowerCase();
+  const p = nominativo(dati, u.id) ?? u;
+  return (unisci(p.cognome, p.nome) || u.username).toLowerCase();
 }
 
 /** Account iscritti al corso con il ruolo indicato. */
@@ -31,6 +45,9 @@ export const frequentatori = (dati: Dati, corsoId: ID | null | undefined, ancheD
 
 /** Chi può erogare lezioni nel corso: istruttori e direttore. */
 export const docenti = (dati: Dati, corsoId: ID | null | undefined) => [...iscritti(dati, corsoId, 'instructor'), ...iscritti(dati, corsoId, 'direttore')];
+
+/** L'istruttore a cui il Training Manager ha affidato il corso. */
+export const direttoreDi = (dati: Dati, corsoId: ID | null | undefined): Utente | undefined => iscritti(dati, corsoId, 'direttore', true)[0];
 
 export const registrazioniDi = (dati: Dati, corsoId: ID | null | undefined, userId: ID) =>
   dati.registrazioni.filter((r) => r.user_id === userId && r.corso_id === corsoId).sort((a, b) => b.data.localeCompare(a.data) || b.modificato_il.localeCompare(a.modificato_il));

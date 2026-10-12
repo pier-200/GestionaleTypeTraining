@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { ActionIcon, Badge, Button, Drawer, Group, Menu, Select, Stack, Text, Textarea } from '@mantine/core';
+import { ActionIcon, Autocomplete, Badge, Button, Drawer, Group, Menu, Select, Stack, Text, Textarea } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { IconChevronLeft, IconChevronRight, IconDots, IconEraser, IconFileSpreadsheet, IconLock, IconLockOpen, IconPlus, IconTrash, IconWand } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
-import { esportaSettimana } from '../../esporta';
+import { messaggioErrore } from '../../dominio/errori';
 import { oggiISO, ruoloNelCorso, TIPI_PERIODO, type CampiLezione } from '../../dominio/motore';
-import { MINUTI_PERIODO, NOMI_GIORNI, generaSettimana, giorniSettimana, lunediDi, orarioLezione, periodiDelGiorno, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
+import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, generaSettimana, giorniSettimana, lunediDi, orarioPeriodo, periodiDelGiorno, settimanaDiCorso, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
 import { chapterMateria, materiaDi, oreDaMinuti, programmaTeorico, type Materia } from '../../dominio/programmi';
 import { conMateria, ETICHETTA_PERIODO, SIGLA_PERIODO, type Lezione, type TipoPeriodo } from '../../dominio/tipi';
 import { docenti, formatoDataBreve, formatoMinuti, lezioniVisibili, nomeUtente, ore } from '../../dominio/viste';
@@ -14,13 +15,10 @@ import { useCorso } from '../navigazione';
 import { aggiornaQuery, usePosizione } from '../router';
 import { useStato } from '../stato';
 
-/** Durate proponibili per un periodo: quarti d'ora fino a due ore. */
-const DURATE = [15, 30, 45, 60, 75, 90, 105, 120];
+/** Durate proponibili per un periodo: quarti d'ora fino all'ora piena, poi c'è la pausa. */
+const DURATE = [15, 30, 45, MINUTI_PERIODO];
 
-/** Cognome dell'istruttore: nella griglia basta quello. */
-const cognome = (nome: string) => nome.split(' ').filter(Boolean).at(-1) ?? nome;
-
-/** Programma settimanale: una griglia di periodi (6 dal lunedì al giovedì, 3 il venerdì) da compilare. */
+/** Programma settimanale: una griglia di periodi a orari fissi (6 dal lunedì al giovedì, 3 il venerdì) da compilare. */
 export function Settimana() {
   const { dati, utente, esegui } = useStato();
   const corso = useCorso();
@@ -56,13 +54,17 @@ export function Settimana() {
     minuti: l.minuti,
     materia: l.materia,
     istruttore_id: l.istruttore_id,
+    aula: l.aula,
     tipo: l.tipo,
     note: l.note,
   });
   const correnti: CampiLezione[] = bozza ?? salvate.map(campi);
   const modificata = bozza != null && JSON.stringify(bozza) !== JSON.stringify(salvate.map(campi));
   const validata = salvate.length > 0 && salvate.every((l) => l.validata);
-  const periodiMax = Math.max(...corso.minuti_giorno.map((_, i) => periodiDelGiorno(corso.minuti_giorno, i)), 1);
+  const settimana = settimanaDiCorso(corso, lunedi).numero;
+  /** Cognome dell'istruttore: nella griglia basta quello (gli account non ancora divisi in tre campi danno l'ultima parola). */
+  const cognome = (id: string) => dati.utenti.find((u) => u.id === id)?.cognome || nomeUtente(dati, id).split(' ').at(-1);
+  const aule = [...new Set([...AULE, corso.aula, ...lezioni.map((l) => l.aula)].filter(Boolean))];
 
   /** Lezioni "virtuali" per i calcoli: quelle fuori settimana più la bozza corrente. */
   const perCalcolo = [...fuori, ...correnti.map((l) => ({ ...l, validata: false, validata_da: null, validata_il: null, creato_il: '', modificato_il: '', modificato_da: null }) as Lezione)];
@@ -95,16 +97,16 @@ export function Settimana() {
 
   const genera = () => {
     const pesi = carico();
-    const proposte = generaSettimana(programma, perCalcolo, lunedi, { minutiGiorno: corso.minuti_giorno, istruttorePerMateria: (m: Materia) => scegliIstruttore(m.id, pesi) });
+    const proposte = generaSettimana(programma, perCalcolo, lunedi, { istruttorePerMateria: (m: Materia) => scegliIstruttore(m.id, pesi) });
     if (!proposte.length) return;
     for (const p of proposte) if (p.istruttore_id) pesi.set(p.istruttore_id, (pesi.get(p.istruttore_id) ?? 0) + p.minuti);
-    setBozza([...correnti, ...proposte.map((p) => ({ id: nuovoUuid(), corso_id: corso.id, data: p.data, ordine: p.ordine, minuti: p.minuti, materia: p.materia, istruttore_id: p.istruttore_id, tipo: 'lezione' as TipoPeriodo, note: '' }))]);
+    setBozza([...correnti, ...proposte.map((p) => ({ id: nuovoUuid(), corso_id: corso.id, data: p.data, ordine: p.ordine, minuti: p.minuti, materia: p.materia, istruttore_id: p.istruttore_id, aula: '', tipo: 'lezione' as TipoPeriodo, note: '' }))]);
   };
 
   /** Compila un periodo ancora vuoto con la materia successiva del programma. */
   const aggiungi = (data: string, ordine: number) => {
     const materia = stato.prossima?.id ?? programma.materie[0].id;
-    setBozza([...correnti, { id: nuovoUuid(), corso_id: corso.id, data, ordine, minuti: MINUTI_PERIODO, materia, istruttore_id: scegliIstruttore(materia), tipo: 'lezione', note: '' }]);
+    setBozza([...correnti, { id: nuovoUuid(), corso_id: corso.id, data, ordine, minuti: MINUTI_PERIODO, materia, istruttore_id: scegliIstruttore(materia), aula: '', tipo: 'lezione', note: '' }]);
     setAperto({ data, ordine });
   };
 
@@ -132,8 +134,18 @@ export function Settimana() {
     aggiornaQuery({ w: sommaGiorni(lunedi, delta * 7) });
   };
 
-  /** Orario del periodo: i periodi mancanti contano come un'ora piena. */
-  const orario = (data: string, ordine: number) => orarioLezione(corso, correnti.filter((l) => l.data === data), ordine);
+  /** Il programma sul modulo ufficiale, da stampare in PDF da Excel. */
+  const esporta = async () => {
+    try {
+      const { esportaSettimana } = await import('../../moduloSettimana');
+      await esportaSettimana(dati, corso, lunedi, correnti);
+    } catch (e) {
+      notifications.show({ color: 'rosso', title: 'Excel non creato', message: messaggioErrore(e) });
+    }
+  };
+
+  /** Orario del periodo: l'inizio è fisso, la fine segue la durata della lezione. */
+  const orario = (data: string, ordine: number) => orarioPeriodo(ordine, trova(data, ordine)?.minuti);
 
   const inModifica = aperto ? trova(aperto.data, aperto.ordine) : undefined;
 
@@ -166,13 +178,13 @@ export function Settimana() {
         </div>
         <div className="periodo-materia">{materia ? materia.titolo : ETICHETTA_PERIODO[l.tipo]}</div>
         <div className={`periodo-istruttore ${l.istruttore_id ? '' : conMateria(l.tipo) ? 'rosso' : 'debole'}`}>
-          {l.istruttore_id ? cognome(nomeUtente(dati, l.istruttore_id)) : conMateria(l.tipo) ? 'da assegnare' : '—'}
+          {l.istruttore_id ? cognome(l.istruttore_id) : conMateria(l.tipo) ? 'da assegnare' : '—'}
         </div>
       </>
     );
     const classi = `periodo ${l.tipo !== 'lezione' ? `t-${l.tipo}` : ''}`;
     return guida ? (
-      <button type="button" className={classi} onClick={() => setAperto({ data, ordine })} title={`${o.inizio}–${o.fine} · ${materia?.titolo ?? ETICHETTA_PERIODO[l.tipo]}`}>
+      <button type="button" className={classi} onClick={() => setAperto({ data, ordine })} title={`${o.inizio}–${o.fine} · ${materia?.titolo ?? ETICHETTA_PERIODO[l.tipo]} · ${l.aula || corso.aula}`}>
         {contenuto}
       </button>
     ) : (
@@ -197,33 +209,36 @@ export function Settimana() {
                 </Button>
               </>
             )}
-            <Menu position="bottom-end" withinPortal>
-              <Menu.Target>
-                <ActionIcon variant="default" size="lg" aria-label="Altre azioni">
-                  <IconDots size={18} />
-                </ActionIcon>
-              </Menu.Target>
-              <Menu.Dropdown>
-                {guida &&
-                  (validata ? (
-                    <Menu.Item leftSection={<IconLockOpen size={16} />} onClick={() => void valida(false)}>
-                      Ritira la validazione
-                    </Menu.Item>
-                  ) : (
-                    <Menu.Item leftSection={<IconLock size={16} />} onClick={() => void valida(true)} disabled={!salvate.length || modificata}>
-                      Valida la settimana
-                    </Menu.Item>
-                  ))}
-                <Menu.Item leftSection={<IconFileSpreadsheet size={16} />} onClick={() => void esportaSettimana(dati, corso, lunedi, correnti)} disabled={!correnti.length}>
-                  Esporta in Excel
-                </Menu.Item>
-                {guida && (
-                  <Menu.Item color="rosso" leftSection={<IconEraser size={16} />} onClick={() => setBozza([])} disabled={!correnti.length}>
-                    Svuota la settimana
+            {/* il modulo riporta i nominativi del corso: lo scarica solo chi lo segue, non i frequentatori */}
+            {ruolo !== 'trainee' && (
+              <Menu position="bottom-end" withinPortal>
+                <Menu.Target>
+                  <ActionIcon variant="default" size="lg" aria-label="Altre azioni">
+                    <IconDots size={18} />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {guida &&
+                    (validata ? (
+                      <Menu.Item leftSection={<IconLockOpen size={16} />} onClick={() => void valida(false)}>
+                        Ritira la validazione
+                      </Menu.Item>
+                    ) : (
+                      <Menu.Item leftSection={<IconLock size={16} />} onClick={() => void valida(true)} disabled={!salvate.length || modificata}>
+                        Valida la settimana
+                      </Menu.Item>
+                    ))}
+                  <Menu.Item leftSection={<IconFileSpreadsheet size={16} />} onClick={() => void esporta()} disabled={!correnti.length}>
+                    Programma settimanale in Excel
                   </Menu.Item>
-                )}
-              </Menu.Dropdown>
-            </Menu>
+                  {guida && (
+                    <Menu.Item color="rosso" leftSection={<IconEraser size={16} />} onClick={() => setBozza([])} disabled={!correnti.length}>
+                      Svuota la settimana
+                    </Menu.Item>
+                  )}
+                </Menu.Dropdown>
+              </Menu>
+            )}
           </>
         }
       />
@@ -242,6 +257,7 @@ export function Settimana() {
           <Button variant="subtle" size="compact-sm" onClick={() => { setBozza(null); aggiornaQuery({ w: null }); }}>
             Oggi
           </Button>
+          {settimana && <span className="etichetta">{settimana}ª settimana</span>}
           {salvate.length > 0 && (
             <Badge size="sm" color={validata ? 'inchiostro' : 'rosso'} variant="light">
               {validata ? 'validata' : 'da validare'}
@@ -263,14 +279,14 @@ export function Settimana() {
             {NOMI_GIORNI[i]} <span className="cifre debole">{formatoDataBreve(data)}</span>
           </div>
         ))}
-        {Array.from({ length: periodiMax }, (_, ordine) => (
+        {ORARI_PERIODI.map((inizio, ordine) => (
           <div key={ordine} style={{ display: 'contents' }}>
             <div className="g-ora">
               <span className="cifre">{ordine + 1}°</span>
-              <span className="cifre debole">{orario(giorni[0], ordine).inizio}</span>
+              <span className="cifre debole">{inizio}</span>
             </div>
             {giorni.map((data, i) =>
-              ordine < periodiDelGiorno(corso.minuti_giorno, i) ? (
+              ordine < periodiDelGiorno(i) ? (
                 <div key={data} className="g-cella">
                   <Periodo data={data} ordine={ordine} />
                 </div>
@@ -289,9 +305,9 @@ export function Settimana() {
             <header>
               {NOMI_GIORNI[i]} <span className="cifre debole">{formatoDataBreve(data)}</span>
             </header>
-            {Array.from({ length: periodiDelGiorno(corso.minuti_giorno, i) }, (_, ordine) => (
+            {ORARI_PERIODI.slice(0, periodiDelGiorno(i)).map((inizio, ordine) => (
               <div key={ordine} className="riga-periodo">
-                <span className="cifre debole ora">{orario(data, ordine).inizio}</span>
+                <span className="cifre debole ora">{inizio}</span>
                 <Periodo data={data} ordine={ordine} />
               </div>
             ))}
@@ -346,8 +362,21 @@ export function Settimana() {
                 />
               </>
             )}
+            {inModifica.tipo !== 'sospensione' && (
+              <Autocomplete
+                label="Aula"
+                description="Vuota = aula del corso."
+                placeholder={corso.aula || 'aula del corso'}
+                value={inModifica.aula}
+                onChange={(aula) => modifica(inModifica.id, { aula })}
+                data={aule}
+                maxLength={40}
+                comboboxProps={{ withinPortal: true }}
+              />
+            )}
             <Select
               label="Durata"
+              description={`Dalle ${ORARI_PERIODI[inModifica.ordine]}: un’ora al massimo, poi la pausa.`}
               value={String(inModifica.minuti)}
               onChange={(v) => v && modifica(inModifica.id, { minuti: Number(v) })}
               data={DURATE.map((m) => ({ value: String(m), label: formatoMinuti(m) }))}

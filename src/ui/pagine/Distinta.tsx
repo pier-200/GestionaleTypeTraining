@@ -102,7 +102,7 @@ export function Distinta() {
                     <th className="num">Eseguiti</th>
                     <th>Moduli (% · soglia 50)</th>
                     <th>Task type (%)</th>
-                    <th className="num">Ch scoperti</th>
+                    <th className="num">Ch sotto 50%</th>
                     <th>Esito</th>
                     <th>Ultima</th>
                   </tr>
@@ -155,7 +155,7 @@ export function Distinta() {
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <strong>{s.nome}</strong>
                       <span className="debole" style={{ display: 'block', fontSize: 'var(--fs-s)' }}>
-                        {s.mancanti.chapter.length ? `${s.mancanti.chapter.length} chapter scoperti` : 'Tutti i chapter coperti'} · {s.mancanti.moduli.length} moduli sotto soglia
+                        {s.mancanti.chapter.length ? `${s.mancanti.chapter.length} chapter sotto il 50%` : 'Tutti i chapter al 50%'} · {s.mancanti.moduli.length} moduli sotto soglia
                       </span>
                     </span>
                     <span style={{ textAlign: 'right' }}>

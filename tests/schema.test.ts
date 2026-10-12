@@ -53,7 +53,7 @@ const reg = (corso: string, user: string) =>
   `insert into public.registrazioni (corso_id, user_id, task_id, maintenance_location, data, tipo_esecuzione, matricola, et_minuti, instructor_id)
    values ('${corso}', '${user}', 1, 'Hangar', current_date, 'AC', 'MM81781', 30, '${I1}') returning id`;
 const lezione = (corso: string, data: string, istruttore: string | null) =>
-  `insert into public.lezioni (corso_id, data, ordine, minuti, materia, istruttore_id) values ('${corso}', '${data}', 0, 120, 'm001', ${istruttore ? `'${istruttore}'` : 'null'}) returning id`;
+  `insert into public.lezioni (corso_id, data, ordine, minuti, materia, istruttore_id) values ('${corso}', '${data}', 0, 60, 'm001', ${istruttore ? `'${istruttore}'` : 'null'}) returning id`;
 
 beforeAll(async () => {
   db = new PGlite();
@@ -66,7 +66,7 @@ beforeAll(async () => {
   await db.exec(`
     insert into public.istruttori (id, grado, nome, cognome) values ('${I1}', 'Mar.', 'Paolo', 'Rinaldi');
     insert into public.profili (id, username, ruolo) values
-      ('${U.dir}', 'marco.neri', 'direttore'), ('${U.ist}', 'paolo.rinaldi', 'instructor'),
+      ('${U.dir}', 'marco.neri', 'instructor'), ('${U.ist}', 'paolo.rinaldi', 'instructor'),
       ('${U.a}', 'utente.a', 'trainee'), ('${U.b}', 'utente.b', 'trainee'),
       ('${U.altro}', 'utente.altro', 'trainee'), ('${U.istAltro}', 'istruttore.altro', 'instructor');
     insert into public.corsi (id, codice, nome, programma_teorico, programma_pratico) values
@@ -92,6 +92,21 @@ describe('corsi e iscrizioni', () => {
     expect(await errore(U.ist, `insert into public.iscrizioni (corso_id, user_id, ruolo) values ('${C2}', '${U.b}', 'trainee')`)).toMatch(/row-level security/);
     expect(await errore(U.dir, `insert into public.corsi (codice, nome, programma_teorico) values ('X', 'X', 'mtt-ch47f-b13')`)).toMatch(/row-level security/);
     await righe(U.tm, `delete from public.iscrizioni where corso_id = '${C1}' and user_id = '${U.altro}'`);
+  });
+
+  it('il direttore è un istruttore incaricato dal TM: uno solo per corso, e non è un tipo di account', async () => {
+    expect(await errore(U.tm, `update public.profili set ruolo = 'direttore' where id = '${U.ist}'`)).toMatch(/check/);
+    // il direttore non nomina altri direttori, nemmeno al posto proprio
+    expect(await righe(U.dir, `update public.iscrizioni set ruolo = 'direttore' where corso_id = '${C1}' and user_id = '${U.ist}' returning id`).catch((e) => String(e))).toMatch(/row-level security/);
+    expect(await righe(U.dir, `update public.iscrizioni set ruolo = 'instructor' where corso_id = '${C1}' and user_id = '${U.dir}' returning id`)).toEqual([]);
+    expect(await errore(U.tm, `update public.iscrizioni set ruolo = 'direttore' where corso_id = '${C1}' and user_id = '${U.ist}'`)).toMatch(/unique|duplicate/);
+    // il TM affida il secondo corso: da quel momento l'istruttore lo guida
+    expect(await errore(U.istAltro, lezione(C2, '2026-11-02', null))).toMatch(/row-level security/);
+    await righe(U.tm, `update public.iscrizioni set ruolo = 'direttore' where corso_id = '${C2}' and user_id = '${U.istAltro}'`);
+    expect(await righe(U.istAltro, lezione(C2, '2026-11-02', null))).toHaveLength(1);
+    await righe(U.tm, `delete from public.lezioni where corso_id = '${C2}'; `);
+    await righe(U.tm, `update public.iscrizioni set ruolo = 'instructor' where corso_id = '${C2}' and user_id = '${U.istAltro}'`);
+    expect(await errore(U.istAltro, lezione(C2, '2026-11-02', null))).toMatch(/row-level security/);
   });
 });
 
