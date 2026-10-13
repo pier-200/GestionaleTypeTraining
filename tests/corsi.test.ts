@@ -23,7 +23,10 @@ const corso = (extra: Partial<CampiCorso> = {}): Comando => ({
     categoria: 'B1.3',
     data_inizio: null,
     data_fine: null,
+    data_chiusura: null,
     durata_settimane: null,
+    direttore_nome: '',
+    aeromobili: [],
     maintenance_organization: '',
     location: '',
     aula: '',
@@ -83,8 +86,9 @@ describe('periodi del programma', () => {
     parte: 0,
     minuti: 60,
     materia: TEORICO.materie[0].id,
-    chapter: '',
     istruttore_id: 'u-rinaldi',
+    persona: '',
+    frequentatori: [],
     aula: '',
     tipo: 'lezione' as const,
     note: '',
@@ -133,6 +137,6 @@ describe('periodi del programma', () => {
     const rapportini: Rapportino[] = [{ id: 'r', corso_id: C2, data: '2026-10-05', note: '', compilato_da: null, compilato_il: '', validato_da: null, validato_il: 'x' }];
     const presenze: Presenza[] = [{ id: 'p', corso_id: C2, data: '2026-10-05', user_id: 'u-marchetti', stato: 'assente', dalle: null, alle: null, motivo: '' }];
     expect(assenzeDi(TEORICO, lezioni, rapportini, presenze, 'u-marchetti').minuti).toBe(0);
-    expect(() => applica(dati, { ...speciale, lezioni: [lezione(0, { materia: 'inesistente' })] }, ctx('u-neri'))).toThrow(/Materia/);
+    expect(() => applica(dati, { ...speciale, lezioni: [lezione(0, { materia: 'inesistente' })] }, ctx('u-neri'))).toThrow(/non previsto dal syllabus/);
   });
 });

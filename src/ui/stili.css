@@ -22,6 +22,9 @@
   --arancio-tenue: #fde9cc;
   --rosso: #c4472f;
   --rosso-tenue: #fae3dd;
+  /* in parte: fra il giallo e l'arancione, distinto dall'arancio della parte pratica */
+  --ambra-scuro: #8a6100;
+  --ambra-tenue: #fbedb8;
   --fatto: var(--arancio);
   --fatto-tenue: var(--arancio-tenue);
   --ombra: 0 1px 2px rgb(24 48 43 / 0.07), 0 8px 24px rgb(24 48 43 / 0.06);
@@ -62,6 +65,8 @@
   --arancio-tenue: #46331a;
   --rosso: #f08068;
   --rosso-tenue: #45231c;
+  --ambra-scuro: #f2d06b;
+  --ambra-tenue: #3f3410;
   --ombra: 0 1px 2px rgb(0 0 0 / 0.3);
   --ombra-alta: 0 -1px 0 rgb(255 255 255 / 0.04);
   color-scheme: dark;
@@ -139,6 +144,18 @@ a {
 }
 .si {
   color: var(--verde-scuro);
+}
+.in-parte {
+  color: var(--ambra-scuro);
+}
+/* frequentatore fuori dal corso: i suoi dati restano consultabili */
+.avviso-escluso {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--raggio);
+  background: var(--rosso-tenue);
+  color: var(--rosso);
+  font-weight: 600;
 }
 .evidenziato {
   background: var(--fatto-tenue);
@@ -961,6 +978,11 @@ a.quota:hover .quota-nome {
 .tabella td.si {
   background: var(--verde-tenue);
 }
+/* materia svolta solo in parte */
+.tabella td.in-parte {
+  background: var(--ambra-tenue);
+  font-weight: 700;
+}
 .registrazione {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -1272,6 +1294,12 @@ a.quota:hover .quota-nome {
   padding: 0;
   display: grid;
   gap: 8px;
+}
+/* sul PC c'è già la tabella: l'elenco per il cellulare non deve comparirle sotto */
+@media (min-width: 900px) {
+  .elenco-mobile.solo-mobile-blocco {
+    display: none;
+  }
 }
 .elenco-mobile a {
   display: flex;
@@ -1735,15 +1763,25 @@ button.periodo {
   text-overflow: ellipsis;
 }
 .periodo.t-meo,
-.periodo.t-sospensione {
+.periodo.t-pa,
+.periodo.t-valutazione {
   background: var(--superficie-2);
 }
-.periodo.t-sospensione .periodo-materia,
-.periodo.t-meo .periodo-materia {
+.periodo.t-meo .periodo-materia,
+.periodo.t-pa .periodo-materia {
   color: var(--testo-2);
 }
-.periodo.t-esame {
+/* sospensione: cella sbarrata, senza altro */
+.periodo.t-sospensione {
+  min-height: 100%;
+  background: repeating-linear-gradient(135deg, var(--bordo-forte) 0 1.5px, transparent 1.5px 8px) var(--superficie-2);
+}
+.periodo.t-esame,
+.periodo.t-esame_pratico {
   background: var(--arancio-tenue);
+}
+.periodo.t-pratica {
+  background: color-mix(in srgb, var(--arancio-tenue) 55%, var(--superficie));
 }
 /* la lezione di chi è collegato */
 .periodo.mia {

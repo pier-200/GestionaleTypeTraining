@@ -73,9 +73,12 @@ beforeAll(async () => {
       ('${C1}', 'T1-2026/1', 'Primo corso', 'mtt-ch47f-b13', 'ptr-ch47f-b13'),
       ('${C2}', 'T1-2026/2', 'Secondo corso', 'mtt-ch47f-b13', null);
     insert into public.iscrizioni (corso_id, user_id, ruolo) values
-      ('${C1}', '${U.dir}', 'direttore'), ('${C1}', '${U.ist}', 'instructor'),
+      ('${C1}', '${U.dir}', 'direttore'),
       ('${C1}', '${U.a}', 'trainee'), ('${C1}', '${U.b}', 'trainee'),
-      ('${C2}', '${U.altro}', 'trainee'), ('${C2}', '${U.istAltro}', 'instructor');`);
+      ('${C2}', '${U.altro}', 'trainee');
+    -- gli istruttori non si iscrivono: sono nominati per la fase pratica del corso
+    update public.corsi set istruttori_pratica = '{${U.ist}}' where id = '${C1}';
+    update public.corsi set istruttori_pratica = '{${U.istAltro}}' where id = '${C2}';`);
 });
 
 describe('corsi e iscrizioni', () => {
@@ -97,16 +100,35 @@ describe('corsi e iscrizioni', () => {
   it('il direttore è un istruttore incaricato dal TM: uno solo per corso, e non è un tipo di account', async () => {
     expect(await errore(U.tm, `update public.profili set ruolo = 'direttore' where id = '${U.ist}'`)).toMatch(/check/);
     // il direttore non nomina altri direttori, nemmeno al posto proprio
-    expect(await righe(U.dir, `update public.iscrizioni set ruolo = 'direttore' where corso_id = '${C1}' and user_id = '${U.ist}' returning id`).catch((e) => String(e))).toMatch(/row-level security/);
-    expect(await righe(U.dir, `update public.iscrizioni set ruolo = 'instructor' where corso_id = '${C1}' and user_id = '${U.dir}' returning id`)).toEqual([]);
-    expect(await errore(U.tm, `update public.iscrizioni set ruolo = 'direttore' where corso_id = '${C1}' and user_id = '${U.ist}'`)).toMatch(/unique|duplicate/);
+    expect(await errore(U.dir, `insert into public.iscrizioni (corso_id, user_id, ruolo) values ('${C1}', '${U.ist}', 'direttore')`)).toMatch(/row-level security/);
+    expect(await righe(U.dir, `delete from public.iscrizioni where corso_id = '${C1}' and user_id = '${U.dir}' returning id`)).toEqual([]);
+    expect(await errore(U.tm, `insert into public.iscrizioni (corso_id, user_id, ruolo) values ('${C1}', '${U.ist}', 'direttore')`)).toMatch(/unique|duplicate/);
+    expect(await errore(U.tm, `insert into public.iscrizioni (corso_id, user_id, ruolo) values ('${C2}', '${U.ist}', 'instructor')`)).toMatch(/check/);
     // il TM affida il secondo corso: da quel momento l'istruttore lo guida
     expect(await errore(U.istAltro, lezione(C2, '2026-11-02', null))).toMatch(/row-level security/);
-    await righe(U.tm, `update public.iscrizioni set ruolo = 'direttore' where corso_id = '${C2}' and user_id = '${U.istAltro}'`);
+    await righe(U.tm, `insert into public.iscrizioni (corso_id, user_id, ruolo) values ('${C2}', '${U.istAltro}', 'direttore')`);
     expect(await righe(U.istAltro, lezione(C2, '2026-11-02', null))).toHaveLength(1);
     await righe(U.tm, `delete from public.lezioni where corso_id = '${C2}'; `);
-    await righe(U.tm, `update public.iscrizioni set ruolo = 'instructor' where corso_id = '${C2}' and user_id = '${U.istAltro}'`);
+    await righe(U.tm, `delete from public.iscrizioni where corso_id = '${C2}' and user_id = '${U.istAltro}'`);
     expect(await errore(U.istAltro, lezione(C2, '2026-11-02', null))).toMatch(/row-level security/);
+  });
+
+  it('l’istruttore non iscritto vede il corso in cui è nominato per la pratica o ha lezioni', async () => {
+    const terzo = '00000000-0000-4000-8000-000000000008';
+    await db.query('insert into auth.users values ($1, $2)', [terzo, 'terzo@ptt.local']);
+    await db.exec(`insert into public.profili (id, username, ruolo) values ('${terzo}', 'istruttore.terzo', 'instructor')`);
+    expect(await righe(terzo, 'select codice from public.corsi')).toEqual([]);
+    await righe(U.tm, `insert into public.lezioni (corso_id, data, ordine, minuti, materia, istruttore_id, tipo) values ('${C2}', '2026-11-03', 0, 60, '', '${terzo}', 'meo')`);
+    expect((await righe(terzo, 'select codice from public.corsi')).map((x) => x.codice)).toEqual(['T1-2026/2']);
+    await righe(U.tm, `delete from public.lezioni where corso_id = '${C2}'`);
+    expect(await righe(terzo, 'select codice from public.corsi')).toEqual([]);
+  });
+
+  it('frequentatore escluso: i dati restano, il logbook non si modifica più', async () => {
+    await righe(U.tm, `update public.iscrizioni set escluso_il = current_date where corso_id = '${C1}' and user_id = '${U.b}'`);
+    expect(await errore(U.b, reg(C1, U.b))).toMatch(/row-level security/);
+    expect((await righe(U.b, 'select codice from public.corsi')).map((x) => x.codice)).toEqual(['T1-2026/1']);
+    await righe(U.tm, `update public.iscrizioni set escluso_il = null where corso_id = '${C1}' and user_id = '${U.b}'`);
   });
 });
 
@@ -128,10 +150,14 @@ describe('logbook (parte pratica)', () => {
   });
 
   it('personal data: li vede solo lo staff che condivide un corso', async () => {
-    await righe(U.a, `insert into public.anagrafiche (user_id, grado, nome, cognome, data_nascita, citta_nascita) values ('${U.a}', 'Serg.', 'A', 'B', '1990-01-01', 'Roma')`);
+    // li inseriscono il Training Manager e il direttore del corso, non il frequentatore
+    const anagrafica = (u: string) => `insert into public.anagrafiche (user_id, grado, nome, cognome, data_nascita, citta_nascita) values ('${u}', 'Serg.', 'A', 'B', '1990-01-01', 'Roma')`;
+    expect(await errore(U.a, anagrafica(U.a))).toMatch(/row-level security/);
+    await righe(U.dir, anagrafica(U.a));
+    expect(await errore(U.dir, anagrafica(U.altro))).toMatch(/row-level security/); // frequentatore di un altro corso
+    expect((await uno(U.a, 'select count(*)::int n from public.anagrafiche')).n).toBe(1);
     expect((await uno(U.dir, 'select count(*)::int n from public.anagrafiche')).n).toBe(1);
     expect((await uno(U.istAltro, 'select count(*)::int n from public.anagrafiche')).n).toBe(0);
-    expect(await errore(U.a, `insert into public.anagrafiche (user_id, grado, nome, cognome, data_nascita, citta_nascita) values ('${U.b}', 'Serg.', 'A', 'B', '1990-01-01', 'Roma')`)).toMatch(/row-level security/);
   });
 
   it('validazioni: data futura, matricola solo per AC, ET, iscrizione', async () => {
@@ -156,9 +182,11 @@ describe('programma teorico', () => {
     expect(await errore(U.dir, lezione(C1, '2026-10-05', U.ist))).toMatch(/unique|duplicate/);
   });
 
-  it('abilitazioni: TM e direttore le impostano, gli altri le leggono', async () => {
-    expect(await righe(U.dir, `insert into public.abilitazioni (user_id, programma, materia) values ('${U.ist}', 'mtt-ch47f-b13', 'm001') returning id`)).toHaveLength(1);
-    expect(await errore(U.ist, `insert into public.abilitazioni (user_id, programma, materia) values ('${U.ist}', 'mtt-ch47f-b13', 'm002')`)).toMatch(/row-level security/);
+  it('abilitazioni per mezzo e chapter: le imposta solo il TM, gli altri le leggono', async () => {
+    expect(await righe(U.tm, `insert into public.abilitazioni (user_id, mds, chapter) values ('${U.ist}', 'CH-47F', '05') returning id`)).toHaveLength(1);
+    expect(await errore(U.dir, `insert into public.abilitazioni (user_id, mds, chapter) values ('${U.ist}', 'CH-47F', '06')`)).toMatch(/row-level security/);
+    expect(await errore(U.ist, `insert into public.abilitazioni (user_id, mds, chapter) values ('${U.ist}', 'CH-47F', '07')`)).toMatch(/row-level security/);
+    expect(await errore(U.tm, `insert into public.abilitazioni (user_id, mds, chapter) values ('${U.ist}', 'CH-47F', '05')`)).toMatch(/unique|duplicate/);
     expect((await uno(U.ist, 'select count(*)::int n from public.abilitazioni')).n).toBe(1);
   });
 

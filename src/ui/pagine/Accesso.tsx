@@ -135,7 +135,7 @@ export function Accesso() {
             <h2 className="titolo-sezione">Come funziona</h2>
             <ol style={{ paddingLeft: 20, lineHeight: 1.6 }}>
               <li>Accedi con l'account ricevuto dal Training Manager.</li>
-              <li>Al primo accesso sostituisci la password provvisoria e compila i Personal Data.</li>
+              <li>Al primo accesso sostituisci la password provvisoria.</li>
               <li>Parte teorica: programma settimanale, rapportino presenze e quadro delle assenze.</li>
               <li>Parte pratica: dopo ogni task eseguito premi «Registra task» e il Compliance Report si aggiorna subito.</li>
             </ol>

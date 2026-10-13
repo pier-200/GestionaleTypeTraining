@@ -1,9 +1,8 @@
 """Ricava dal PDF ufficiale del Compliance Report le posizioni in cui scrivere i valori.
 
-    py -3.11 scripts/layout_compliance.py [docs/sorgenti/Compliance Report.pdf]
+    py -3.11 scripts/layout_compliance.py [modelli/Compliance Report.pdf]
 
 Genera:
-- public/modelli/compliance-report.pdf   il modulo originale (senza metadati), usato come sfondo;
 - src/dati/layout-compliance.json         per ogni riga delle tabelle 4.1 / 4.2 / 4.3 il centro delle celle
                                           "effectively performed" e "percentage", la linea di base e il carattere,
                                           più i campi dell'intestazione (Grade, First name, Surname, MAML, Organization)
@@ -19,7 +18,7 @@ from pathlib import Path
 import pymupdf
 
 RADICE = Path(__file__).resolve().parent.parent
-SORGENTE = Path(sys.argv[1]) if len(sys.argv) > 1 else RADICE / "docs/sorgenti/Compliance Report.pdf"
+SORGENTE = Path(sys.argv[1]) if len(sys.argv) > 1 else RADICE / "modelli/Compliance Report.pdf"
 
 
 def spans(pagina):
@@ -124,9 +123,6 @@ def main():
         layout["pagine"].append(info)
 
     (RADICE / "src/dati/layout-compliance.json").write_text(json.dumps(layout, indent=1), encoding="utf-8")
-    (RADICE / "public/modelli").mkdir(parents=True, exist_ok=True)
-    doc.set_metadata({})
-    doc.save(RADICE / "public/modelli/compliance-report.pdf", garbage=3, deflate=True)
     for p in layout["pagine"]:
         print(f"pagina {p['indice'] + 1}: {len(p['righe'])} righe, intestazione {'sì' if 'intestazione' in p else 'no'}, firma {list(p.get('firma', {}))}")
 

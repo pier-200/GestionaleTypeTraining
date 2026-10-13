@@ -1,12 +1,12 @@
 """Importa i programmi teorici (MTT) dagli Excel ufficiali.
 
-    py -3.11 scripts/import_programma_mtt.py ["docs/sorgenti/Programmi Type Training/CH-47F - MTT - B1.3.xlsx" ...]
+    py -3.11 scripts/import_programma_mtt.py ["modelli/Programmi Type Training/CH-47F - MTT - B1.3.xlsx" ...]
 
 Senza argomenti importa tutti i file "<MDS> - MTT - <categoria>.xlsx" della cartella
-`docs/sorgenti/Programmi Type Training`. Per ciascuno genera `src/dati/programmi/<id>.json`:
-moduli e **materie**, cioè i gruppi di voci che condividono gli stessi "Tuition Min." del
-programma (nell'Excel il valore compare sulla prima riga del gruppo e le righe successive lo
-ereditano). Ogni materia è l'unità di lezione: ha una durata in minuti, un titolo e i chapter che copre.
+`modelli/Programmi Type Training`. Per ciascuno genera `src/dati/programmi/<id>.json`:
+moduli e **materie**, cioè i soli chapter previsti dal syllabus: quelli che nel programma hanno i
+"Tuition Min." (le righe senza ore non sono applicabili al corso e restano fuori, come nel foglio
+"Solo applicabili"). Ogni materia è l'unità di lezione: un chapter, il suo titolo e la durata in minuti.
 """
 
 import json
@@ -17,7 +17,7 @@ from pathlib import Path
 import openpyxl
 
 RADICE = Path(__file__).resolve().parent.parent
-CARTELLA = RADICE / "docs/sorgenti/Programmi Type Training"
+CARTELLA = RADICE / "modelli/Programmi Type Training"
 NOME_FILE = re.compile(r"^(?P<mds>.+?) - (?P<tipo>MTT|PTR) - (?P<categoria>.+)$")
 
 
@@ -53,7 +53,7 @@ def leggi_mtt(percorso):
     intestazione = [pulisci(c).upper() for c in righe[0][:5]]
     assert intestazione in (["ITEM", "CH.", "SUBJECT", "LEVEL", "TUITION MIN."], ["ITEM", "ATA CH.", "SUBJECT", "LEVEL", "TUITION MIN."]), f"Intestazione inattesa: {intestazione}"
 
-    moduli, materie, voci, attesa = [], [], [], []
+    moduli, materie, voci = [], [], []
     modulo, gruppo = None, None
     for r in righe[1:]:
         prima = pulisci(r[0])
@@ -62,7 +62,7 @@ def leggi_mtt(percorso):
         if prima.lower().startswith("module"):
             modulo = int(re.search(r"\d+", prima).group())
             moduli.append({"numero": modulo, "titolo": pulisci(r[2]).rstrip(":"), "minutiDichiarati": minuti(r[4]) if r[4] is not None else None})
-            attesa, gruppo = [], None  # voci "coperte altrove" (livello -) rimaste senza durata nel modulo precedente
+            gruppo = None
             continue
         if prima.upper().startswith("AVES"):
             # riga di gruppo dei moduli AVES ("AVES 2 – A.G.E. OF GENERAL USE"): la sua durata vale
@@ -73,26 +73,20 @@ def leggi_mtt(percorso):
             continue
         voce = {"item": int(r[0]), "chapter": codice_chapter(r[1]), "subject": pulisci(r[2]), "livello": pulisci(r[3])}
         voci.append({**voce, "modulo": modulo})
-        if r[4] is None and gruppo and gruppo["minuti"]:
-            materie.append({"id": f"m{len(materie) + 1:03d}", "modulo": modulo, "minuti": gruppo["minuti"], "titolo": gruppo["titolo"] or voce["subject"], "voci": [voce]})
-            gruppo = None
-            continue
+        durata = minuti(r[4]) if r[4] is not None else 0
+        titolo = voce["subject"]
+        if not durata and gruppo and gruppo["minuti"]:
+            durata, titolo = gruppo["minuti"], gruppo["titolo"] or titolo
         gruppo = None
-        if r[4] is not None and minuti(r[4]) > 0:  # la durata apre una nuova materia, che assorbe le voci rimaste in attesa
-            materie.append({"id": f"m{len(materie) + 1:03d}", "modulo": modulo, "minuti": minuti(r[4]), "titolo": (attesa[0] if attesa else voce)["subject"], "voci": [*attesa, voce]})
-            attesa = []
-        elif materie and materie[-1]["modulo"] == modulo:
-            materie[-1]["voci"].append(voce)  # voce senza durata: fa parte della materia precedente
-        else:
-            attesa.append(voce)  # a inizio modulo: aspetta la prima durata
+        # solo i chapter con ore sono previsti dal syllabus: gli altri non diventano materia
+        if durata > 0:
+            materie.append({"id": f"m{len(materie) + 1:03d}", "modulo": modulo, "minuti": durata, "titolo": titolo, "chapter": voce["chapter"], "livello": voce["livello"], "item": voce["item"]})
 
     for m in moduli:
         m["minuti"] = sum(x["minuti"] for x in materie if x["modulo"] == m["numero"])
         if m["minutiDichiarati"] not in (None, m["minuti"]):
             print(f"  ATTENZIONE modulo {m['numero']}: dichiarati {m['minutiDichiarati']} min, calcolati {m['minuti']} min")
         del m["minutiDichiarati"]
-    for materia in materie:
-        materia["chapters"] = [v["chapter"] for v in materia["voci"]]
     return moduli, materie, voci
 
 
@@ -112,7 +106,7 @@ def importa(percorso):
     (RADICE / "src/dati/programmi").mkdir(parents=True, exist_ok=True)
     (RADICE / f"src/dati/programmi/{d['id']}.json").write_text(json.dumps(programma, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     totale = sum(m["minuti"] for m in moduli)
-    print(f"{d['id']}: {len(materie)} materie, {len(moduli)} moduli, {sum(len(m['voci']) for m in materie)} voci, {totale / 60:g} ore")
+    print(f"{d['id']}: {len(materie)} materie (chapter con ore), {len(moduli)} moduli, {totale / 60:g} ore")
 
 
 if __name__ == "__main__":

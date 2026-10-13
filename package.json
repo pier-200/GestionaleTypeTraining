@@ -12,7 +12,6 @@
     "test": "vitest run",
     "e2e": "node tests/e2e.mjs",
     "programmi": "cd scripts && py -3.11 import_programma_mtt.py && py -3.11 import_catalogo.py",
-    "modulo": "py -3.11 scripts/modulo_settimanale.py",
     "pubblica": "node scripts/pubblica.mjs"
   },
   "dependencies": {

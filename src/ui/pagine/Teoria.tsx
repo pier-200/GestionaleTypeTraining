@@ -90,6 +90,7 @@ export function Teoria() {
                 <th>Materia</th>
                 <th className="num">Ore</th>
                 <th className="num">A calendario</th>
+                <th className="num">Svolte</th>
                 <th className="num">Residue</th>
                 <th>Istruttori</th>
               </tr>
@@ -107,7 +108,12 @@ export function Teoria() {
                     </div>
                   </td>
                   <td className="num">{oreDaMinuti(r.materia.minuti)}</td>
-                  <td className={`num ${r.pianificati ? 'si' : ''}`}>{r.pianificati ? oreDaMinuti(r.pianificati) : '—'}</td>
+                  {[r.pianificati, r.svolti].map((minuti, i) => (
+                    // nessuna ora: vuoto; solo una parte: ambra; tutte le ore previste: verde
+                    <td key={i} className={`num ${minuti >= r.materia.minuti ? 'si' : minuti ? 'in-parte' : ''}`}>
+                      {minuti ? oreDaMinuti(minuti) : '—'}
+                    </td>
+                  ))}
                   <td className={`num ${r.residui ? 'rosso' : ''}`}>
                     {r.residui ? (
                       oreDaMinuti(r.residui)

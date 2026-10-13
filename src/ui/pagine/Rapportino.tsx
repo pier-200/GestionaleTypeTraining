@@ -32,7 +32,8 @@ export function Rapportino() {
   const compila = guida || ruolo === 'trainee' || ruolo === 'instructor';
 
   const giorno = query.get('g') ?? oggiISO();
-  const elenco = frequentatori(dati, corso.id);
+  // chi è stato escluso non rientra più nelle presenze dal giorno dell'esclusione
+  const elenco = frequentatori(dati, corso.id, { al: giorno });
   const rapportino = dati.rapportini.find((r) => r.corso_id === corso.id && r.data === giorno);
   const validato = rapportino?.validato_il != null;
   const salvate = dati.presenze.filter((p) => p.corso_id === corso.id && p.data === giorno);

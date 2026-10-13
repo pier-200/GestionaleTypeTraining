@@ -5,7 +5,8 @@ import type { ID, Lezione, Presenza, Rapportino } from './tipi';
 /**
  * Rapportino presenze e conteggio delle assenze della parte teorica.
  * Chi perde anche solo qualche minuto di una lezione risulta assente a quella lezione;
- * una lezione di recupero della stessa materia sana l'assenza e non ne produce di nuove.
+ * una lezione di recupero della stessa materia sana l'assenza dei frequentatori a cui è destinata
+ * e non ne produce di nuove.
  */
 
 /** Orario standard di presenza: 08:00-16:30 dal lunedì al giovedì, 08:00-12:00 il venerdì. */
@@ -78,6 +79,8 @@ export function assenzeDi(
   rapportini: readonly Rapportino[],
   presenze: readonly Presenza[],
   userId: ID,
+  /** Giorno da cui il frequentatore è escluso dal corso: da lì in poi non si contano né lezioni né recuperi. */
+  fino?: string | null,
 ): SituazioneAssenze {
   const orari = orariLezioni(lezioni);
   const rilevate = new Map(rapportini.map((r) => [r.data, r]));
@@ -86,17 +89,18 @@ export function assenzeDi(
   const recuperi = new Map<string, number>();
 
   for (const l of inOrdine(lezioni)) {
+    if (fino && l.data >= fino) continue;
     const rapportino = rilevate.get(l.data);
     if (!rapportino) continue; // giornata non rilevata: nessuna assenza da conteggiare
     const orario = orari.get(l.id)!;
     const presenza = presenzaDi(mie, l.data, userId);
     const assente = assenteAllaLezione(presenza, orario);
     if (l.tipo === 'recupero') {
-      // il recupero vale solo per chi c'era; chi manca non prende un'assenza in più
-      if (!assente) recuperi.set(l.materia, (recuperi.get(l.materia) ?? 0) + l.minuti);
+      // il recupero vale solo per i frequentatori a cui è destinato, se c'erano; chi manca non prende un'assenza in più
+      if (!assente && l.frequentatori.includes(userId)) recuperi.set(l.materia, (recuperi.get(l.materia) ?? 0) + l.minuti);
       continue;
     }
-    // MEO, sospensioni ed esami occupano un periodo ma non sono programma: non generano assenze
+    // le altre attività (MEO, sospensioni, esami, pratica…) occupano un periodo ma non sono programma: non generano assenze
     if (l.tipo !== 'lezione') continue;
     if (assente) {
       assenze.push({

@@ -23,8 +23,9 @@ const lez = (id: string, data: string, ordine: number, minuti: number, materia: 
   parte: 0,
   minuti,
   materia,
-  chapter: '',
   istruttore_id: null,
+  persona: '',
+  frequentatori: [],
   aula: '',
   tipo,
   validata: true,
@@ -90,7 +91,8 @@ describe('assenze', () => {
   });
 
   it('il recupero sana l’assenza della stessa materia e non ne produce di nuove', () => {
-    const conRecupero = [...giornata, lez('r1', '2026-09-21', 0, 60, M[0].id, 'recupero'), lez('r2', '2026-09-21', 1, 60, M[0].id, 'recupero')];
+    const recupero = (id: string, ordine: number): Lezione => ({ ...lez(id, '2026-09-21', ordine, 60, M[0].id, 'recupero'), frequentatori: ['u1'] });
+    const conRecupero = [...giornata, recupero('r1', 0), recupero('r2', 1)];
     const rapportini = [rap('2026-09-14'), rap('2026-09-21')];
     const recuperato = assenzeDi(TEORICO, conRecupero, rapportini, [pres('2026-09-14', 'u1', 'assente'), pres('2026-09-21', 'u1', 'presente')], 'u1');
     expect(recuperato.recuperati).toBe(120);
@@ -178,7 +180,7 @@ describe('motore: rapportino e validazione', () => {
 
   it('il programma si vede solo dopo la validazione e ogni modifica la ritira', () => {
     const giorni = ['2026-10-05'];
-    const lezione = { id: 'l-v', corso_id: C2, data: '2026-10-05', ordine: 0, parte: 0, minuti: 45, materia: M[0].id, chapter: '', istruttore_id: 'u-rinaldi', aula: '', tipo: 'lezione' as const, note: '' };
+    const lezione = { id: 'l-v', corso_id: C2, data: '2026-10-05', ordine: 0, parte: 0, minuti: 45, materia: M[0].id, istruttore_id: 'u-rinaldi', persona: '', frequentatori: [], aula: '', tipo: 'lezione' as const, note: '' };
     const messe = applica(dati, { tipo: 'lezioni.sostituisci', corso_id: C2, giorni, lezioni: [lezione] }, ctx('u-neri')).dati;
     expect(messe.lezioni.find((l) => l.id === 'l-v')!.validata).toBe(false);
     expect(lezioniVisibili(messe, C2, 'trainee').some((l) => l.id === 'l-v')).toBe(false);

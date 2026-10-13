@@ -6,7 +6,7 @@ import { esportaCertificati } from '../../esporta';
 import { ESITI_PROVA, STATI_CERTIFICATO, TIPI_CERTIFICATO, oggiISO, prossimoNumero, type CampiCertificato } from '../../dominio/motore';
 import { programmaPratico, programmaTeorico } from '../../dominio/programmi';
 import { ETICHETTA_CERTIFICATO, ETICHETTA_STATO_CERTIFICATO, type Certificato, type Corso, type EsitoProva, type TipoCertificato } from '../../dominio/tipi';
-import { formatoData, frequentatori, nomeUtente } from '../../dominio/viste';
+import { fineCorso, formatoData, frequentatori, nomeUtente } from '../../dominio/viste';
 import { IntestazionePagina, Sezione } from '../componenti/disegno';
 import { useCampoVisibile } from '../componenti/tastiera';
 import { useStato } from '../stato';
@@ -166,7 +166,7 @@ function FormCertificato({ esistente, chiudi }: { esistente: Certificato | null;
   if (!dati) return null;
 
   /** Ogni corsista con il suo corso: la scelta riempie i dati del certificato. */
-  const corsisti = dati.corsi.flatMap((c) => frequentatori(dati, c.id, true).map((u) => ({ corso: c, utente: u, chiave: `${c.id}|${u.id}` })));
+  const corsisti = dati.corsi.flatMap((c) => frequentatori(dati, c.id, { disattivati: true, esclusi: true }).map((u) => ({ corso: c, utente: u, chiave: `${c.id}|${u.id}` })));
   const scelto = corsisti.find((x) => x.chiave === `${v.corso_id}|${v.user_id}`);
 
   const daCorso = (corso: Corso, tipo: TipoCertificato): Partial<CampiCertificato> => {
@@ -178,7 +178,7 @@ function FormCertificato({ esistente, chiudi }: { esistente: Certificato | null;
       categoria: corso.categoria,
       programma: riferimento ?? '',
       data_inizio: corso.data_inizio,
-      data_fine: corso.data_fine,
+      data_fine: fineCorso(corso),
       ore: tipo === 'pratico' ? 0 : Math.round((teorico?.moduli.reduce((s, m) => s + m.minuti, 0) ?? 0) / 60),
       organizzazione: corso.maintenance_organization,
       luogo_rilascio: corso.location,

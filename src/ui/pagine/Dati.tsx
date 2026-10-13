@@ -17,14 +17,17 @@ function DatiDi({ f, corso }: { f: Utente; corso: Corso }) {
   const guida = utente.ruolo === 'admin' || dati.iscrizioni.some((i) => i.corso_id === corso.id && i.user_id === utente.id && i.ruolo === 'direttore');
   return (
     <>
-      <IntestazionePagina titolo="Personnel data" sotto="Trainee data e Practical type training data (Allegato 1, cap. 2)." />
+      <IntestazionePagina titolo="Personnel data" sotto={corso.programma_pratico ? 'Trainee data e Practical type training data (Allegato 1, cap. 2).' : 'Trainee data.'} />
       <div className="griglia-2">
         <Sezione titolo="Trainee data">
-          <FormAnagrafica key={f.id} f={f} sola={!(utente.ruolo === 'admin' || utente.id === f.id)} />
+          {/* li vedono tutti, li modificano solo il Training Manager e il direttore del corso */}
+          <FormAnagrafica key={f.id} f={f} sola={!guida} />
         </Sezione>
-        <Sezione titolo="Practical type training data">
-          <FormTraining key={f.id} corso={corso} userIds={[f.id]} sola={!guida} />
-        </Sezione>
+        {corso.programma_pratico && (
+          <Sezione titolo="Practical type training data">
+            <FormTraining key={f.id} corso={corso} userIds={[f.id]} sola={!guida} />
+          </Sezione>
+        )}
       </div>
     </>
   );
@@ -116,7 +119,7 @@ export function FormTraining({ corso, userIds, sola, dopo }: { corso: Corso; use
           </div>
         </dl>
         <p className="debole" style={{ fontSize: 'var(--fs-s)', gridColumn: '1 / -1', margin: '8px 0 0' }}>
-          Dati inseriti dal Training Manager.
+          Dati inseriti dal Training Manager o dal direttore del corso.
         </p>
       </div>
     );

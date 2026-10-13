@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Select } from '@mantine/core';
 import { formatoPercentuale } from '../../dominio/compliance';
 import type { Corso, Utente } from '../../dominio/tipi';
-import { frequentatori, situazione } from '../../dominio/viste';
+import { esclusoDal, formatoData, frequentatori, situazione } from '../../dominio/viste';
 import { link, ricordaFrequentatore, useCorso, useFrequentatore } from '../navigazione';
 import { naviga, usePosizione } from '../router';
 import { useStato } from '../stato';
@@ -25,9 +25,25 @@ export function ConFrequentatore({ children }: { children: (f: Utente, corso: Co
       </p>
     );
   }
-  if (utente.ruolo === 'trainee') return <>{children(utente, corso)}</>;
+  /** Chi è stato escluso resta consultabile, con la situazione del giorno in cui è uscito dal corso. */
+  const avviso = (id: string) => {
+    const dal = esclusoDal(dati, corso.id, id);
+    return dal ? (
+      <p className="avviso-escluso" role="note">
+        Fuori dal corso dal {formatoData(dal)}: i dati restano consultabili, fermi a quel giorno.
+      </p>
+    ) : null;
+  };
+  if (utente.ruolo === 'trainee') {
+    return (
+      <>
+        {avviso(utente.id)}
+        {children(utente, corso)}
+      </>
+    );
+  }
 
-  const elenco = frequentatori(dati, corso.id, true).map((u) => situazione(dati, corso, u));
+  const elenco = frequentatori(dati, corso.id, { disattivati: true, esclusi: true }).map((u) => situazione(dati, corso, u));
   const vai = (id: string | null) => {
     if (!id) return;
     ricordaFrequentatore(id);
@@ -45,11 +61,14 @@ export function ConFrequentatore({ children }: { children: (f: Utente, corso: Co
           allowDeselect={false}
           nothingFoundMessage="Nessun frequentatore iscritto"
           comboboxProps={{ withinPortal: true }}
-          data={elenco.map((s) => ({ value: s.utente.id, label: `${s.nome} · ${formatoPercentuale(s.report.totale.percentuale)}${s.utente.attivo ? '' : ' · disattivato'}` }))}
+          data={elenco.map((s) => ({ value: s.utente.id, label: `${s.nome} · ${formatoPercentuale(s.report.totale.percentuale)}${s.escluso ? ` · escluso dal ${formatoData(s.escluso)}` : ''}${s.utente.attivo ? '' : ' · disattivato'}` }))}
         />
       </div>
       {f ? (
-        children(f, corso)
+        <>
+          {avviso(f.id)}
+          {children(f, corso)}
+        </>
       ) : elenco.length === 0 ? (
         <p className="debole">Nessun frequentatore iscritto a questo corso.</p>
       ) : (

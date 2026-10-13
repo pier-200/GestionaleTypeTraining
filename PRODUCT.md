@@ -27,7 +27,7 @@ Il catalogo dei 190 task e le regole di conformità sono quelli del documento uf
 
 ## Operating Context
 
-- Documento ufficiale: T1 Military Type Training CH-47F Cat. B1.3, Allegato 1. Sorgenti in `docs/sorgenti/` (Excel del catalogo, PDF Generality and Purpose, Personnel Data, Compliance Report).
+- Documento ufficiale: T1 Military Type Training CH-47F Cat. B1.3, Allegato 1. Sorgenti nella cartella `modelli/` (Excel dei programmi, modulo del programma settimanale, PDF Generality and Purpose, Personnel Data, Compliance Report), pubblicata accanto all'applicazione.
 - Regole: ≥50% task eseguiti per ciascun modulo, per ciascun task type e per ciascun chapter. Più registrazioni dello stesso task contano una volta.
 - Task eseguiti su simulatore o in aula si registrano con "SIM" o "CLA" al posto della matricola (da minimizzare).
 - La "Commissione tecnica esaminatrice" non è gestita.
@@ -40,7 +40,7 @@ Pagine: Generality and Purpose, Personal Data, Logbook, Practical Instructors (v
 
 ## Evidence on Hand
 
-Catalogo reale dei task in `docs/sorgenti/PTR_B1.3_CH-47F.xlsx`. Nessun dato reale di frequentatori: la situazione esempio è sintetica e va etichettata come tale. La repository è pubblica: mai dati reali né credenziali.
+Catalogo reale dei task in `modelli/PTR_B1.3_CH-47F.xlsx`. Nessun dato reale di frequentatori: la situazione esempio è sintetica e va etichettata come tale. La repository è pubblica: mai dati reali né credenziali.
 
 ## Product Principles
 

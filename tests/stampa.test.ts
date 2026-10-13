@@ -7,7 +7,7 @@ import layout from '../src/dati/layout-compliance.json';
 import { creaCompliancePdf } from '../src/stampaReport';
 
 it('il Compliance Report in PDF usa le pagine del modulo ufficiale e compila ogni riga applicabile', async () => {
-  const modello = readFileSync(resolve(__dirname, '../public/modelli/compliance-report.pdf'));
+  const modello = readFileSync(resolve(__dirname, '../modelli/Compliance Report.pdf'));
   const d = datiEsempio();
   const corso = d.corsi.find((c) => c.programma_pratico)!;
   const bytes = await creaCompliancePdf(d, corso, d.utenti.find((u) => u.id === 'u-romano')!, modello.buffer.slice(modello.byteOffset, modello.byteOffset + modello.byteLength));

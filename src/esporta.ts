@@ -4,7 +4,7 @@ import { oggiISO } from './dominio/motore';
 import { statoTeorico } from './dominio/pianificazione';
 import { assenzeDi } from './dominio/presenze';
 import { ETICHETTA_CERTIFICATO, ETICHETTA_STATO_CERTIFICATO, type Corso, type Dati, type Registrazione, type Utente } from './dominio/tipi';
-import { esecuzione, frequentatori, iscritti, istruttoriDi, lezioniDi, nomeIstruttore, nomeUtente, presenzeDi, rapportiniDi, situazione } from './dominio/viste';
+import { esclusoDal, esecuzione, fineCorso, frequentatori, istruttoriDi, lezioniDi, nomeIstruttore, nomeUtente, presenzeDi, rapportiniDi, situazione, staffDi } from './dominio/viste';
 
 /** Esportazioni (PROGETTO_Logbook_PTT.md §5): Excel del singolo frequentatore, Excel complessivo, CSV. */
 
@@ -148,7 +148,7 @@ export async function esportaFrequentatore(dati: Dati, corso: Corso, utente: Ute
 export async function esportaCorso(dati: Dati, corso: Corso) {
   const programma = programmaPratico(corso.programma_pratico);
   if (!programma) throw new Error('Il corso non prevede la parte pratica.');
-  const elenco = frequentatori(dati, corso.id, true).map((u) => situazione(dati, corso, u));
+  const elenco = frequentatori(dati, corso.id, { disattivati: true, esclusi: true }).map((u) => situazione(dati, corso, u));
   const tipi = indice(programma).tipiApplicabili.map((t) => t.codice);
   const riepilogo: Foglio = {
     nome: 'Riepilogo',
@@ -162,7 +162,7 @@ export async function esportaCorso(dati: Dati, corso: Corso) {
           a?.nome ?? null,
           a?.cognome ?? null,
           s.utente.username,
-          s.utente.attivo ? 'Sì' : 'No',
+          s.escluso ? `Escluso dal ${new Date(`${s.escluso}T12:00:00`).toLocaleDateString('it-IT')}` : s.utente.attivo ? 'Sì' : 'No',
           s.report.totale.eseguiti,
           perc(s.report.totale.percentuale),
           ...s.report.perModulo.map((r) => perc(r.percentuale)),
@@ -188,7 +188,7 @@ export async function esportaRegistro(dati: Dati) {
     nome: 'Corsi',
     larghezze: [16, 40, 12, 10, 12, 12, 24, 12, 12, 12, 12, 10],
     righe: [
-      intestazione('Codice', 'Nome', 'MDS', 'Categoria', 'Inizio', 'Fine', 'Maintenance Organisation', 'Sede', 'Corsisti', 'Istruttori', 'Ore teoria svolte', 'Attivo'),
+      intestazione('Codice', 'Nome', 'MDS', 'Categoria', 'Inizio', 'Fine (stimata finché il corso è aperto)', 'Maintenance Organisation', 'Sede', 'Corsisti', 'Istruttori', 'Ore teoria svolte', 'Stato'),
       ...dati.corsi.map((c) => {
         const teorico = programmaTeorico(c.programma_teorico);
         const stato = teorico ? statoTeorico(teorico, lezioniDi(dati, c.id), oggiISO()) : null;
@@ -198,13 +198,13 @@ export async function esportaRegistro(dati: Dati) {
           c.mds,
           c.categoria,
           data(c.data_inizio),
-          data(c.data_fine),
+          data(fineCorso(c)),
           c.maintenance_organization || null,
           c.location || null,
-          frequentatori(dati, c.id, true).length,
-          iscritti(dati, c.id, 'instructor', true).length + iscritti(dati, c.id, 'direttore', true).length,
+          frequentatori(dati, c.id, { disattivati: true, esclusi: true }).length,
+          staffDi(dati, c).length,
           stato ? Math.round(stato.svolti / 60) : null,
-          c.attivo ? 'Sì' : 'No',
+          c.attivo ? 'In corso' : 'Completato',
         ];
       }),
     ],
@@ -213,16 +213,17 @@ export async function esportaRegistro(dati: Dati) {
     nome: 'Corsisti',
     larghezze: [16, 18, 18, 12, 20, 16, 16, 12, 12, 14, 12, 18],
     righe: [
-      intestazione('Grado', 'Nome', 'Cognome', 'Data di nascita', 'Luogo di nascita', 'MAML', 'Username', 'Corso', 'MDS/Cat.', 'Assenze (h)', '% assenze', 'Esame teorico', '% pratica', 'Certificati'),
+      intestazione('Grado', 'Nome', 'Cognome', 'Data di nascita', 'Luogo di nascita', 'MAML', 'Username', 'Corso', 'MDS/Cat.', 'Assenze (h)', '% assenze', 'Esame teorico', '% pratica', 'Certificati', 'Escluso dal'),
       ...dati.corsi.flatMap((c) => {
         const teorico = programmaTeorico(c.programma_teorico);
         const pratico = programmaPratico(c.programma_pratico);
         const rapportini = rapportiniDi(dati, c.id);
         const presenze = presenzeDi(dati, c.id);
         const lezioni = lezioniDi(dati, c.id);
-        return frequentatori(dati, c.id, true).map((u) => {
+        return frequentatori(dati, c.id, { disattivati: true, esclusi: true }).map((u) => {
           const a = dati.anagrafiche.find((x) => x.user_id === u.id);
-          const assenze = teorico ? assenzeDi(teorico, lezioni, rapportini, presenze, u.id) : null;
+          const escluso = esclusoDal(dati, c.id, u.id);
+          const assenze = teorico ? assenzeDi(teorico, lezioni, rapportini, presenze, u.id, escluso) : null;
           const report = pratico ? situazione(dati, c, u).report : null;
           return [
             a?.grado ?? null,
@@ -239,6 +240,7 @@ export async function esportaRegistro(dati: Dati) {
             assenze ? (assenze.idoneo ? 'Idoneo' : 'NON IDONEO') : null,
             report ? perc(report.totale.percentuale) : null,
             dati.certificati.filter((x) => x.user_id === u.id && x.corso_id === c.id).map((x) => `${x.numero}/${x.anno}`).join(', ') || null,
+            data(escluso),
           ];
         });
       }),

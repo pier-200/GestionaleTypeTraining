@@ -55,16 +55,16 @@ if (esempio) {
     ),
     'profili',
   );
-  verifica(await sb.from('corsi').insert(d.corsi.map((c) => ({ ...c, id: m(c.id) }))), 'corsi');
+  verifica(await sb.from('corsi').insert(d.corsi.map((c) => ({ ...c, id: m(c.id), istruttori_pratica: c.istruttori_pratica.map(m) }))), 'corsi');
   verifica(await sb.from('iscrizioni').insert(d.iscrizioni.map((i) => ({ ...i, id: m(i.id), corso_id: m(i.corso_id), user_id: m(i.user_id) }))), 'iscrizioni');
   // il Training Manager reale dirige entrambi i corsi dell'esempio? no: resta admin, vede tutto
   verifica(await sb.from('anagrafiche').insert(d.anagrafiche.map((a) => ({ ...a, user_id: m(a.user_id), updated_by: m(a.updated_by) }))), 'anagrafiche');
   verifica(await sb.from('training_data').insert(d.training.map((t) => ({ ...t, corso_id: m(t.corso_id), user_id: m(t.user_id), updated_by: m(t.updated_by) }))), 'training data');
   verifica(
-    await sb.from('abilitazioni').insert(d.abilitazioni.map((a) => ({ user_id: m(a.user_id), programma: a.programma, materia: a.materia }))),
+    await sb.from('abilitazioni').insert(d.abilitazioni.map((a) => ({ user_id: m(a.user_id), mds: a.mds, chapter: a.chapter }))),
     'abilitazioni',
   );
-  const lezioni = d.lezioni.map((l) => ({ ...l, id: m(l.id), corso_id: m(l.corso_id), istruttore_id: m(l.istruttore_id), validata_da: m(l.validata_da), modificato_da: m(l.modificato_da) }));
+  const lezioni = d.lezioni.map((l) => ({ ...l, id: m(l.id), corso_id: m(l.corso_id), istruttore_id: m(l.istruttore_id), frequentatori: l.frequentatori.map(m), validata_da: m(l.validata_da), modificato_da: m(l.modificato_da) }));
   for (let i = 0; i < lezioni.length; i += 200) verifica(await sb.from('lezioni').insert(lezioni.slice(i, i + 200)), 'lezioni');
   const rapportini = d.rapportini.map((r) => ({ ...r, id: m(r.id), corso_id: m(r.corso_id), compilato_da: m(r.compilato_da), validato_da: m(r.validato_da) }));
   for (let i = 0; i < rapportini.length; i += 200) verifica(await sb.from('rapportini').insert(rapportini.slice(i, i + 200)), 'rapportini');

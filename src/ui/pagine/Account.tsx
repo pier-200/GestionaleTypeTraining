@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Button, CopyButton, Drawer, Group, SegmentedControl, Select, SimpleGrid, Stack, Switch, Tabs, Text, TextInput } from '@mantine/core';
+import { Button, CopyButton, Drawer, Group, SegmentedControl, Select, SimpleGrid, Stack, Switch, Text, TextInput } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconCopy, IconPencil, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
 import { RE_USERNAME, errorePassword } from '../../dominio/motore';
 import { ETICHETTA_RUOLO, type Istruttore, type Ruolo, type Utente } from '../../dominio/tipi';
-import { chiaveOrdine, formatoData, nomeIstruttore, nomeUtente } from '../../dominio/viste';
+import { chiaveOrdine, esclusoDal, formatoData, frequentatori, nomeIstruttore, nomeUtente } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
 import { useStato } from '../stato';
 
@@ -95,20 +95,14 @@ function FormAccount({ esistente, chiudi }: { esistente: Utente | null; chiudi: 
               data={[
                 { value: 'trainee', label: 'Frequentatore' },
                 { value: 'instructor', label: 'Istruttore' },
-                { value: 'admin', label: 'Training Mgr' },
               ]}
             />
-            {ruolo === 'instructor' && (
-              <Text size="xs" c="dimmed" mt={6}>
-                Il direttore di un corso è un istruttore: l’incarico si assegna nei dati del corso.
-              </Text>
-            )}
           </div>
         )}
         <TextInput label="Username" value={username} onChange={(e) => setUsername(e.currentTarget.value)} disabled={Boolean(esistente)} error={erroreUsername} placeholder="nome.cognome" required autoCapitalize="none" />
         {ruolo === 'trainee' ? (
           <Text size="sm" className="debole">
-            Il frequentatore compila i propri Personal Data (grado, nome, cognome, ente) al primo accesso.
+            I Personal Data del frequentatore (grado, nome, cognome, ente) li inserisce il Training Manager o il direttore del corso, dalla pagina «Personal & Training Data».
           </Text>
         ) : (
           <>
@@ -193,25 +187,52 @@ export function Account() {
   const mobile = useMediaQuery('(max-width: 991px)');
   const [account, setAccount] = useState<Utente | 'nuovo' | null>(null);
   const [istruttore, setIstruttore] = useState<Istruttore | 'nuovo' | null>(null);
+  const [filtro, setFiltro] = useState('tutti');
   if (!dati || !backend) return null;
   const ordine: Record<Ruolo, number> = { admin: 0, instructor: 1, trainee: 2 };
   const utenti = [...dati.utenti].sort((a, b) => ordine[a.ruolo] - ordine[b.ruolo] || Number(b.attivo) - Number(a.attivo) || chiaveOrdine(dati, a).localeCompare(chiaveOrdine(dati, b)));
-  const direttori = new Set(dati.iscrizioni.filter((i) => i.ruolo === 'direttore').map((i) => i.user_id));
+  // i frequentatori si dividono per corso: l'assegnazione si fa nella pagina «Corso e iscritti»
+  const corsi = [...dati.corsi].sort((a, b) => Number(b.attivo) - Number(a.attivo) || b.codice.localeCompare(a.codice));
+  const assegnati = new Set(dati.iscrizioni.filter((i) => i.ruolo === 'trainee').map((i) => i.user_id));
+  const corsoScelto = corsi.find((c) => filtro === `corso:${c.id}`);
+  const delCorso = corsoScelto ? new Set(frequentatori(dati, corsoScelto.id, { disattivati: true, esclusi: true }).map((u) => u.id)) : null;
+  const visibili = utenti.filter((u) =>
+    delCorso ? delCorso.has(u.id) : filtro === 'istruttori' ? u.ruolo === 'instructor' : filtro === 'senza' ? u.ruolo === 'trainee' && !assegnati.has(u.id) : true,
+  );
+  const senzaCorso = utenti.filter((u) => u.ruolo === 'trainee' && !assegnati.has(u.id)).length;
+  const filtri = [
+    { value: 'tutti', label: `Tutti gli account · ${utenti.length}` },
+    { value: 'istruttori', label: `Istruttori · ${utenti.filter((u) => u.ruolo === 'instructor').length}` },
+    ...corsi.map((c) => ({ value: `corso:${c.id}`, label: `Frequentatori · ${c.codice} · ${frequentatori(dati, c.id, { disattivati: true, esclusi: true }).length}` })),
+    ...(senzaCorso ? [{ value: 'senza', label: `Frequentatori senza corso · ${senzaCorso}` }] : []),
+    { value: 'pratica', label: `Elenco istruttori della pratica · ${dati.istruttori.length}` },
+  ];
   const cassetto = { position: mobile ? ('bottom' as const) : ('right' as const), size: mobile ? '92%' : 460 };
 
   return (
     <>
       <IntestazionePagina titolo="Account" sotto={`Archivio: ${backend.nome}${backend.permessiLatoServer ? '' : ' · permessi applicati dall’app'}`} />
-      <Tabs defaultValue="account" keepMounted={false}>
-        <Tabs.List mb="lg">
-          <Tabs.Tab value="account">Account · {utenti.length}</Tabs.Tab>
-          <Tabs.Tab value="istruttori">Elenco istruttori · {dati.istruttori.length}</Tabs.Tab>
-        </Tabs.List>
+      <Select
+        aria-label="Quali account mostrare"
+        value={filtro}
+        onChange={(v) => v && setFiltro(v)}
+        data={filtri}
+        allowDeselect={false}
+        comboboxProps={{ withinPortal: true }}
+        mb="lg"
+        style={{ maxWidth: 420 }}
+      />
 
-        <Tabs.Panel value="account">
+      {filtro !== 'pratica' && (
+        <>
           <Button leftSection={<IconPlus size={17} />} onClick={() => setAccount('nuovo')} mb="md">
             Nuovo account
           </Button>
+          {corsoScelto && (
+            <Text className="debole" size="sm" mb="sm">
+              Frequentatori assegnati al corso {corsoScelto.codice}: si assegnano e si escludono nella pagina «Corso e iscritti» del corso.
+            </Text>
+          )}
           <div className="scorre">
             <table className="tabella">
               <thead>
@@ -224,15 +245,15 @@ export function Account() {
                 </tr>
               </thead>
               <tbody>
-                {utenti.map((u) => (
+                {visibili.map((u) => (
                   <tr key={u.id} style={u.attivo ? undefined : { color: 'var(--testo-3)' }}>
                     <td style={{ fontWeight: 600, minWidth: 180 }}>{nomeUtente(dati, u.id)}</td>
                     <td className="cifre">{u.username}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{ETICHETTA_RUOLO[u.ruolo]}</td>
                     <td style={{ whiteSpace: 'nowrap' }}>
-                      {ETICHETTA_RUOLO[u.ruolo]}
-                      {direttori.has(u.id) && ' · direttore di corso'}
+                      {!u.attivo ? 'Disattivato' : u.deve_cambiare_password ? 'Password provvisoria' : 'Attivo'}
+                      {corsoScelto && esclusoDal(dati, corsoScelto.id, u.id) && <span className="rosso"> · escluso dal {formatoData(esclusoDal(dati, corsoScelto.id, u.id))}</span>}
                     </td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{!u.attivo ? 'Disattivato' : u.deve_cambiare_password ? 'Password provvisoria' : 'Attivo'}</td>
                     <td>
                       <Button size="compact-sm" variant="subtle" leftSection={<IconPencil size={15} />} onClick={() => setAccount(u)}>
                         Modifica
@@ -243,9 +264,12 @@ export function Account() {
               </tbody>
             </table>
           </div>
-        </Tabs.Panel>
+          {visibili.length === 0 && <Text className="debole">Nessun account.</Text>}
+        </>
+      )}
 
-        <Tabs.Panel value="istruttori">
+      {filtro === 'pratica' && (
+        <>
           <Text className="debole" mb="md" size="sm">
             I frequentatori possono aggiungere un istruttore mentre registrano un task; qui il Training Manager corregge grado e nominativi.
           </Text>
@@ -286,9 +310,8 @@ export function Account() {
               </tbody>
             </table>
           </div>
-        </Tabs.Panel>
-
-      </Tabs>
+        </>
+      )}
 
       <Drawer opened={account != null} onClose={() => setAccount(null)} {...cassetto} title={<span className="titolo-sezione">{account === 'nuovo' ? 'Nuovo account' : 'Modifica account'}</span>}>
         {account != null && <FormAccount key={account === 'nuovo' ? 'nuovo' : account.id} esistente={account === 'nuovo' ? null : account} chiudi={() => setAccount(null)} />}

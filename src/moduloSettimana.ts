@@ -1,17 +1,21 @@
-import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
+import { strFromU8, strToU8 } from 'fflate';
 import { giorniSettimana, inOrdine, orariLezioni, orarioPeriodo, periodiDelGiorno, settimanaDiCorso } from './dominio/pianificazione';
 import { programmaTeorico } from './dominio/programmi';
 import type { CampiLezione } from './dominio/motore';
 import { SIGLA_PERIODO, type Corso, type Dati } from './dominio/tipi';
-import { contenutoLezione, direttoreDi, formatoDataBreve, frequentatori, gradoCognome, nomeModulo } from './dominio/viste';
+import { contenutoLezione, fineCorso, formatoDataBreve, frequentatori, nomeDirettore, nomeModulo, riferimentoLezione } from './dominio/viste';
 import { pulisciNome, scarica } from './esporta';
+import { apriXlsx, chiudiXlsx, senzaMetadati, type Parti } from './xlsx';
 
 /**
- * Programma settimanale sul modulo ufficiale: il foglio è quello di public/modelli/programma-settimanale.xlsx
- * (preparato da scripts/modulo_settimanale.py) e si scrivono solo i valori nelle celle, che conservano stile,
- * unioni e impostazione di stampa. Quando più lezioni si dividono un periodo la tabella prende una riga in più
- * per ciascuna e il resto del modulo scende. Da Excel si stampa in PDF così com'è, su una pagina A4.
+ * Programma settimanale sul modulo ufficiale: il foglio è quello di `modelli/Programma settimanale.xlsx`
+ * e si scrivono solo i valori nelle celle, che conservano stile, unioni e impostazione di stampa.
+ * Quando più lezioni si dividono un periodo la tabella prende una riga in più per ciascuna e il resto
+ * del modulo scende. Da Excel si stampa in PDF così com'è, su una pagina A4.
  */
+
+/** Dove sta il modulo: nella cartella `modelli`, che la build copia accanto all'applicazione. */
+export const MODELLO_SETTIMANA = './modelli/Programma settimanale.xlsx';
 
 type Valore = string | number | null;
 /** Una riga della tabella delle lezioni. */
@@ -19,7 +23,29 @@ export type RigaLezione = [orario: string, addestramento: Valore, codice: Valore
 
 const FOGLIO = 'xl/worksheets/sheet1.xml';
 const CARTELLA = 'xl/workbook.xml';
+const STILI = 'xl/styles.xml';
+const STRINGHE = 'xl/sharedStrings.xml';
 const NOME_FOGLIO = 'SETTIMANA';
+
+/**
+ * Prepara il modulo originale alla compilazione: via i dati di chi lo ha scritto e le convalide rimaste
+ * senza elenco, testi dentro le celle (così se ne sostituisce una alla volta), celle a riga singola che
+ * rimpiccioliscono un testo lungo invece di tagliarlo.
+ */
+function preparaModello(originale: Parti): Parti {
+  const parti = senzaMetadati(originale);
+  const leggi = (nome: string) => (parti[nome] ? strFromU8(parti[nome]) : '');
+  const stringhe = [...leggi(STRINGHE).matchAll(/<si>([\s\S]*?)<\/si>/g)].map((si) => [...si[1].matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((t) => t[1]).join(''));
+  parti[FOGLIO] = strToU8(
+    leggi(FOGLIO)
+      .replace(/ t="s"><v>(\d+)<\/v>/g, (_, i: string) => ` t="inlineStr"><is><t xml:space="preserve">${stringhe[Number(i)]}</t></is>`)
+      .replace(/<extLst>[\s\S]*?<\/extLst>/g, '')
+      // nell'originale l'ottava riga dei frequentatori non ha il numero
+      .replace(/<c r="A54" s="(\d+)"\/>/, '<c r="A54" s="$1"><v>8</v></c>'),
+  );
+  parti[STILI] = strToU8(leggi(STILI).replace(/<alignment (?![^>]*wrapText)/g, '<alignment shrinkToFit="1" '));
+  return parti;
+}
 
 /** Prima e ultima riga di ciascun giorno nel modulo, da lunedì a venerdì. */
 const RIGHE_GIORNO = [
@@ -48,7 +74,8 @@ const settimane = (n: number | null) => (n ? `${n} settiman${n === 1 ? 'a' : 'e'
 
 /** Celle a posizione fissa: intestazione, direttore, frequentatori e gruppo firma. */
 export function celleFisse(dati: Dati, corso: Corso, lunedi: string): Record<string, Valore> {
-  const allievi = frequentatori(dati, corso.id);
+  // chi è stato escluso prima di questa settimana non è più nel programma
+  const allievi = frequentatori(dati, corso.id, { al: lunedi });
   // ponytail: il modulo ha 16 righe fisse; oltre servirebbe un secondo foglio, da aggiungere se mai capita un corso più numeroso
   if (allievi.length > POSTI_FREQUENTATORI) throw new Error(`Il modulo ha ${POSTI_FREQUENTATORI} righe per i frequentatori: il corso ne ha ${allievi.length}.`);
   const { numero, ritardo } = settimanaDiCorso(corso, lunedi);
@@ -56,10 +83,10 @@ export function celleFisse(dati: Dati, corso: Corso, lunedi: string): Record<str
     C6: corso.codice,
     H6: numero,
     C7: seriale(corso.data_inizio),
-    H7: seriale(corso.data_fine),
+    H7: seriale(fineCorso(corso)),
     C8: settimane(corso.durata_settimane),
     H8: settimane(ritardo),
-    C43: nomeModulo(dati, direttoreDi(dati, corso.id)?.id),
+    C43: nomeDirettore(dati, corso, true),
     F58: corso.gruppo_firma,
   };
   for (let i = 0; i < POSTI_FREQUENTATORI; i++) {
@@ -86,16 +113,16 @@ export function righeSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni
       const delPeriodo = inOrdine(lezioni.filter((l) => l.data === data && l.ordine === ordine));
       if (!delPeriodo.length) return [[intervallo(orarioPeriodo(ordine)), null, null, null, null]];
       return delPeriodo.map((l) => {
-        // chapter della lezione: il suo numero va in COD., il suo titolo in ADDESTRAMENTO; i periodi non didattici hanno la loro sigla
+        // chapter della lezione: il suo numero va in COD., il suo titolo in ADDESTRAMENTO; le altre attività hanno il loro codice
         const { chapter, titolo } = contenutoLezione(programma, l);
         const sospesa = l.tipo === 'sospensione';
-        const codice = chapter ?? (sospesa ? BARRATO : SIGLA_PERIODO[l.tipo]);
+        const codice = chapter ?? SIGLA_PERIODO[l.tipo];
         return [
           intervallo(orari.get(l.id)!),
           `${titolo}${l.tipo === 'recupero' ? ' (recupero)' : ''}`,
           // numero se Excel lo riscrive uguale ("34"), testo altrimenti ("05", "32A", "AVES 1")
           /^[1-9]\d*$/.test(codice) ? Number(codice) : codice,
-          gradoCognome(dati, l.istruttore_id),
+          riferimentoLezione(dati, l),
           sospesa ? BARRATO : l.aula || corso.aula,
         ];
       });
@@ -180,22 +207,23 @@ export function foglioSettimana(modello: string, dati: Dati, corso: Corso, luned
 
 /** Il file Excel della settimana, a partire dal modulo vuoto. */
 export function creaModuloSettimana(modello: Uint8Array, dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]): Uint8Array {
-  const parti = unzipSync(modello);
+  const parti = preparaModello(apriXlsx(modello));
   const { numero } = settimanaDiCorso(corso, lunedi);
   const { foglio, righeInPiu } = foglioSettimana(strFromU8(parti[FOGLIO]), dati, corso, lunedi, lezioni);
   parti[FOGLIO] = strToU8(foglio);
-  // l'area di stampa segue le righe aggiunte; il foglio prende il numero della settimana, come nell'originale ("10 SETTIMANA")
+  // il foglio prende il numero della settimana, come nell'originale ("10 SETTIMANA"), e l'area di stampa segue le righe aggiunte
+  const nomeFoglio = numero ? `${numero} ${NOME_FOGLIO}` : NOME_FOGLIO;
   parti[CARTELLA] = strToU8(
     strFromU8(parti[CARTELLA])
-      .replace(`$I$${ULTIMA_RIGA}<`, `$I$${ULTIMA_RIGA + righeInPiu}<`)
-      .replaceAll(NOME_FOGLIO, numero ? `${numero} ${NOME_FOGLIO}` : NOME_FOGLIO),
+      .replace(/(<sheet [^>]*?name=")[^"]*"/, (_, inizio: string) => `${inizio}${nomeFoglio}"`)
+      .replace(/(<definedName name="_xlnm\.Print_Area"[^>]*>)[^<]*</, (_, inizio: string) => `${inizio}'${nomeFoglio}'!$A$1:$I$${ULTIMA_RIGA + righeInPiu}<`),
   );
-  return zipSync(parti);
+  return chiudiXlsx(parti);
 }
 
 /** Dal pulsante: scarica il programma della settimana sul modulo ufficiale. */
 export async function esportaSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]) {
-  const risposta = await fetch('./modelli/programma-settimanale.xlsx');
+  const risposta = await fetch(MODELLO_SETTIMANA);
   if (!risposta.ok) throw new Error('Modulo del programma settimanale non trovato.');
   const bytes = creaModuloSettimana(new Uint8Array(await risposta.arrayBuffer()), dati, corso, lunedi, lezioni);
   scarica(new Blob([bytes as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `Programma_settimanale_${pulisciNome(corso.codice)}_${lunedi}.xlsx`);

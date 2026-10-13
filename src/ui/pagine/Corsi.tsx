@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Autocomplete, Button, Drawer, Group, NumberInput, Select, SimpleGrid, Stack, Switch, TextInput } from '@mantine/core';
+import { Autocomplete, Button, Drawer, Group, MultiSelect, NumberInput, Select, SimpleGrid, Stack, Switch, TagsInput, TextInput } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowRight, IconPlus } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
 import { AULE, statoTeorico } from '../../dominio/pianificazione';
 import { MDS, mdsDi, programmaPratico, programmaTeorico, programmiPer, soloTeorica } from '../../dominio/programmi';
-import { corsiDi, ruoloNelCorso, type CampiCorso } from '../../dominio/motore';
+import { corsiDi, oggiISO, ruoloNelCorso, type CampiCorso } from '../../dominio/motore';
 import type { Corso } from '../../dominio/tipi';
-import { chiaveOrdine, direttoreDi, formatoData, frequentatori, iscritti, lezioniVisibili, nomeUtente, ore, situazione } from '../../dominio/viste';
+import { formatoData, formatoFine, frequentatori, istruttoriAttivi, lezioniVisibili, nomeDirettore, nomeUtente, ore, situazione, staffDi } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
 import { MieLezioni } from '../componenti/MieLezioni';
 import { link, ricordaCorso } from '../navigazione';
@@ -17,7 +17,6 @@ import { useStato } from '../stato';
 /** Scelta del corso, e per il Training Manager creazione e modifica dei corsi. */
 export function Corsi() {
   const { dati, utente } = useStato();
-  const mobile = useMediaQuery('(max-width: 991px)');
   const [modifica, setModifica] = useState<Corso | 'nuovo' | null>(null);
   if (!dati || !utente) return null;
   const elenco = corsiDi(dati, utente);
@@ -55,7 +54,7 @@ export function Corsi() {
                   </span>
                   <h2>{c.nome}</h2>
                   <p className="debole">
-                    {formatoData(c.data_inizio)} – {formatoData(c.data_fine)} · {c.location || 'sede da definire'}
+                    {formatoData(c.data_inizio)} – {formatoFine(c)} · {c.location || 'sede da definire'}
                   </p>
                 </header>
                 <dl className="scheda-numeri">
@@ -65,7 +64,7 @@ export function Corsi() {
                   </div>
                   <div>
                     <dt>Istruttori</dt>
-                    <dd>{iscritti(dati, c.id, 'instructor').length + iscritti(dati, c.id, 'direttore').length}</dd>
+                    <dd>{staffDi(dati, c).length}</dd>
                   </div>
                   {stato && (
                     <div>
@@ -85,7 +84,7 @@ export function Corsi() {
                 <div className="scheda-parti">
                   {teorico && <span className="tag-parte mtt">{teorico.nome}</span>}
                   {pratico && <span className="tag-parte ptt">{pratico.nome}</span>}
-                  {!c.attivo && <span className="tag-parte chiuso">Chiuso</span>}
+                  {!c.attivo && <span className="tag-parte chiuso">Completato</span>}
                 </div>
                 <Group gap="xs" mt="auto">
                   <Button size="sm" rightSection={<IconArrowRight size={16} />} onClick={() => apri(c)}>
@@ -103,32 +102,42 @@ export function Corsi() {
         </div>
       )}
 
-      <Drawer
-        opened={modifica != null}
-        onClose={() => setModifica(null)}
-        position={mobile ? 'bottom' : 'right'}
-        size={mobile ? '94%' : 520}
-        title={<span className="titolo-sezione">{modifica === 'nuovo' ? 'Nuovo corso' : 'Modifica corso'}</span>}
-      >
-        {modifica != null && (
-          <FormCorso
-            key={modifica === 'nuovo' ? 'nuovo' : modifica.id}
-            esistente={modifica === 'nuovo' ? null : modifica}
-            chiudi={(creato) => {
-              setModifica(null);
-              if (creato) ricordaCorso(creato);
-            }}
-          />
-        )}
-      </Drawer>
+      <CassettoCorso corso={modifica} chiudi={() => setModifica(null)} />
     </>
+  );
+}
+
+/** Pannello dei dati del corso: creazione dalla pagina «Corsi», modifica anche dalla pagina del corso. */
+export function CassettoCorso({ corso, chiudi }: { corso: Corso | 'nuovo' | null; chiudi: () => void }) {
+  const mobile = useMediaQuery('(max-width: 991px)');
+  return (
+    <Drawer
+      opened={corso != null}
+      onClose={chiudi}
+      position={mobile ? 'bottom' : 'right'}
+      size={mobile ? '94%' : 520}
+      title={<span className="titolo-sezione">{corso === 'nuovo' ? 'Nuovo corso' : 'Modifica corso'}</span>}
+    >
+      {corso != null && (
+        <FormCorso
+          key={corso === 'nuovo' ? 'nuovo' : corso.id}
+          esistente={corso === 'nuovo' ? null : corso}
+          chiudi={(creato) => {
+            chiudi();
+            if (creato) ricordaCorso(creato);
+          }}
+        />
+      )}
+    </Drawer>
   );
 }
 
 function FormCorso({ esistente, chiudi }: { esistente: Corso | null; chiudi: (id?: string) => void }) {
   const { dati, utente, esegui } = useStato();
   const admin = utente?.ruolo === 'admin';
-  const [direttore, setDirettore] = useState<string | null>((esistente && dati && direttoreDi(dati, esistente.id)?.id) || null);
+  // il direttore è uno degli istruttori oppure una persona fuori elenco, scritta a mano
+  const [direttore, setDirettore] = useState(esistente && dati ? nomeDirettore(dati, esistente) : '');
+  const [pratica, setPratica] = useState<string[]>(esistente?.istruttori_pratica ?? []);
   const [v, setV] = useState<CampiCorso>(
     esistente ?? {
       id: nuovoUuid(),
@@ -138,24 +147,31 @@ function FormCorso({ esistente, chiudi }: { esistente: Corso | null; chiudi: (id
       categoria: MDS[0].categorie[0],
       data_inizio: null,
       data_fine: null,
+      data_chiusura: null,
       durata_settimane: null,
       maintenance_organization: '',
       location: '',
       aula: AULE[0],
       gruppo_firma: '',
+      direttore_nome: '',
+      aeromobili: [],
       attivo: true,
     },
   );
   const [attesa, setAttesa] = useState(false);
   if (!dati) return null;
-  const istruttori = dati.utenti.filter((u) => u.ruolo === 'instructor' && (u.attivo || u.id === direttore)).sort((a, b) => chiaveOrdine(dati, a).localeCompare(chiaveOrdine(dati, b)));
+  const istruttori = istruttoriAttivi(dati).map((u) => ({ value: u.id, label: nomeUtente(dati, u.id) }));
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
         setAttesa(true);
-        // il direttore lo assegna solo il Training Manager: gli altri lasciano l'incarico com'è
-        const ok = await esegui({ tipo: 'corso.salva', corso: v, ...(admin ? { direttore_id: direttore } : {}) }, esistente ? 'Corso aggiornato' : 'Corso creato');
+        // il direttore lo assegna solo il Training Manager: gli altri lo lasciano com'è
+        const account = istruttori.find((i) => i.label === direttore.trim());
+        const ok = await esegui(
+          { tipo: 'corso.salva', corso: admin ? { ...v, direttore_nome: account ? '' : direttore.trim() } : v, ...(admin ? { direttore_id: account?.value ?? null } : {}), istruttori_pratica: pratica },
+          esistente ? 'Corso aggiornato' : 'Corso creato',
+        );
         setAttesa(false);
         if (ok) chiudi(esistente ? undefined : v.id);
       }}
@@ -208,19 +224,41 @@ function FormCorso({ esistente, chiudi }: { esistente: Corso | null; chiudi: (id
           <NumberInput label="Durata (settimane)" min={1} max={104} allowDecimal={false} value={v.durata_settimane ?? ''} onChange={(x) => setV({ ...v, durata_settimane: x === '' ? null : Number(x) })} />
           <TextInput type="date" label="Data di fine stimata" value={v.data_fine ?? ''} onChange={(e) => setV({ ...v, data_fine: e.currentTarget.value || null })} />
         </SimpleGrid>
-        <Select
+        <Autocomplete
           label="Direttore del corso"
-          description={admin ? 'Uno degli istruttori: in questo corso prepara e valida il programma e i rapportini.' : 'Lo assegna il Training Manager.'}
+          description={admin ? 'Scegli uno degli istruttori (in questo corso prepara e valida programma e rapportini) oppure scrivi una persona fuori elenco.' : 'Lo assegna il Training Manager.'}
           placeholder="da assegnare"
-          searchable
-          clearable
           disabled={!admin}
           value={direttore}
           onChange={setDirettore}
-          data={istruttori.map((u) => ({ value: u.id, label: nomeUtente(dati, u.id) }))}
+          data={istruttori.map((i) => i.label)}
+          maxLength={80}
           comboboxProps={{ withinPortal: true }}
-          nothingFoundMessage="Nessun account istruttore"
         />
+        {!soloTeorica(v.categoria) && (
+          <>
+            <MultiSelect
+              label="Istruttori della fase pratica"
+              description="Nominati per questo corso: vedono il corso e i logbook dei frequentatori."
+              placeholder={pratica.length ? undefined : 'nessuno'}
+              searchable
+              value={pratica}
+              onChange={setPratica}
+              data={istruttori}
+              comboboxProps={{ withinPortal: true }}
+              nothingFoundMessage="Nessun account istruttore"
+            />
+            <TagsInput
+              label="Aeromobili disponibili"
+              description="Identificativi fra cui scegliere nei task pratici: scrivi e premi Invio (es. EI906)."
+              placeholder={v.aeromobili.length ? undefined : 'EI906, EI910…'}
+              value={v.aeromobili}
+              onChange={(aeromobili) => setV({ ...v, aeromobili })}
+              splitChars={[',', ';']}
+              maxTags={40}
+            />
+          </>
+        )}
         <Autocomplete label="Aula" description="Proposta per ogni lezione: sul singolo periodo si può cambiare." value={v.aula} onChange={(aula) => setV({ ...v, aula })} data={AULE} maxLength={40} comboboxProps={{ withinPortal: true }} />
         <TextInput
           label="Gruppo firma del comandante"
@@ -232,7 +270,27 @@ function FormCorso({ esistente, chiudi }: { esistente: Corso | null; chiudi: (id
         />
         <TextInput label="Maintenance organisation" description="Nome e numero di approvazione DAAA" value={v.maintenance_organization} onChange={(e) => setV({ ...v, maintenance_organization: e.currentTarget.value })} />
         <TextInput label="Location" value={v.location} onChange={(e) => setV({ ...v, location: e.currentTarget.value })} />
-        {esistente && <Switch label="Corso attivo" checked={v.attivo} onChange={(e) => setV({ ...v, attivo: e.currentTarget.checked })} />}
+        {esistente && (
+          <>
+            <Switch
+              label="Corso completato"
+              description="Resta consultabile in ogni sua parte; ogni modifica chiederà conferma."
+              checked={!v.attivo}
+              onChange={(e) => setV({ ...v, attivo: !e.currentTarget.checked, data_chiusura: e.currentTarget.checked ? (v.data_chiusura ?? oggiISO()) : null })}
+            />
+            {!v.attivo && (
+              <TextInput
+                type="date"
+                label="Data effettiva di chiusura"
+                description="Sostituisce ovunque la data di fine stimata, anche nel Registro corsi e corsisti."
+                value={v.data_chiusura ?? ''}
+                max={oggiISO()}
+                onChange={(e) => setV({ ...v, data_chiusura: e.currentTarget.value || null })}
+                required
+              />
+            )}
+          </>
+        )}
         <Group grow>
           <Button variant="default" onClick={() => chiudi()}>
             Annulla

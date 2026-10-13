@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react';
-import { ActionIcon, Autocomplete, Badge, Button, Drawer, Group, Menu, SegmentedControl, Select, Stack, Text, Textarea } from '@mantine/core';
+import { ActionIcon, Autocomplete, Badge, Button, Drawer, Group, Menu, MultiSelect, SegmentedControl, Select, Stack, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconChevronLeft, IconChevronRight, IconDots, IconEraser, IconFileSpreadsheet, IconLock, IconLockOpen, IconPlus, IconTrash, IconWand } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
 import { messaggioErrore } from '../../dominio/errori';
 import { oggiISO, ruoloNelCorso, TIPI_PERIODO, type CampiLezione } from '../../dominio/motore';
-import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, chapterInCorso, generaSettimana, giorniSettimana, inOrdine, lunediDi, orariLezioni, periodiDelGiorno, settimanaDiCorso, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
-import { chapterPrevisti, materiaDi, oreDaMinuti, programmaTeorico, voceLezione, type Materia } from '../../dominio/programmi';
-import { conMateria, ETICHETTA_PERIODO, SIGLA_PERIODO, type Lezione, type TipoPeriodo } from '../../dominio/tipi';
-import { contenutoLezione, docenti, formatoDataBreve, formatoMinuti, lezioniVisibili, nomeUtente, ore } from '../../dominio/viste';
+import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, generaSettimana, giorniSettimana, inOrdine, lunediDi, orariLezioni, periodiDelGiorno, settimanaDiCorso, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
+import { materiaDi, oreDaMinuti, programmaTeorico, type Materia } from '../../dominio/programmi';
+import { conIstruttore, conMateria, conPersona, ETICHETTA_ISTRUTTORE, ETICHETTA_PERIODO, RSPP, SIGLA_PERIODO, type Lezione, type TipoPeriodo } from '../../dominio/tipi';
+import { abilitatiPer, abilitato, contenutoLezione, direttoreDi, formatoDataBreve, formatoMinuti, frequentatori, istruttoriAttivi, lezioniVisibili, nomeUtente, ore } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
 import { useCampoVisibile } from '../componenti/tastiera';
 import { useCorso } from '../navigazione';
@@ -61,8 +61,9 @@ export function Settimana() {
     parte: l.parte,
     minuti: l.minuti,
     materia: l.materia,
-    chapter: l.chapter,
     istruttore_id: l.istruttore_id,
+    persona: l.persona,
+    frequentatori: l.frequentatori,
     aula: l.aula,
     tipo: l.tipo,
     note: l.note,
@@ -83,12 +84,14 @@ export function Settimana() {
   const delPeriodo = (data: string, ordine: number) => inOrdine(correnti.filter((l) => l.data === data && l.ordine === ordine));
   const liberi = (data: string, ordine: number) => MINUTI_PERIODO - delPeriodo(data, ordine).reduce((s, l) => s + l.minuti, 0);
 
-  const possibili = docenti(dati, corso.id);
-  /** Istruttori proponibili: quelli abilitati alla materia (più quello già assegnato, se diverso). */
-  const abilitati = (materia: string, corrente?: string | null) => {
-    const ok = possibili.filter((u) => dati.abilitazioni.some((a) => a.user_id === u.id && a.programma === programma.id && a.materia === materia));
-    const elenco = ok.length ? ok : possibili;
-    const assegnato = corrente ? possibili.find((u) => u.id === corrente) : undefined;
+  const tuttiGliIstruttori = istruttoriAttivi(dati);
+  /** La lezione di un chapter la tiene solo chi è abilitato a quel chapter per il mezzo del corso. */
+  const abilitati = (materia: string) => abilitatiPer(dati, corso.mds, materiaDi(programma, materia)?.chapter ?? '');
+  const abilitatoA = (materia: string, userId: string | null) => userId != null && abilitato(dati, userId, corso.mds, materiaDi(programma, materia)?.chapter ?? '');
+  /** Chi si può indicare per il periodo: gli abilitati al chapter per le lezioni, qualunque istruttore per le altre attività. */
+  const istruttoriPer = (l: CampiLezione) => {
+    const elenco = conMateria(l.tipo) ? abilitati(l.materia) : tuttiGliIstruttori;
+    const assegnato = dati.utenti.find((u) => u.id === l.istruttore_id);
     return assegnato && !elenco.includes(assegnato) ? [...elenco, assegnato] : elenco;
   };
   const carico = () => {
@@ -102,32 +105,47 @@ export function Settimana() {
     return elenco.length ? [...elenco].sort((a, b) => (pesi.get(a.id) ?? 0) - (pesi.get(b.id) ?? 0))[0].id : null;
   };
 
-  /** Chapter del syllabus, raggruppati per materia: le ore del programma sono date al gruppo, non al singolo chapter. */
+  /** Solo i chapter previsti dal syllabus del corso (quelli con ore), con le ore che restano da mettere a calendario. */
   const opzioniChapter = programma.materie.map((m) => {
     const residuo = stato.materie.find((r) => r.materia.id === m.id)?.residui ?? 0;
-    const previsti = chapterPrevisti(m);
-    return {
-      group: `M${m.modulo} · Ch ${previsti.map((v) => v.chapter).join(', ')} — ${residuo ? `restano ${oreDaMinuti(residuo)}` : 'ore tutte a calendario'}`,
-      items: previsti.map((v) => ({ value: `${m.id}|${v.chapter}`, label: `${v.chapter} · ${v.subject}` })),
-    };
+    return { value: m.id, label: `${m.chapter} · ${m.titolo} · M${m.modulo}${residuo ? ` — restano ${oreDaMinuti(residuo)}` : ''}` };
   });
+
+  /** Cambiando attività si sistemano i campi che dipendono da essa. */
+  const cambiaTipo = (l: CampiLezione, tipo: TipoPeriodo) => {
+    const materia = conMateria(tipo) ? (materiaDi(programma, l.materia) ?? stato.prossima ?? programma.materie[0]) : undefined;
+    // lezioni: un istruttore abilitato al chapter; MEO: si propone il direttore del corso; sospensione: nessuno.
+    // Per le altre attività non si eredita l'istruttore proposto per il chapter della lezione: lo si sceglie.
+    const istruttore_id = !conIstruttore(tipo)
+      ? null
+      : materia
+        ? abilitatoA(materia.id, l.istruttore_id)
+          ? l.istruttore_id
+          : scegliIstruttore(materia.id)
+        : tipo === 'meo'
+          ? (direttoreDi(dati, corso.id)?.id ?? null)
+          : conMateria(l.tipo) || conPersona(tipo)
+            ? null
+            : l.istruttore_id;
+    modifica(l.id, { tipo, materia: materia?.id ?? '', istruttore_id, persona: conPersona(tipo) ? l.persona : '', frequentatori: tipo === 'recupero' ? l.frequentatori : [] });
+  };
 
   const genera = () => {
     const pesi = carico();
     const proposte = generaSettimana(programma, perCalcolo, lunedi, { istruttorePerMateria: (m: Materia) => scegliIstruttore(m.id, pesi) });
     if (!proposte.length) return;
     for (const p of proposte) if (p.istruttore_id) pesi.set(p.istruttore_id, (pesi.get(p.istruttore_id) ?? 0) + p.minuti);
-    setBozza([...correnti, ...proposte.map((p) => ({ id: nuovoUuid(), corso_id: corso.id, data: p.data, ordine: p.ordine, parte: p.parte, minuti: p.minuti, materia: p.materia, chapter: p.chapter, istruttore_id: p.istruttore_id, aula: '', tipo: 'lezione' as TipoPeriodo, note: '' }))]);
+    setBozza([...correnti, ...proposte.map((p) => ({ id: nuovoUuid(), corso_id: corso.id, data: p.data, ordine: p.ordine, parte: p.parte, minuti: p.minuti, materia: p.materia, istruttore_id: p.istruttore_id, persona: '', frequentatori: [], aula: '', tipo: 'lezione' as TipoPeriodo, note: '' }))]);
   };
 
-  /** Mette nel tempo ancora libero del periodo la materia successiva del programma, proseguendo il chapter in corso. */
+  /** Mette nel tempo ancora libero del periodo il chapter successivo del programma. */
   const aggiungi = (data: string, ordine: number) => {
     const minuti = liberi(data, ordine);
     if (minuti < DURATE[0]) return;
     const materia = stato.prossima ?? programma.materie[0];
     const id = nuovoUuid();
     const parte = (delPeriodo(data, ordine).at(-1)?.parte ?? -1) + 1;
-    setBozza([...correnti, { id, corso_id: corso.id, data, ordine, parte, minuti, materia: materia.id, chapter: chapterInCorso(materia, perCalcolo), istruttore_id: scegliIstruttore(materia.id), aula: '', tipo: 'lezione', note: '' }]);
+    setBozza([...correnti, { id, corso_id: corso.id, data, ordine, parte, minuti, materia: materia.id, istruttore_id: scegliIstruttore(materia.id), persona: '', frequentatori: [], aula: '', tipo: 'lezione', note: '' }]);
     setAperto(id);
   };
 
@@ -189,12 +207,14 @@ export function Settimana() {
         {parti.map((l) => {
           const o = orari.get(l.id)!;
           const { materia, chapter, titolo } = contenutoLezione(programma, l);
-          const codice = materia ? `${diviso ? '' : `M${materia.modulo} · `}Ch ${chapter}` : SIGLA_PERIODO[l.tipo] || ETICHETTA_PERIODO[l.tipo];
-          const istruttore = (
-            <span className={`periodo-istruttore ${l.istruttore_id ? '' : conMateria(l.tipo) ? 'rosso' : 'debole'}`}>
-              {l.istruttore_id ? cognome(l.istruttore_id) : conMateria(l.tipo) ? 'da assegnare' : '—'}
-            </span>
-          );
+          // la sospensione è una cella sbarrata, senza altro
+          if (l.tipo === 'sospensione') {
+            const sbarrata = { className: `periodo t-sospensione ${diviso ? 'parte' : ''}`, title: `${o.inizio}–${o.fine} · ${titolo}`, 'aria-label': `${titolo}, ${o.inizio}–${o.fine}` };
+            return guida ? <button key={l.id} type="button" {...sbarrata} onClick={() => setAperto(l.id)} /> : <div key={l.id} {...sbarrata} />;
+          }
+          const codice = materia ? `${diviso ? '' : `M${materia.modulo} · `}Ch ${chapter}` : SIGLA_PERIODO[l.tipo];
+          const chi = l.istruttore_id ? cognome(l.istruttore_id) : l.persona;
+          const istruttore = <span className={`periodo-istruttore ${chi ? '' : conMateria(l.tipo) ? 'rosso' : 'debole'}`}>{chi || (conMateria(l.tipo) ? 'da assegnare' : '—')}</span>;
           const contenuto = diviso ? (
             <>
               <span className="cifre debole">{o.inizio}</span>
@@ -383,38 +403,66 @@ export function Settimana() {
             <Select
               label="Cosa si svolge"
               value={inModifica.tipo}
-              onChange={(v) => v && modifica(inModifica.id, { tipo: v as TipoPeriodo })}
+              onChange={(v) => v && cambiaTipo(inModifica, v as TipoPeriodo)}
               data={TIPI_PERIODO.map((t) => ({ value: t, label: ETICHETTA_PERIODO[t] }))}
+              allowDeselect={false}
               comboboxProps={{ withinPortal: true }}
             />
             {conMateria(inModifica.tipo) && (
-              <>
+              <Select
+                label="Chapter"
+                description="Solo i chapter previsti dal syllabus del corso: numero e titolo vanno sul programma settimanale."
+                searchable
+                allowDeselect={false}
+                value={materiaInModifica?.id ?? null}
+                onChange={(v) => v && modifica(inModifica.id, { materia: v, istruttore_id: abilitatoA(v, inModifica.istruttore_id) ? inModifica.istruttore_id : scegliIstruttore(v) })}
+                data={opzioniChapter}
+                comboboxProps={{ withinPortal: true }}
+              />
+            )}
+            {inModifica.tipo === 'recupero' && (
+              <MultiSelect
+                label="Frequentatori a cui è destinata"
+                description="Solo a loro il recupero scala le assenze di questa materia, fino a rientrare nelle ore previste."
+                placeholder={inModifica.frequentatori.length ? undefined : 'Scegli i frequentatori'}
+                searchable
+                value={inModifica.frequentatori}
+                onChange={(scelti) => modifica(inModifica.id, { frequentatori: scelti })}
+                data={frequentatori(dati, corso.id, { al: inModifica.data }).map((u) => ({ value: u.id, label: nomeUtente(dati, u.id) }))}
+                comboboxProps={{ withinPortal: true }}
+                error={inModifica.frequentatori.length ? undefined : 'Scegli almeno un frequentatore'}
+              />
+            )}
+            {conPersona(inModifica.tipo) ? (
+              <Autocomplete
+                label={ETICHETTA_ISTRUTTORE[inModifica.tipo]}
+                description="Un istruttore, l’RSPP oppure un’altra persona scritta a mano."
+                placeholder="nessuno"
+                value={inModifica.istruttore_id ? nomeUtente(dati, inModifica.istruttore_id) : inModifica.persona}
+                onChange={(testo) => {
+                  const account = tuttiGliIstruttori.find((u) => nomeUtente(dati, u.id) === testo);
+                  modifica(inModifica.id, account ? { istruttore_id: account.id, persona: '' } : { istruttore_id: null, persona: testo });
+                }}
+                data={[RSPP, ...tuttiGliIstruttori.map((u) => nomeUtente(dati, u.id))]}
+                maxLength={80}
+                comboboxProps={{ withinPortal: true }}
+              />
+            ) : (
+              conIstruttore(inModifica.tipo) && (
                 <Select
-                  label="Chapter"
-                  description="Solo i chapter previsti dal syllabus: numero e titolo vanno sul programma settimanale."
-                  searchable
-                  allowDeselect={false}
-                  value={materiaInModifica ? `${materiaInModifica.id}|${voceLezione(materiaInModifica, inModifica.chapter).chapter}` : null}
-                  onChange={(v) => {
-                    if (!v) return;
-                    const [materia, chapter] = v.split('|');
-                    modifica(inModifica.id, { materia, chapter, istruttore_id: inModifica.istruttore_id ?? scegliIstruttore(materia) });
-                  }}
-                  data={opzioniChapter}
-                  comboboxProps={{ withinPortal: true }}
-                />
-                <Select
-                  label="Istruttore"
-                  placeholder="da assegnare"
+                  label={ETICHETTA_ISTRUTTORE[inModifica.tipo]}
+                  placeholder={conMateria(inModifica.tipo) ? 'da assegnare' : 'nessuno'}
                   clearable
+                  searchable
                   value={inModifica.istruttore_id}
                   onChange={(v) => modifica(inModifica.id, { istruttore_id: v })}
-                  data={abilitati(inModifica.materia, inModifica.istruttore_id).map((u) => ({ value: u.id, label: nomeUtente(dati, u.id) }))}
+                  data={istruttoriPer(inModifica).map((u) => ({ value: u.id, label: nomeUtente(dati, u.id) }))}
+                  nothingFoundMessage={conMateria(inModifica.tipo) ? 'Nessun istruttore abilitato a questo chapter' : 'Nessun istruttore'}
                   comboboxProps={{ withinPortal: true }}
                 />
-              </>
+              )
             )}
-            {inModifica.tipo !== 'sospensione' && (
+            {conIstruttore(inModifica.tipo) && (
               <Autocomplete
                 label="Aula"
                 description="Vuota = aula del corso."
@@ -435,7 +483,9 @@ export function Settimana() {
               allowDeselect={false}
               comboboxProps={{ withinPortal: true }}
             />
-            <Textarea label="Note" autosize minRows={2} maxLength={300} value={inModifica.note} onChange={(e) => modifica(inModifica.id, { note: e.currentTarget.value })} />
+            {conIstruttore(inModifica.tipo) && (
+              <Textarea label="Note" autosize minRows={2} maxLength={300} value={inModifica.note} onChange={(e) => modifica(inModifica.id, { note: e.currentTarget.value })} />
+            )}
             <Button variant="default" leftSection={<IconPlus size={16} />} disabled={liberiInModifica < DURATE[0]} onClick={() => aggiungi(inModifica.data, inModifica.ordine)}>
               {liberiInModifica < DURATE[0] ? 'Altra lezione nel periodo: prima accorcia questa' : `Altra lezione nel periodo · ${formatoMinuti(liberiInModifica)} liberi`}
             </Button>

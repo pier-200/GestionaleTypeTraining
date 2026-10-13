@@ -3,7 +3,7 @@ import { IconAlertTriangleFilled, IconCircleCheckFilled } from '@tabler/icons-re
 import { oggiISO, ruoloNelCorso } from '../../dominio/motore';
 import { SOGLIA_ASSENZE, assenzeDi, limiteAssenze } from '../../dominio/presenze';
 import { chapterMateria, oreDaMinuti, programmaTeorico } from '../../dominio/programmi';
-import { formatoData, formatoMinuti, frequentatori, lezioniVisibili, nomeUtente, ore, presenzeDi, rapportiniDi } from '../../dominio/viste';
+import { esclusoDal, formatoData, formatoMinuti, frequentatori, lezioniVisibili, nomeUtente, ore, presenzeDi, rapportiniDi } from '../../dominio/viste';
 import { IntestazionePagina, Sezione } from '../componenti/disegno';
 import { useCorso } from '../navigazione';
 import { useStato } from '../stato';
@@ -18,8 +18,9 @@ export function Assenze() {
   const lezioni = lezioniVisibili(dati, corso.id, ruolo);
   const rapportini = rapportiniDi(dati, corso.id);
   const presenze = presenzeDi(dati, corso.id);
-  const elenco = ruolo === 'trainee' ? frequentatori(dati, corso.id).filter((u) => u.id === utente.id) : frequentatori(dati, corso.id);
-  const righe = elenco.map((u) => ({ utente: u, s: assenzeDi(programma, lezioni, rapportini, presenze, u.id) }));
+  // lo staff vede chi fa parte del corso; il frequentatore la propria situazione, anche se ne è uscito
+  const elenco = ruolo === 'trainee' ? frequentatori(dati, corso.id, { esclusi: true }).filter((u) => u.id === utente.id) : frequentatori(dati, corso.id);
+  const righe = elenco.map((u) => ({ utente: u, s: assenzeDi(programma, lezioni, rapportini, presenze, u.id, esclusoDal(dati, corso.id, u.id)) }));
   const limite = limiteAssenze(programma);
   const nonIdonei = righe.filter((r) => !r.s.idoneo).length;
   const daValidare = rapportini.filter((r) => !r.validato_il).length;

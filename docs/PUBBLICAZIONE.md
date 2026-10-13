@@ -39,6 +39,20 @@ Non serve alcuna migrazione dei dati: le lezioni già inserite restano non valid
   direttore per corso e i campi nuovi di corsi, lezioni, account e Personal Data, toglie ora di inizio e ore al giorno)
   e ripubblicare la Edge Function `gestione-utenti`.
 
+## Aggiornamento abilitazioni per chapter, esclusioni e chiusura del corso (14/10/2026)
+
+- **Archivio GitHub (in uso)**: nessuna operazione. Al primo caricamento l'applicazione completa da sola i dati salvati
+  prima: gli istruttori che erano iscritti a un corso diventano «istruttori della fase pratica» di quel corso, le
+  lezioni e i corsi prendono i campi nuovi. Le **abilitazioni** salvate prima (per programma e materia) non valgono
+  più: vanno reinserite in **Materie e istruttori**, per mezzo e chapter, a mano o dall'Excel. Finché mancano, nel
+  programma settimanale nessun istruttore è selezionabile per le lezioni.
+- **Supabase**: rieseguire **`database/schema.sql`** (iscrizioni dei soli frequentatori con data di esclusione,
+  direttore e istruttori della fase pratica nei dati del corso, data di chiusura, aeromobili, nuovi tipi di periodo,
+  abilitazioni per mezzo e chapter, permessi aggiornati).
+- **Cartella `modelli`**: i format ufficiali stanno in `modelli/` e la build li copia accanto all'applicazione (vedi
+  il README, «Cartella modelli»). Prima di `npm run pubblica` la cartella deve contenere almeno
+  `Programma settimanale.xlsx` e `Compliance Report.pdf`.
+
 ## Stato dell'installazione Supabase (22/09/2026)
 
 - Schema, sicurezza per corso (RLS) e tempo reale installati (`database/schema.sql`).
@@ -78,8 +92,9 @@ Per non dipendere dai token Supabase l'app lavora sull'**archivio GitHub**. Repo
      username, nome e password del Training Manager.
 
    Il token viene cifrato nel portachiavi e non va dato a nessuno.
-3. Da **Account** creare gli account di istruttori e frequentatori; da **Corsi** creare il corso scegliendo tra gli
-   istruttori il **direttore del corso**, poi iscrivere al corso gli altri istruttori e i frequentatori.
+3. Da **Account** creare gli account di istruttori e frequentatori; da **Corsi** creare il corso indicando il
+   **direttore del corso**, gli istruttori della fase pratica e gli aeromobili; da **Corso e iscritti** assegnare i
+   frequentatori; da **Materie e istruttori** inserire i chapter a cui ogni istruttore è abilitato.
 
 > La password del Training Manager protegge il token dentro il portachiavi, che sta su un repository **pubblico**:
 > una password corta (per esempio `admin`) va bene per le prime prove, per i dati veri serve una password lunga e un

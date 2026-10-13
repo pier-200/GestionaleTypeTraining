@@ -5,8 +5,8 @@ playwright-report
 .impeccable/review
 .impeccable/live
 *.local
-# documenti ufficiali: restano in locale (il catalogo generato è in src/dati e database)
-docs/sorgenti/
+# format ufficiali (programmi, moduli, abilitazioni): restano in locale e la build li copia nel sito senza i dati degli autori
+modelli/
 .impeccable/cattura.mjs
 .impeccable/stampa.mjs
 .impeccable/prova-supabase.mjs

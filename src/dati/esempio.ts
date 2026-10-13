@@ -1,6 +1,6 @@
 import { generaSettimana, lunediDi, sommaGiorni } from '../dominio/pianificazione';
 import { minimoMeta } from '../dominio/compliance';
-import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, materiaDi, voceLezione, type Task } from '../dominio/programmi';
+import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, materiaDi, type Task } from '../dominio/programmi';
 import type { Abilitazione, Anagrafica, Certificato, Corso, Dati, DatiTraining, Iscrizione, Istruttore, Lezione, Presenza, Rapportino, Registrazione, StatoPresenza, TipoEsecuzione, Utente } from '../dominio/tipi';
 
 /**
@@ -188,23 +188,34 @@ const corso = (id: string, codice: string, nome: string, extra: Partial<Corso>):
   programma_pratico: PRATICO.id,
   data_inizio: INIZIO,
   data_fine: '2026-10-02',
+  data_chiusura: null,
   durata_settimane: 13,
   maintenance_organization: '1° Reggimento AVES "Antares" – appr. DAAA n. 00/ESEMPIO',
   location: 'Viterbo',
   aula: 'Aula N.1',
   gruppo_firma: 'Col. Giorgio ESEMPIO',
+  direttore_nome: '',
+  istruttori_pratica: ['u-rinaldi', 'u-colombo'],
+  aeromobili: MATRICOLE,
   attivo: true,
   created_at: ISTANTE_BASE,
   updated_at: ISTANTE_BASE,
   ...extra,
 });
 
-/** Lezioni del secondo corso: prime settimane già a calendario. */
-function lezioniEsempio(corsoId: string, inizio: string, settimane: number, docenti: string[], g: ReturnType<typeof generatore>): Lezione[] {
+/** Abilitazioni dell'esempio: ogni chapter del CH-47F ha uno o due istruttori abilitati. */
+const ABILITATI = new Map<string, string[]>();
+TEORICO.materie.forEach((m, i) => {
+  const chi = [['u-rinaldi', 'u-greco', 'u-neri'][i % 3], ...(i % 3 === 0 ? ['u-colombo'] : [])];
+  ABILITATI.set(m.chapter, [...new Set([...(ABILITATI.get(m.chapter) ?? []), ...chi])]);
+});
+
+/** Lezioni delle prime settimane, tenute da istruttori abilitati al chapter. */
+function lezioniEsempio(corsoId: string, inizio: string, settimane: number, g: ReturnType<typeof generatore>): Lezione[] {
   const lezioni: Lezione[] = [];
   let lunedi = lunediDi(inizio);
   for (let s = 0; s < settimane; s++) {
-    for (const p of generaSettimana(TEORICO, lezioni, lunedi, { istruttorePerMateria: () => g.uno(docenti) })) {
+    for (const p of generaSettimana(TEORICO, lezioni, lunedi, { istruttorePerMateria: (m) => g.uno(ABILITATI.get(m.chapter)!) })) {
       lezioni.push({
         id: `l-${corsoId}-${lezioni.length}`,
         corso_id: corsoId,
@@ -213,8 +224,9 @@ function lezioniEsempio(corsoId: string, inizio: string, settimane: number, doce
         parte: p.parte,
         minuti: p.minuti,
         materia: p.materia,
-        chapter: p.chapter,
         istruttore_id: p.istruttore_id,
+        persona: '',
+        frequentatori: [],
         aula: '',
         tipo: 'lezione',
         validata: false,
@@ -293,6 +305,7 @@ export function datiEsempio(): Dati {
       data_fine: '2027-03-31',
       durata_settimane: 28,
       programma_pratico: null,
+      istruttori_pratica: [],
       created_at: '2026-09-10T08:00:00.000Z',
     }),
   ];
@@ -309,16 +322,13 @@ export function datiEsempio(): Dati {
     ...NUOVI.map((p) => utente(p.id, p.username, 'trainee')),
   ];
 
-  const iscrizione = (corso_id: string, user_id: string, ruolo: Iscrizione['ruolo']): Iscrizione => ({ id: `i-${corso_id}-${user_id}`, corso_id, user_id, ruolo, created_at: ISTANTE_BASE });
+  // al corso sono assegnati i frequentatori; gli istruttori no: il direttore ha l'incarico, gli altri arrivano con le lezioni o con la fase pratica
+  const iscrizione = (corso_id: string, user_id: string, ruolo: Iscrizione['ruolo']): Iscrizione => ({ id: `i-${corso_id}-${user_id}`, corso_id, user_id, ruolo, escluso_il: null, created_at: ISTANTE_BASE });
   const iscrizioni: Iscrizione[] = [
     ...FREQUENTATORI.map((p) => iscrizione(CORSO_1, p.id, 'trainee')),
     iscrizione(CORSO_1, 'u-neri', 'direttore'),
-    iscrizione(CORSO_1, 'u-rinaldi', 'instructor'),
-    iscrizione(CORSO_1, 'u-colombo', 'instructor'),
     ...NUOVI.map((p) => iscrizione(CORSO_2, p.id, 'trainee')),
     iscrizione(CORSO_2, 'u-neri', 'direttore'),
-    iscrizione(CORSO_2, 'u-rinaldi', 'instructor'),
-    iscrizione(CORSO_2, 'u-greco', 'instructor'),
   ];
 
   const training: DatiTraining[] = FREQUENTATORI.map((p) => ({
@@ -332,23 +342,18 @@ export function datiEsempio(): Dati {
     updated_by: 'u-tm',
   }));
 
-  // abilitazioni: ogni istruttore copre una fetta del programma teorico, il direttore le materie introduttive
-  const abilitazioni: Abilitazione[] = [];
-  const docentiCorso2 = ['u-rinaldi', 'u-greco', 'u-neri'];
-  TEORICO.materie.forEach((m, i) => {
-    for (const u of [docentiCorso2[i % docentiCorso2.length], 'u-colombo'].slice(0, i % 3 === 0 ? 2 : 1)) {
-      abilitazioni.push({ id: `${u}|${TEORICO.id}|${m.id}`, user_id: u, programma: TEORICO.id, materia: m.id });
-    }
-  });
+  // abilitazioni: per mezzo e chapter, valide per tutti i corsi CH-47F
+  const abilitazioni: Abilitazione[] = [...ABILITATI].flatMap(([chapter, chi]) => chi.map((user_id) => ({ id: `${user_id}|CH-47F|${chapter}`, user_id, mds: 'CH-47F', chapter })));
 
   // primo corso: teoria conclusa e validata, con una lezione di recupero a settembre
-  const lezioni1 = lezioniEsempio(CORSO_1, INIZIO, 3, ['u-rinaldi', 'u-colombo', 'u-neri'], g);
+  const lezioni1 = lezioniEsempio(CORSO_1, INIZIO, 3, g);
   for (const l of lezioni1) Object.assign(l, { validata: true, validata_da: 'u-neri', validata_il: `${l.data}T07:00:00.000Z` });
   const giorni1 = [...new Set(lezioni1.map((l) => l.data))].sort();
   // qualche periodo non didattico, come capita nella realtà
   const segna = (data: string, ordine: number, tipo: Lezione['tipo']) => {
     const l = lezioni1.find((x) => x.data === data && x.ordine === ordine);
-    if (l) Object.assign(l, { tipo, materia: '', chapter: '', istruttore_id: tipo === 'esame' ? l.istruttore_id : null, note: '' });
+    // MEO ed esame fanno capo al direttore del corso; la sospensione non ha né istruttore né aula
+    if (l) Object.assign(l, { tipo, materia: '', note: '' }, tipo === 'sospensione' ? { istruttore_id: null, aula: '' } : { istruttore_id: 'u-neri' });
   };
   segna(giorni1[5], 5, 'meo');
   segna(giorni1[8], 0, 'sospensione');
@@ -362,8 +367,10 @@ export function datiEsempio(): Dati {
     parte: 0,
     minuti: 60,
     materia: daRecuperare,
-    chapter: voceLezione(materiaDi(TEORICO, daRecuperare)!, '').chapter,
-    istruttore_id: 'u-rinaldi',
+    istruttore_id: ABILITATI.get(materiaDi(TEORICO, daRecuperare)!.chapter)![0],
+    persona: '',
+    // il recupero è per chi aveva perso la materia
+    frequentatori: ['u-costa', 'u-ricci'],
     aula: 'Aula N.2',
     tipo: 'recupero',
     validata: true,
@@ -376,7 +383,7 @@ export function datiEsempio(): Dati {
   });
 
   // secondo corso: la prima settimana è validata, la seconda è ancora in preparazione
-  const lezioni2 = lezioniEsempio(CORSO_2, '2026-09-14', 2, docentiCorso2, g);
+  const lezioni2 = lezioniEsempio(CORSO_2, '2026-09-14', 2, g);
   for (const l of lezioni2) if (l.data <= '2026-09-18') Object.assign(l, { validata: true, validata_da: 'u-neri', validata_il: '2026-09-13T18:00:00.000Z' });
 
   // registro dei certificati AER(EP).P-147: due rilasciati e uno ancora da completare

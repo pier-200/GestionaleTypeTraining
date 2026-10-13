@@ -1,7 +1,7 @@
 import { calcolaReport, reportVuoto, requisitiMancanti, type Report } from './compliance';
 import { inOrdine, orariLezioni, statoTeorico, type Orario, type StatoTeorico } from './pianificazione';
-import { materiaDi, programmaPratico, programmaTeorico, voceLezione, type ProgrammaTeorico } from './programmi';
-import { ETICHETTA_PERIODO, conMateria, type Corso, type Dati, type ID, type Istruttore, type Lezione, type Registrazione, type RuoloCorso, type Utente } from './tipi';
+import { materiaDi, programmaPratico, programmaTeorico, type ProgrammaTeorico } from './programmi';
+import { ETICHETTA_PERIODO, conMateria, type Corso, type Dati, type ID, type Istruttore, type Lezione, type Registrazione, type Utente } from './tipi';
 
 /** Viste calcolate sui dati, condivise da interfaccia ed esportazioni. */
 
@@ -35,31 +35,74 @@ export function chiaveOrdine(dati: Dati, u: Utente) {
   return (unisci(p.cognome, p.nome) || u.username).toLowerCase();
 }
 
-/** Account iscritti al corso con il ruolo indicato. */
-export function iscritti(dati: Dati, corsoId: ID | null | undefined, ruolo: RuoloCorso, ancheDisattivati = false): Utente[] {
-  const ids = new Set(dati.iscrizioni.filter((i) => i.corso_id === corsoId && i.ruolo === ruolo).map((i) => i.user_id));
-  return dati.utenti.filter((u) => ids.has(u.id) && (ancheDisattivati || u.attivo)).sort((a, b) => chiaveOrdine(dati, a).localeCompare(chiaveOrdine(dati, b)));
+const inOrdineAlfabetico = (dati: Dati, utenti: Utente[]) => utenti.sort((a, b) => chiaveOrdine(dati, a).localeCompare(chiaveOrdine(dati, b)));
+
+/** Giorno da cui il frequentatore è fuori dal corso (null = ne fa parte). */
+export const esclusoDal = (dati: Dati, corsoId: ID | null | undefined, userId: ID): string | null =>
+  dati.iscrizioni.find((i) => i.corso_id === corsoId && i.user_id === userId && i.ruolo === 'trainee')?.escluso_il ?? null;
+
+export interface QualiFrequentatori {
+  /** Anche gli account disattivati. */
+  disattivati?: boolean;
+  /** Anche chi è stato escluso dal corso (dati storici). */
+  esclusi?: boolean;
+  /** Chi faceva parte del corso in quel giorno: gli esclusi contano fino al giorno prima dell'esclusione. */
+  al?: string;
 }
 
-export const frequentatori = (dati: Dati, corsoId: ID | null | undefined, ancheDisattivati = false) => iscritti(dati, corsoId, 'trainee', ancheDisattivati);
+/** Frequentatori assegnati al corso: senza altre indicazioni, solo quelli che ne fanno ancora parte. */
+export function frequentatori(dati: Dati, corsoId: ID | null | undefined, quali: QualiFrequentatori = {}): Utente[] {
+  const ids = new Set(
+    dati.iscrizioni
+      .filter((i) => i.corso_id === corsoId && i.ruolo === 'trainee' && (quali.esclusi || !i.escluso_il || (quali.al != null && quali.al < i.escluso_il)))
+      .map((i) => i.user_id),
+  );
+  return inOrdineAlfabetico(dati, dati.utenti.filter((u) => ids.has(u.id) && (quali.disattivati || u.attivo)));
+}
 
-/** Chi può erogare lezioni nel corso: istruttori e direttore. */
-export const docenti = (dati: Dati, corsoId: ID | null | undefined) => [...iscritti(dati, corsoId, 'instructor'), ...iscritti(dati, corsoId, 'direttore')];
+/** Istruttori con un account attivo. */
+export const istruttoriAttivi = (dati: Dati): Utente[] => inOrdineAlfabetico(dati, dati.utenti.filter((u) => u.ruolo === 'instructor' && u.attivo));
 
-/** L'istruttore a cui il Training Manager ha affidato il corso. */
-export const direttoreDi = (dati: Dati, corsoId: ID | null | undefined): Utente | undefined => iscritti(dati, corsoId, 'direttore', true)[0];
+/** Un istruttore tiene la lezione di un chapter solo se è abilitato a quel chapter per quel mezzo. */
+export const abilitato = (dati: Dati, userId: ID, mds: string, chapter: string) => dati.abilitazioni.some((a) => a.user_id === userId && a.mds === mds && a.chapter === chapter);
+export const abilitatiPer = (dati: Dati, mds: string, chapter: string): Utente[] => istruttoriAttivi(dati).filter((u) => abilitato(dati, u.id, mds, chapter));
+
+/** L'istruttore a cui il Training Manager ha affidato il corso (se il direttore è uno degli istruttori). */
+export const direttoreDi = (dati: Dati, corsoId: ID | null | undefined): Utente | undefined =>
+  dati.utenti.find((u) => dati.iscrizioni.some((i) => i.corso_id === corsoId && i.ruolo === 'direttore' && i.user_id === u.id));
+
+/** Direttore del corso: l'istruttore incaricato oppure la persona scritta a mano; `modulo` = «Grado COGNOME Nome». */
+export function nomeDirettore(dati: Dati, corso: Corso, modulo = false): string {
+  const d = direttoreDi(dati, corso.id);
+  return d ? (modulo ? nomeModulo(dati, d.id) : nomeUtente(dati, d.id)) : corso.direttore_nome;
+}
+
+/** Istruttori nominati per la fase pratica del corso. */
+export const istruttoriPratica = (dati: Dati, corso: Corso): Utente[] => inOrdineAlfabetico(dati, dati.utenti.filter((u) => corso.istruttori_pratica.includes(u.id)));
+
+/** Istruttori che seguono il corso: il direttore, quelli della fase pratica e chi vi ha lezioni a calendario. */
+export function staffDi(dati: Dati, corso: Corso): Utente[] {
+  const ids = new Set([...corso.istruttori_pratica, direttoreDi(dati, corso.id)?.id, ...dati.lezioni.filter((l) => l.corso_id === corso.id).map((l) => l.istruttore_id)]);
+  return inOrdineAlfabetico(dati, dati.utenti.filter((u) => u.ruolo === 'instructor' && ids.has(u.id)));
+}
+
+/** Fine del corso: la data effettiva di chiusura quando è completato, fino ad allora quella stimata. */
+export const fineCorso = (c: Pick<Corso, 'data_fine' | 'data_chiusura' | 'attivo'>) => (c.attivo ? c.data_fine : (c.data_chiusura ?? c.data_fine));
+export const formatoFine = (c: Pick<Corso, 'data_fine' | 'data_chiusura' | 'attivo'>) => `${formatoData(fineCorso(c))}${c.attivo && c.data_fine ? ' (stimata)' : ''}`;
 
 export const registrazioniDi = (dati: Dati, corsoId: ID | null | undefined, userId: ID) =>
   dati.registrazioni.filter((r) => r.user_id === userId && r.corso_id === corsoId).sort((a, b) => b.data.localeCompare(a.data) || b.modificato_il.localeCompare(a.modificato_il));
 
 export const lezioniDi = (dati: Dati, corsoId: ID | null | undefined) => inOrdine(dati.lezioni.filter((l) => l.corso_id === corsoId));
 
-/** Cosa si svolge in una lezione: il chapter con il suo titolo, oppure la dicitura del periodo non didattico. */
-export function contenutoLezione(programma: ProgrammaTeorico | undefined, l: Pick<Lezione, 'tipo' | 'materia' | 'chapter'>) {
+/** Cosa si svolge in un periodo: il chapter della lezione con il suo titolo, oppure il nome dell'attività. */
+export function contenutoLezione(programma: ProgrammaTeorico | undefined, l: Pick<Lezione, 'tipo' | 'materia'>) {
   const materia = programma && conMateria(l.tipo) ? materiaDi(programma, l.materia) : undefined;
-  const voce = materia && voceLezione(materia, l.chapter);
-  return { materia, chapter: voce?.chapter ?? null, titolo: voce?.subject ?? ETICHETTA_PERIODO[l.tipo] };
+  return { materia, chapter: materia?.chapter ?? null, titolo: materia?.titolo ?? ETICHETTA_PERIODO[l.tipo] };
 }
+
+/** Chi è indicato accanto al periodo: «Grado Cognome» dell'istruttore, oppure la persona senza account. */
+export const riferimentoLezione = (dati: Dati, l: Pick<Lezione, 'istruttore_id' | 'persona'>) => gradoCognome(dati, l.istruttore_id) || l.persona;
 
 export interface Impegno {
   lezione: Lezione;
@@ -102,7 +145,8 @@ export interface RigaDocente {
 export function oreDocenti(dati: Dati, corsoId: ID | null | undefined, lezioni: readonly Lezione[], oggi: string): RigaDocente[] {
   const perId = new Map<ID, Lezione[]>();
   for (const l of lezioni) if (l.istruttore_id) perId.set(l.istruttore_id, [...(perId.get(l.istruttore_id) ?? []), l]);
-  const elenco = docenti(dati, corsoId);
+  const corso = dati.corsi.find((c) => c.id === corsoId);
+  const elenco = corso ? staffDi(dati, corso) : [];
   const conosciuti = elenco.filter((u) => perId.has(u.id));
   const altri = [...perId.keys()].filter((id) => !elenco.some((u) => u.id === id)).flatMap((id) => dati.utenti.filter((u) => u.id === id));
   return [...conosciuti, ...altri, ...elenco.filter((u) => !perId.has(u.id))]
@@ -152,14 +196,18 @@ export interface Situazione {
   mancanti: ReturnType<typeof requisitiMancanti>;
   registrazioni: Registrazione[];
   ultima: Registrazione | undefined;
+  /** Giorno dell'esclusione dal corso: la situazione è quella di allora. */
+  escluso: string | null;
 }
 
 export function situazione(dati: Dati, corso: Corso | undefined, utente: Utente): Situazione {
-  const registrazioni = registrazioniDi(dati, corso?.id, utente.id);
+  const escluso = esclusoDal(dati, corso?.id, utente.id);
+  // chi è stato escluso resta con la situazione del giorno in cui è uscito dal corso
+  const registrazioni = registrazioniDi(dati, corso?.id, utente.id).filter((r) => !escluso || r.data < escluso);
   const programma = programmaPratico(corso?.programma_pratico);
   const report = programma ? calcolaReport(registrazioni, programma) : reportVuoto();
   const ultima = [...registrazioni].sort((a, b) => b.modificato_il.localeCompare(a.modificato_il))[0];
-  return { utente, nome: nomeUtente(dati, utente.id), report, mancanti: requisitiMancanti(report), registrazioni, ultima };
+  return { utente, nome: nomeUtente(dati, utente.id), report, mancanti: requisitiMancanti(report), registrazioni, ultima, escluso };
 }
 
 export interface Avanzamento {

@@ -191,24 +191,29 @@ export class SupabaseBackend implements Backend {
     applica(this.dati ?? (await this.caricaDati()), comando, { utenteId: this.utente.id, ora: new Date().toISOString(), oggi: oggiISO() });
     switch (comando.tipo) {
       case 'corso.salva': {
-        verifica(await this.sb.from('corsi').upsert(comando.corso));
+        const corso = { ...comando.corso, ...(comando.direttore_id ? { direttore_nome: '' } : {}), ...(comando.istruttori_pratica ? { istruttori_pratica: comando.istruttori_pratica } : {}) };
+        verifica(await this.sb.from('corsi').upsert(corso));
         this.sporche.add('corsi');
         if (comando.direttore_id === undefined) break;
-        // un solo direttore per corso: chi lascia l'incarico resta istruttore
+        // un solo direttore per corso: l'incarico sta nell'iscrizione «direttore»
         const corso_id = comando.corso.id;
-        const uscente = this.sb.from('iscrizioni').update({ ruolo: 'instructor' }).eq('corso_id', corso_id).eq('ruolo', 'direttore');
+        const uscente = this.sb.from('iscrizioni').delete().eq('corso_id', corso_id).eq('ruolo', 'direttore');
         verifica(await (comando.direttore_id ? uscente.neq('user_id', comando.direttore_id) : uscente));
         if (comando.direttore_id) verifica(await this.sb.from('iscrizioni').upsert({ corso_id, user_id: comando.direttore_id, ruolo: 'direttore' }, { onConflict: 'corso_id,user_id' }));
         this.sporche.add('iscrizioni');
         break;
       }
       case 'corso.iscrivi':
-        verifica(await this.sb.from('iscrizioni').insert(comando.iscrizione));
+        verifica(await this.sb.from('iscrizioni').insert({ ...comando.iscrizione, ruolo: 'trainee' }));
+        this.sporche.add('iscrizioni');
+        break;
+      case 'corso.escludi':
+        verifica(await this.sb.from('iscrizioni').update({ escluso_il: comando.data }).eq('id', comando.id));
         this.sporche.add('iscrizioni');
         break;
       case 'corso.disiscrivi':
         verifica(await this.sb.from('iscrizioni').delete().eq('id', comando.id));
-        this.sporche.add('iscrizioni').add('lezioni');
+        this.sporche.add('iscrizioni');
         break;
       case 'anagrafica.salva':
         verifica(await this.sb.from('anagrafiche').upsert(comando.anagrafica));
@@ -284,9 +289,10 @@ export class SupabaseBackend implements Backend {
         this.sporche.add('rapportini');
         break;
       case 'abilitazioni.imposta':
-        verifica(await this.sb.from('abilitazioni').delete().eq('user_id', comando.user_id).eq('programma', comando.programma));
-        if (comando.materie.length) {
-          verifica(await this.sb.from('abilitazioni').insert(comando.materie.map((materia) => ({ user_id: comando.user_id, programma: comando.programma, materia }))));
+      case 'abilitazioni.importa':
+        for (const r of comando.tipo === 'abilitazioni.importa' ? comando.righe : [comando]) {
+          verifica(await this.sb.from('abilitazioni').delete().eq('user_id', r.user_id).eq('mds', r.mds));
+          if (r.chapters.length) verifica(await this.sb.from('abilitazioni').insert(r.chapters.map((chapter) => ({ user_id: r.user_id, mds: r.mds, chapter }))));
         }
         this.sporche.add('abilitazioni');
         break;

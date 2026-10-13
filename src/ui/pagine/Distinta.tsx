@@ -33,7 +33,12 @@ export function Distinta() {
   const attivi = frequentatori(dati, corso.id).map((u) => situazione(dati, corso, u));
   const conformi = attivi.filter((s) => s.report.conforme).length;
   const media = attivi.length ? attivi.reduce((t, s) => t + s.report.totale.percentuale, 0) / attivi.length : 0;
-  const ultime = dati.registrazioni.filter((r) => r.corso_id === corso.id).sort((a, b) => b.modificato_il.localeCompare(a.modificato_il)).slice(0, 10);
+  // chi è stato escluso dal corso non compare nemmeno fra le revisioni: i suoi dati restano nelle sue pagine e nel CSV
+  const inCorso = new Set(attivi.map((s) => s.utente.id));
+  const ultime = dati.registrazioni
+    .filter((r) => r.corso_id === corso.id && inCorso.has(r.user_id))
+    .sort((a, b) => b.modificato_il.localeCompare(a.modificato_il))
+    .slice(0, 10);
   const apri = (id: string) => {
     ricordaFrequentatore(id);
     naviga(link('/tavola', corso, id).slice(1));

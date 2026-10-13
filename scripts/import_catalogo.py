@@ -1,9 +1,9 @@
 """Importa i programmi pratici (PTR) dagli Excel ufficiali.
 
-    py -3.11 scripts/import_catalogo.py ["docs/sorgenti/Programmi Type Training/CH-47F - PTR - B1.3.xlsx" ...]
+    py -3.11 scripts/import_catalogo.py ["modelli/Programmi Type Training/CH-47F - PTR - B1.3.xlsx" ...]
 
 Senza argomenti importa tutti i file "<MDS> - PTR - <categoria>.xlsx" della cartella
-`docs/sorgenti/Programmi Type Training` (colonne ID, CH, SUBJECT, Task Type, Description Task).
+`modelli/Programmi Type Training` (colonne ID, CH, SUBJECT, Task Type, Description Task).
 Il file non riporta il modulo: lo si ricava dal programma teorico (MTT) dello stesso MDS e
 categoria, cercando la voce con lo stesso chapter e il soggetto più simile (un chapter può
 comparire in più moduli, es. 06 "Dimensions/Areas" nel modulo 1 e "Zonal identification" nel 3).

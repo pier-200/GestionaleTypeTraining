@@ -50,6 +50,7 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
   };
 
   const gruppi: [string, Voce[]][] = [
+    ['', menu.generale],
     ['Corso', menu.corso],
     ['Parte teorica · MTT', menu.teoria],
     ['Parte pratica · PTT · logbook', menu.pratica],
@@ -120,8 +121,8 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
         )}
         {gruppi
           .filter(([, v]) => v.length)
-          .map(([titoloGruppo, voci]) => (
-            <div className="indice-gruppo" key={titoloGruppo || 'altro'}>
+          .map(([titoloGruppo, voci], i) => (
+            <div className="indice-gruppo" key={i}>
               {titoloGruppo && <span className="etichetta">{titoloGruppo}</span>}
               {elenco(voci)}
             </div>

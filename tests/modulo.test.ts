@@ -6,10 +6,11 @@ import { datiEsempio } from '../src/dati/esempio';
 import { applica, type CampiLezione } from '../src/dominio/motore';
 import { lezioniDi } from '../src/dominio/viste';
 import { celleFisse, creaModuloSettimana, righeSettimana } from '../src/moduloSettimana';
+import { apriXlsx, righeXlsx, senzaMetadati } from '../src/xlsx';
 
-/** Programma settimanale sul modulo ufficiale (public/modelli/programma-settimanale.xlsx). */
+/** Programma settimanale sul modulo ufficiale, così com'è nella cartella `modelli`. */
 
-const modello = new Uint8Array(readFileSync(resolve(__dirname, '../public/modelli/programma-settimanale.xlsx')));
+const modello = new Uint8Array(readFileSync(resolve(__dirname, '../modelli/Programma settimanale.xlsx')));
 const FOGLIO = 'xl/worksheets/sheet1.xml';
 const C1 = 'c-2026-1';
 const LUNEDI = '2026-07-13'; // seconda settimana del primo corso: c'è il periodo MEO del lunedì
@@ -24,9 +25,10 @@ const lez = (id: string, data: string, ordine: number, parte: number, minuti: nu
   ordine,
   parte,
   minuti,
-  materia: 'm028',
-  chapter: '34',
+  materia: 'm028', // Navigation, chapter 34
   istruttore_id: null,
+  persona: '',
+  frequentatori: [],
   aula: '',
   tipo: 'lezione',
   note: '',
@@ -62,57 +64,75 @@ it('una riga per lezione: orario fisso del periodo, titolo e numero del chapter 
   expect(lun.map(([riga]) => riga[0])).toEqual(['08:20-09:20', '09:30-10:30', '10:50-11:50', '12:00-13:00', '14:00-15:00', '15:10-16:10']);
   const prima = lezioni.find((l) => l.data === LUNEDI && l.ordine === 0)!;
   expect(lun[0][0]).toEqual(['08:20-09:20', 'Rotor Drives', 63, { 'u-rinaldi': 'Mar. Ca. Rinaldi', 'u-colombo': 'Lgt. Colombo', 'u-neri': 'Cap. Neri' }[prima.istruttore_id!], 'Aula N.1']);
-  expect(lun[5][0]).toEqual(['15:10-16:10', 'Mantenimento Efficienza Operativa', 'MEO', '', 'Aula N.1']);
+  expect(lun[5][0]).toEqual(['15:10-16:10', 'Mantenimento efficienza operativa', 'MEO', 'Cap. Neri', 'Aula N.1']);
   expect(ven).toHaveLength(3);
 
   const varie = righeSettimana(dati, corso, '2026-10-12', [
-    lez('rec', '2026-10-16', 2, 0, 45, { materia: 'm001', chapter: '05', aula: 'Aula N.4', tipo: 'recupero' }),
-    lez('sosp', '2026-10-12', 0, 0, 60, { materia: '', chapter: '', tipo: 'sospensione' }),
-    // gruppo «Navigation» (34…42A): sul modulo va il chapter svolto, non il nome del gruppo
-    lez('pn', '2026-10-13', 0, 0, 60, { chapter: '36' }),
-    lez('nav', '2026-10-13', 1, 0, 60, { chapter: '' }),
+    lez('rec', '2026-10-16', 2, 0, 45, { materia: 'm001', aula: 'Aula N.4', tipo: 'recupero', frequentatori: ['u-gallo'] }),
+    lez('sosp', '2026-10-12', 0, 0, 60, { materia: '', tipo: 'sospensione' }),
+    lez('ser', '2026-10-13', 0, 0, 60, { materia: 'm008' }),
+    lez('nav', '2026-10-13', 1, 0, 60),
+    // le altre attività hanno il loro codice; nelle pratiche amministrative la persona può non avere un account
+    lez('ex', '2026-10-14', 0, 0, 60, { materia: '', tipo: 'esame', istruttore_id: 'u-neri' }),
+    lez('exp', '2026-10-14', 1, 0, 60, { materia: '', tipo: 'esame_pratico', istruttore_id: 'u-rinaldi' }),
+    lez('pt', '2026-10-14', 2, 0, 60, { materia: '', tipo: 'pratica' }),
+    lez('vi', '2026-10-14', 3, 0, 60, { materia: '', tipo: 'valutazione', istruttore_id: 'u-colombo' }),
+    lez('pa', '2026-10-14', 4, 0, 60, { materia: '', tipo: 'pa', persona: 'RSPP' }),
+    lez('meo', '2026-10-14', 5, 0, 60, { materia: '', tipo: 'meo', istruttore_id: 'u-neri' }),
   ]);
   expect(varie[4][2]).toEqual([['10:50-11:35', 'Time limits/Maintenance checks (recupero)', '05', '', 'Aula N.4']]); // "05" resta testo
   expect(varie[0][0]).toEqual([['08:20-09:20', 'Sospensione', '////', '', '////']]);
-  expect(varie[1].slice(0, 3).map(([r]) => [r[1], r[2]])).toEqual([['Pneumatic', 36], ['Navigation', 34], [null, null]]);
+  expect(varie[1].slice(0, 3).map(([r]) => [r[1], r[2]])).toEqual([['Servicing', 12], ['Navigation', 34], [null, null]]);
+  expect(varie[2].map(([r]) => r.slice(1, 4))).toEqual([
+    ['Esame teorico', 'EX', 'Cap. Neri'],
+    ['Esame pratico', 'EX', 'Mar. Ca. Rinaldi'],
+    ['Practical training', 'PT', ''],
+    ['Valutazione in itinere', 'VI', 'Lgt. Colombo'],
+    ['Pratiche amministrative', 'PA', 'RSPP'],
+    ['Mantenimento efficienza operativa', 'MEO', 'Cap. Neri'],
+  ]);
 });
 
 it('il file Excel è il modulo ufficiale compilato: stessa struttura, nessun dato dell’esempio originale', () => {
   const bytes = creaModuloSettimana(modello, dati, corso, LUNEDI, lezioni);
   if (process.env.PTT_SALVA_XLSX) writeFileSync(process.env.PTT_SALVA_XLSX, bytes);
   const parti = unzipSync(bytes);
-  expect(Object.keys(parti).sort()).toEqual(Object.keys(unzipSync(modello)).sort());
+  // il confronto è con il modulo senza i dati di chi lo ha salvato (autore, percorso, stampante)
+  const pulito = senzaMetadati(apriXlsx(modello));
+  expect(Object.keys(parti).sort()).toEqual(Object.keys(pulito).sort());
   const foglio = strFromU8(parti[FOGLIO]);
-  const originale = foglioDi(modello);
+  const originale = strFromU8(pulito[FOGLIO]);
   // senza periodi divisi stile, unioni e impostazione di stampa restano quelli del modulo, cella per cella
   const struttura = (xml: string) => [unioni(xml), xml.match(/<dimension[^>]*>/)![0], xml.match(/<pageSetup[^>]*>/)![0], xml.match(/<cols>.*<\/cols>/)![0], [...xml.matchAll(/<c r="([A-Z]+\d+)"( s="\d+")?/g)].map((m) => m[0])];
   expect(struttura(foglio)).toEqual(struttura(originale));
   expect([leggi(foglio, 'H6'), leggi(foglio, 'C43'), leggi(foglio, 'A11'), leggi(foglio, 'A39')]).toEqual([2, 'Cap. NERI Marco', 'Lun\n13/07', 'Ven\n17/07']);
   expect([leggi(foglio, 'B11'), leggi(foglio, 'C11'), leggi(foglio, 'G11'), leggi(foglio, 'I11')]).toEqual(['08:20-09:20', 'Rotor Drives', 63, 'Aula N.1']);
-  expect([leggi(foglio, 'C15'), leggi(foglio, 'C17'), leggi(foglio, 'G17')]).toEqual(['PAUSA PRANZO', 'Mantenimento Efficienza Operativa', 'MEO']);
+  expect([leggi(foglio, 'C15'), leggi(foglio, 'C17'), leggi(foglio, 'G17')]).toEqual(['PAUSA PRANZO', 'Mantenimento efficienza operativa', 'MEO']);
   for (const residuo of ['06-B1.3-CH', 'Navigation', '20 settimane', 'Grado COGNOME Nome', 'Gruppo firma COMANDANTE', '12:00-13-00']) expect(foglio).not.toContain(residuo);
   expect(strFromU8(parti['xl/workbook.xml'])).toContain(`'2 SETTIMANA'!$A$1:$I$63<`);
   // nel modulo non restano autori né percorsi del file originale
   expect(Object.keys(parti).some((p) => p.startsWith('docProps') || p.includes('printerSettings'))).toBe(false);
+  expect(Object.keys(unzipSync(modello)).some((p) => p.startsWith('docProps'))).toBe(true); // nell'originale c'erano
+  expect(Object.values(parti).map((p) => strFromU8(p)).join('')).not.toMatch(/printerSettings|docProps|absPath/);
 });
 
 it('più lezioni nello stesso periodo: una riga ciascuna, il resto del modulo scende e la stampa resta in una pagina', () => {
   const divisa: CampiLezione[] = [
     // due mezz'ore nella prima ora del lunedì, tre lezioni nell'ultima, due nell'ultima del venerdì
     lez('a', '2026-10-12', 0, 0, 30, { istruttore_id: 'u-rinaldi' }),
-    lez('b', '2026-10-12', 0, 1, 30, { chapter: '36', istruttore_id: 'u-colombo', aula: 'Aula N.2' }),
+    lez('b', '2026-10-12', 0, 1, 30, { materia: 'm029', istruttore_id: 'u-colombo', aula: 'Aula N.2' }),
     lez('c', '2026-10-12', 5, 0, 15),
-    lez('d', '2026-10-12', 5, 1, 15, { chapter: '37' }),
-    lez('e', '2026-10-12', 5, 2, 30, { chapter: '40' }),
+    lez('d', '2026-10-12', 5, 1, 15, { materia: 'm030' }),
+    lez('e', '2026-10-12', 5, 2, 30, { materia: 'm031' }),
     lez('f', '2026-10-13', 0, 0, 45),
     lez('g', '2026-10-16', 2, 0, 30),
-    lez('h', '2026-10-16', 2, 1, 30, { chapter: '42' }),
+    lez('h', '2026-10-16', 2, 1, 30, { materia: 'm042' }),
   ];
   const lun = righeSettimana(dati, corso, '2026-10-12', divisa)[0];
   expect(lun.map((periodo) => periodo.length)).toEqual([2, 1, 1, 1, 1, 3]);
   expect(lun[0]).toEqual([
     ['08:20-08:50', 'Navigation', 34, 'Mar. Ca. Rinaldi', 'Aula N.1'],
-    ['08:50-09:20', 'Pneumatic', 36, 'Lgt. Colombo', 'Aula N.2'],
+    ['08:50-09:20', 'Tactical Communication', 43, 'Lgt. Colombo', 'Aula N.2'],
   ]);
   expect(lun[5].map((r) => r[0])).toEqual(['15:10-15:25', '15:25-15:40', '15:40-16:10']);
 
@@ -124,10 +144,10 @@ it('più lezioni nello stesso periodo: una riga ciascuna, il resto del modulo sc
   expect(leggi(foglio, 'A11')).toBe('Lun\n12/10');
   expect([riga(11), riga(12)]).toEqual(lun[0]);
   expect(riga(16)).toEqual(['13:00-14:00', 'PAUSA PRANZO', '////', null, '////']);
-  expect([18, 19, 20].map((n) => riga(n).slice(0, 3))).toEqual([['15:10-15:25', 'Navigation', 34], ['15:25-15:40', 'Vacuum', 37], ['15:40-16:10', 'Operational attack functions', 40]]);
+  expect([18, 19, 20].map((n) => riga(n).slice(0, 3))).toEqual([['15:10-15:25', 'Navigation', 34], ['15:25-15:40', 'Information Systems', 46], ['15:40-16:10', 'Cargo and Accessory Compartments', 50]]);
   expect([leggi(foglio, 'A21'), leggi(foglio, 'B21')]).toEqual(['Mar\n13/10', '08:20-09:05']);
   // venerdì: righe 42-45; in tutto 4 righe in più, e sotto la tabella tutto scende di 4
-  expect([leggi(foglio, 'A42'), riga(44).slice(0, 3), riga(45).slice(0, 3)]).toEqual(['Ven\n16/10', ['10:50-11:20', 'Navigation', 34], ['11:20-11:50', 'Integrated modular avionics', 42]]);
+  expect([leggi(foglio, 'A42'), riga(44).slice(0, 3), riga(45).slice(0, 3)]).toEqual(['Ven\n16/10', ['10:50-11:20', 'Navigation', 34], ['11:20-11:50', 'Surveillance', 93]]);
   expect([leggi(foglio, 'A47'), leggi(foglio, 'C47'), leggi(foglio, 'B51'), leggi(foglio, 'F62')]).toEqual(['DIRETTORE DEL CORSO:', 'Cap. NERI Marco', 'Serg. BRUNO Alessandro', 'Col. Giorgio ESEMPIO']);
   expect(unioni(foglio)).toEqual(expect.arrayContaining(['A11:A20', 'A21:A27', 'A42:A45', 'C12:F12', 'C45:F45', 'A47:B47', 'C47:I47', 'F62:I62', 'A67:I67', 'A1:I1']));
   expect(unioni(foglio)).toHaveLength(unioni(foglioDi(modello)).length + 4);
@@ -147,7 +167,18 @@ it('caratteri speciali e corso troppo numeroso', () => {
   const ctx = { utenteId: 'u-tm', ora: '2026-10-12T10:00:00.000Z', oggi: '2026-10-12' };
   for (let i = 0; i < 11; i++) {
     pieno = applica(pieno, { tipo: 'utente.crea', utente: { id: `n${i}`, username: `nuovo.${i}aa`, ruolo: 'trainee', grado: '', nome: '', cognome: '', istruttore_id: null }, password: 'password1' }, ctx).dati;
-    pieno = applica(pieno, { tipo: 'corso.iscrivi', iscrizione: { id: `in${i}`, corso_id: C1, user_id: `n${i}`, ruolo: 'trainee' } }, ctx).dati;
+    pieno = applica(pieno, { tipo: 'corso.iscrivi', iscrizione: { id: `in${i}`, corso_id: C1, user_id: `n${i}` } }, ctx).dati;
   }
   expect(() => celleFisse(pieno, corso, LUNEDI)).toThrow(/16 righe/);
+});
+
+it('le righe di un Excel si leggono sia dal file salvato da Excel sia da quello compilato', () => {
+  // il modulo originale ha i testi fra le stringhe condivise
+  const originale = righeXlsx(modello);
+  expect(originale.find((r) => r[0] === 'DIRETTORE DEL CORSO:')).toBeDefined();
+  expect(originale.some((r) => r.includes('ADDESTRAMENTO'))).toBe(true);
+  // quello compilato li ha dentro le celle; i numeri restano numeri, le celle vuote non spostano le colonne
+  const compilato = righeXlsx(creaModuloSettimana(modello, dati, corso, LUNEDI, lezioni));
+  expect(compilato.find((r) => r[0] === 'DIRETTORE DEL CORSO:')![2]).toBe('Cap. NERI Marco');
+  expect(compilato.find((r) => r[1] === '08:20-09:20')!.slice(1, 7)).toEqual(['08:20-09:20', 'Rotor Drives', '', '', '', '63']);
 });

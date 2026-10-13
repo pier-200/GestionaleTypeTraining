@@ -46,7 +46,7 @@ await page.getByLabel('Data di inizio').fill('2026-09-21'); // i programmi sono 
 await page.getByRole('button', { name: /Crea|Salva/ }).last().click();
 await page.locator('.scheda-corso', { hasText: `C-${N}` }).waitFor({ timeout: 60000 });
 
-// un frequentatore, iscritto al corso
+// un frequentatore, assegnato al corso
 await page.goto(`${BASE}#/account`);
 await pausa();
 await page.getByRole('button', { name: 'Nuovo account' }).click();
@@ -59,18 +59,20 @@ await page.locator('.scheda-corso', { hasText: `C-${N}` }).getByRole('button', {
 await page.waitForSelector('.guscio');
 await page.goto(`${BASE}#/corso`);
 await pausa();
-await page.getByRole('combobox', { name: 'Aggiungi al corso' }).click();
+await page.getByRole('combobox', { name: 'Assegna al corso' }).click();
 await page.getByRole('option', { name: new RegExp(`allievo\.c${N}`) }).click();
-await page.getByRole('button', { name: 'Iscrivi' }).click();
-await page.getByText('Iscritto al corso').waitFor({ timeout: 60000 });
+await page.getByRole('button', { name: 'Assegna', exact: true }).click();
+await page.getByText('Assegnato al corso').waitFor({ timeout: 60000 });
 
 // programma settimanale: un periodo, salvato e validato
 await page.goto(`${BASE}#/settimana?w=2026-09-21`);
 await pausa(600);
-await page.locator('.giorno').first().getByRole('button', { name: 'Periodo' }).click();
+await page.locator('.periodo.vuoto:visible').first().click();
+await page.getByRole('button', { name: 'Fatto' }).click();
 await page.getByRole('button', { name: 'Salva' }).click();
 await page.getByText('Programma della settimana salvato').waitFor({ timeout: 60000 });
-await page.getByRole('button', { name: 'Valida' }).click();
+await page.getByRole('button', { name: 'Altre azioni' }).click();
+await page.getByRole('menuitem', { name: 'Valida la settimana' }).click();
 await page.getByText('Settimana validata').waitFor({ timeout: 60000 });
 
 // rapportino presenze del lunedì, con un'assenza, poi validato

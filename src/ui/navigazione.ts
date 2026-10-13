@@ -32,8 +32,28 @@ export interface Voce {
   /** Pagina riferita a un frequentatore: per lo staff richiede la scelta del frequentatore. */
   frequentatore?: boolean;
   parte?: 'mtt' | 'ptt';
-  /** Solo per chi segue il corso (Training Manager, direttore, istruttori). */
-  staff?: boolean;
+}
+
+/**
+ * Pagine riservate: `admin` = solo Training Manager; `guida` = Training Manager e direttore di quel corso;
+ * `staff` = anche gli istruttori che seguono il corso. Vale per il menu e per l'accesso diretto alla pagina.
+ */
+const RISERVATE: Record<string, 'admin' | 'guida' | 'staff'> = {
+  '/materie': 'admin',
+  '/registro': 'admin',
+  '/certificati': 'admin',
+  '/account': 'admin',
+  '/docenti': 'guida',
+  '/istruttori': 'guida',
+  '/corso': 'staff',
+  '/distinta': 'staff',
+};
+
+/** Vero se l'utente, con il suo ruolo nel corso aperto, può aprire la pagina. */
+export function puoAprire(percorso: string, utente: Utente, ruolo: string | null): boolean {
+  const riserva = RISERVATE[percorso];
+  if (!riserva || utente.ruolo === 'admin') return true;
+  return riserva === 'guida' ? ruolo === 'direttore' : riserva === 'staff' ? ruolo === 'direttore' || ruolo === 'instructor' : false;
 }
 
 const TEORIA: Voce[] = [
@@ -41,17 +61,20 @@ const TEORIA: Voce[] = [
   { a: '/rapportino', etichetta: 'Rapportino presenze', breve: 'Rapportino', icona: IconClipboardCheck, parte: 'mtt' },
   { a: '/assenze', etichetta: 'Assenze e idoneità', breve: 'Assenze', icona: IconUserOff, parte: 'mtt' },
   { a: '/teoria', etichetta: 'Situazione della teoria', breve: 'Teoria', icona: IconSchool, parte: 'mtt' },
-  { a: '/docenti', etichetta: 'Ore degli istruttori', breve: 'Docenti', icona: IconPresentationAnalytics, parte: 'mtt', staff: true },
-  { a: '/materie', etichetta: 'Materie e istruttori', breve: 'Materie', icona: IconChalkboard, parte: 'mtt', staff: true },
+  { a: '/docenti', etichetta: 'Ore degli istruttori', breve: 'Docenti', icona: IconPresentationAnalytics, parte: 'mtt' },
 ];
 
+/** I Personal Data servono a ogni corso (nominativi ed ente vanno sul programma settimanale): senza parte pratica stanno fra le voci del corso. */
+const DATI: Voce = { a: '/dati', etichetta: 'Personal & Training Data', breve: 'Dati', icona: IconId, frequentatore: true };
+
 const PRATICA: Voce[] = [
-  { a: '/distinta', etichetta: 'Situazione pratica', breve: 'Pratica', icona: IconTable, parte: 'ptt', staff: true },
+  { a: '/distinta', etichetta: 'Situazione pratica', breve: 'Pratica', icona: IconTable, parte: 'ptt' },
   { a: '/tavola', etichetta: 'Tavola', breve: 'Tavola', icona: IconLayoutGrid, frequentatore: true, parte: 'ptt' },
   { a: '/logbook', etichetta: 'Logbook', breve: 'Logbook', icona: IconClipboardList, frequentatore: true, parte: 'ptt' },
   { a: '/report', etichetta: 'Compliance Report', breve: 'Report', icona: IconReportAnalytics, frequentatore: true, parte: 'ptt' },
   { a: '/istruttori', etichetta: 'Practical Instructors', breve: 'Istruttori', icona: IconUsersGroup, frequentatore: true, parte: 'ptt' },
-  { a: '/dati', etichetta: 'Personal & Training Data', breve: 'Dati', icona: IconId, frequentatore: true, parte: 'ptt' },
+  DATI,
+  { a: '/generalita', etichetta: 'Generality and Purpose', breve: 'Generality', icona: IconBook2, parte: 'ptt' },
 ];
 
 /** Registri del Training Manager (AER(EP).P-147). */
@@ -63,33 +86,37 @@ const REGISTRI: Voce[] = [
 export const QUADRO: Voce = { a: '/quadro', etichetta: 'Avanzamento del corso', breve: 'Corso', icona: IconGauge };
 export const CORSO: Voce = { a: '/corso', etichetta: 'Corso e iscritti', breve: 'Iscritti', icona: IconTable };
 export const CORSI: Voce = { a: '/corsi', etichetta: 'Corsi', breve: 'Corsi', icona: IconSchool };
+/** Abilitazioni per mezzo e chapter: non riguardano un corso solo, stanno accanto a «Corsi». */
+export const MATERIE: Voce = { a: '/materie', etichetta: 'Materie e istruttori', breve: 'Materie', icona: IconChalkboard };
 export const ACCOUNT: Voce = { a: '/account', etichetta: 'Account', breve: 'Account', icona: IconUserShield };
-export const GENERALITA: Voce = { a: '/generalita', etichetta: 'Generality and Purpose', breve: 'Generality', icona: IconBook2, parte: 'ptt' };
 export const PROFILO: Voce = { a: '/profilo', etichetta: 'Profilo e password', breve: 'Profilo', icona: IconUserCircle };
 
 export interface Menu {
+  /** Voci generali, sopra quelle del corso aperto: solo Training Manager. */
+  generale: Voce[];
   corso: Voce[];
   teoria: Voce[];
   pratica: Voce[];
   /** Solo Training Manager. */
   registri: Voce[];
   altro: Voce[];
-  /** Voci nell'ordine in cui appaiono. */
+  /** Le pagine del corso per prime (la prima è quella d'ingresso), poi le generali. */
   ordinate: Voce[];
 }
 
 /** Voci di menu per il ruolo nel corso: le parti teorica e pratica compaiono se il corso le prevede. */
 export function menuPer(utente: Utente, corso: Corso | undefined, ruolo: string | null): Menu {
-  const staff = ruolo === 'admin' || ruolo === 'direttore' || ruolo === 'instructor';
-  const mostra = (v: Voce) => (!v.parte || (v.parte === 'mtt' ? corso?.programma_teorico : corso?.programma_pratico)) && (!v.staff || staff);
+  const admin = utente.ruolo === 'admin';
+  const mostra = (v: Voce) => (!v.parte || (v.parte === 'mtt' ? corso?.programma_teorico : corso?.programma_pratico)) && puoAprire(v.a, utente, ruolo);
   const menu = {
-    corso: [...(corso ? [QUADRO] : []), ...(utente.ruolo === 'admin' ? [CORSI] : []), ...(corso && staff ? [CORSO] : [])],
+    generale: admin ? [CORSI, MATERIE] : [],
+    corso: corso ? [QUADRO, CORSO, ...(corso.programma_pratico ? [] : [{ ...DATI, etichetta: 'Personal Data' }])].filter(mostra) : [],
     teoria: TEORIA.filter(mostra),
-    pratica: PRATICA.filter(mostra),
-    registri: utente.ruolo === 'admin' ? REGISTRI : [],
-    altro: [...(mostra(GENERALITA) ? [GENERALITA] : []), ...(utente.ruolo === 'admin' ? [ACCOUNT] : []), PROFILO],
+    pratica: corso?.programma_pratico ? PRATICA.filter(mostra) : [],
+    registri: REGISTRI.filter(mostra),
+    altro: [ACCOUNT, PROFILO].filter(mostra),
   };
-  return { ...menu, ordinate: [...menu.corso, ...menu.teoria, ...menu.pratica, ...menu.registri, ...menu.altro] };
+  return { ...menu, ordinate: [...menu.corso, ...menu.teoria, ...menu.pratica, ...menu.generale, ...menu.registri, ...menu.altro] };
 }
 
 const CHIAVE_CORSO = 'ptt:corso';

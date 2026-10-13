@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Autocomplete, Button, Drawer, Group, NumberInput, SegmentedControl, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Drawer, Group, NumberInput, SegmentedControl, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconPlus } from '@tabler/icons-react';
 import { nuovoUuid } from '../../backend/github/crittografia';
@@ -52,11 +52,11 @@ export function ModuloRegistrazione({ aperto, chiudi, frequentatore, corso, task
             corso_id: corso.id,
             user_id: frequentatore.id,
             task_id: taskId ?? 0,
-            // si ripropongono luogo, aeromobile e istruttore dell'ultima registrazione
-            maintenance_location: ultima?.maintenance_location ?? '',
+            // si ripropongono luogo, aeromobile e istruttore dell'ultima registrazione; il luogo parte da Viterbo
+            maintenance_location: ultima?.maintenance_location ?? 'Viterbo',
             data: oggiISO(),
             tipo_esecuzione: ultima?.tipo_esecuzione ?? 'AC',
-            matricola: ultima?.matricola ?? '',
+            matricola: ultima && (!corso.aeromobili.length || corso.aeromobili.includes(ultima.matricola)) ? ultima.matricola : '',
             et_minuti: 0,
             instructor_id: ultima?.instructor_id ?? '',
           },
@@ -64,8 +64,8 @@ export function ModuloRegistrazione({ aperto, chiudi, frequentatore, corso, task
   }, [aperto]);
 
   if (!dati || !programma) return null;
-  const luoghi = [...new Set(proprie.map((r) => r.maintenance_location))];
-  const matricole = [...new Set(dati.registrazioni.filter((r) => r.tipo_esecuzione === 'AC').map((r) => r.matricola))];
+  // gli aeromobili sono quelli inseriti nei dati del corso (una registrazione già salvata conserva il suo)
+  const aeromobili = [...new Set([...corso.aeromobili, ...(modifica?.tipo_esecuzione === 'AC' && modifica.matricola ? [modifica.matricola] : [])])];
   const istruttori = [...dati.istruttori].sort((a, b) => a.cognome.localeCompare(b.cognome));
   const task = campi ? indice(programma).taskPerId.get(campi.task_id) : undefined;
   const aggiorna = (x: Partial<CampiRegistrazione>) => setCampi((c) => (c ? { ...c, ...x } : c));
@@ -171,24 +171,34 @@ export function ModuloRegistrazione({ aperto, chiudi, frequentatore, corso, task
               )}
             </div>
 
-            {campi.tipo_esecuzione === 'AC' && (
-              <Autocomplete
-                label="Matricola e n. identificativo aeromobile"
-                placeholder="es. MM81781 · EI-901"
-                value={campi.matricola}
-                onChange={(v) => aggiorna({ matricola: v })}
-                data={matricole}
-                error={errori.matricola}
-                required
-              />
-            )}
+            {campi.tipo_esecuzione === 'AC' &&
+              (aeromobili.length ? (
+                <Select
+                  label="Aeromobile"
+                  placeholder="Scegli l’identificativo"
+                  value={campi.matricola || null}
+                  onChange={(v) => aggiorna({ matricola: v ?? '' })}
+                  data={aeromobili}
+                  error={errori.matricola}
+                  allowDeselect={false}
+                  comboboxProps={{ withinPortal: true }}
+                  required
+                />
+              ) : (
+                <TextInput
+                  label="Aeromobile"
+                  description="Nessun aeromobile nei dati del corso: l’elenco si inserisce in «Modifica corso»."
+                  value={campi.matricola}
+                  onChange={(e) => aggiorna({ matricola: e.currentTarget.value })}
+                  error={errori.matricola}
+                  required
+                />
+              ))}
 
-            <Autocomplete
+            <TextInput
               label="Maintenance location"
-              placeholder="es. Viterbo – Hangar 3"
               value={campi.maintenance_location}
-              onChange={(v) => aggiorna({ maintenance_location: v })}
-              data={luoghi}
+              onChange={(e) => aggiorna({ maintenance_location: e.currentTarget.value })}
               error={errori.maintenance_location}
               required
             />

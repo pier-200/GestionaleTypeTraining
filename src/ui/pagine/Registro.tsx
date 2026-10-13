@@ -5,7 +5,7 @@ import { oggiISO } from '../../dominio/motore';
 import { statoTeorico } from '../../dominio/pianificazione';
 import { assenzeDi } from '../../dominio/presenze';
 import { programmaPratico, programmaTeorico } from '../../dominio/programmi';
-import { formatoData, frequentatori, iscritti, lezioniDi, nomeUtente, ore, presenzeDi, rapportiniDi, situazione } from '../../dominio/viste';
+import { esclusoDal, formatoData, formatoFine, frequentatori, lezioniDi, nomeUtente, ore, presenzeDi, rapportiniDi, situazione, staffDi } from '../../dominio/viste';
 import { IntestazionePagina, Sezione } from '../componenti/disegno';
 import { link } from '../navigazione';
 import { useStato } from '../stato';
@@ -19,14 +19,14 @@ export function Registro() {
   const righeCorso = corsi.map((c) => {
     const teorico = programmaTeorico(c.programma_teorico);
     const pratico = programmaPratico(c.programma_pratico);
-    const allievi = frequentatori(dati, c.id, true);
+    const allievi = frequentatori(dati, c.id, { disattivati: true, esclusi: true });
     const lezioni = lezioniDi(dati, c.id);
     const stato = teorico ? statoTeorico(teorico, lezioni, oggiISO()) : null;
     const medie = pratico ? allievi.map((u) => situazione(dati, c, u).report.totale.percentuale) : [];
     return {
       corso: c,
       allievi,
-      istruttori: iscritti(dati, c.id, 'instructor').length + iscritti(dati, c.id, 'direttore').length,
+      istruttori: staffDi(dati, c).length,
       stato,
       media: medie.length ? medie.reduce((s, x) => s + x, 0) / medie.length : null,
     };
@@ -39,11 +39,12 @@ export function Registro() {
       const rapportini = rapportiniDi(dati, c.id);
       const presenze = presenzeDi(dati, c.id);
       const lezioni = lezioniDi(dati, c.id);
-      return frequentatori(dati, c.id, true).map((u) => ({
+      return frequentatori(dati, c.id, { disattivati: true, esclusi: true }).map((u) => ({
         corso: c,
         utente: u,
         anagrafica: dati.anagrafiche.find((a) => a.user_id === u.id),
-        assenze: teorico ? assenzeDi(teorico, lezioni, rapportini, presenze, u.id) : null,
+        escluso: esclusoDal(dati, c.id, u.id),
+        assenze: teorico ? assenzeDi(teorico, lezioni, rapportini, presenze, u.id, esclusoDal(dati, c.id, u.id)) : null,
         pratica: pratico ? situazione(dati, c, u).report : null,
         certificati: dati.certificati.filter((x) => x.user_id === u.id && x.corso_id === c.id),
       }));
@@ -127,7 +128,7 @@ export function Registro() {
                     {r.corso.mds} {r.corso.categoria}
                   </td>
                   <td className="cifre" style={{ whiteSpace: 'nowrap' }}>
-                    {formatoData(r.corso.data_inizio)} – {formatoData(r.corso.data_fine)}
+                    {formatoData(r.corso.data_inizio)} – {formatoFine(r.corso)}
                   </td>
                   <td>{r.corso.location || '—'}</td>
                   <td className="num">{r.allievi.length}</td>
@@ -136,7 +137,7 @@ export function Registro() {
                   <td className="num">{r.media == null ? '—' : `${r.media.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%`}</td>
                   <td>
                     <Badge size="sm" variant="light" color={r.corso.attivo ? 'inchiostro' : 'gray'}>
-                      {r.corso.attivo ? 'in corso' : 'chiuso'}
+                      {r.corso.attivo ? 'in corso' : 'completato'}
                     </Badge>
                   </td>
                 </tr>
@@ -170,6 +171,7 @@ export function Registro() {
                     <div className="debole" style={{ fontSize: 'var(--fs-s)' }}>
                       {r.utente.username}
                       {r.utente.attivo ? '' : ' · disattivato'}
+                      {r.escluso && <span className="rosso"> · escluso dal {formatoData(r.escluso)}</span>}
                     </div>
                   </td>
                   <td className="cifre" style={{ whiteSpace: 'nowrap' }}>

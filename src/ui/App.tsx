@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Button, Loader, Text } from '@mantine/core';
 import { corsiDi } from '../dominio/motore';
 import { Guscio } from './Guscio';
+import { Conferma } from './componenti/Conferma';
 import { Foglio } from './componenti/disegno';
 import { Accesso, PrimoAvvio } from './pagine/Accesso';
 import { Account } from './pagine/Account';
@@ -9,7 +10,7 @@ import { Assenze } from './pagine/Assenze';
 import { Certificati } from './pagine/Certificati';
 import { Corsi } from './pagine/Corsi';
 import { Corso } from './pagine/Corso';
-import { Dati, FormAnagrafica } from './pagine/Dati';
+import { Dati } from './pagine/Dati';
 import { Distinta } from './pagine/Distinta';
 import { Docenti } from './pagine/Docenti';
 import { Generalita } from './pagine/Generalita';
@@ -24,14 +25,13 @@ import { Report } from './pagine/Report';
 import { Settimana } from './pagine/Settimana';
 import { Tavola } from './pagine/Tavola';
 import { Teoria } from './pagine/Teoria';
-import { menuPer, useCorso, useRuoloCorso } from './navigazione';
+import { menuPer, puoAprire, useCorso, useRuoloCorso } from './navigazione';
 import { usePosizione } from './router';
 import { useStato } from './stato';
 
 interface Pagina {
   titolo: string;
   pagina: () => React.ReactNode;
-  soloAdmin?: boolean;
   /** Richiede un corso scelto. */
   corso?: boolean;
 }
@@ -45,7 +45,7 @@ const PAGINE: Record<string, Pagina> = {
   '/assenze': { titolo: 'Assenze e idoneità', pagina: Assenze, corso: true },
   '/teoria': { titolo: 'Situazione della teoria', pagina: Teoria, corso: true },
   '/docenti': { titolo: 'Ore degli istruttori', pagina: Docenti, corso: true },
-  '/materie': { titolo: 'Materie e istruttori', pagina: Materie, corso: true },
+  '/materie': { titolo: 'Materie e istruttori', pagina: Materie },
   '/distinta': { titolo: 'Situazione pratica', pagina: Distinta, corso: true },
   '/tavola': { titolo: 'Tavola', pagina: Tavola, corso: true },
   '/logbook': { titolo: 'Logbook', pagina: Logbook, corso: true },
@@ -54,9 +54,9 @@ const PAGINE: Record<string, Pagina> = {
   '/dati': { titolo: 'Personal & Training Data', pagina: Dati, corso: true },
   '/generalita': { titolo: 'Generality and Purpose', pagina: Generalita },
   '/profilo': { titolo: 'Profilo', pagina: Profilo },
-  '/registro': { titolo: 'Registro corsi e corsisti', pagina: Registro, soloAdmin: true },
-  '/certificati': { titolo: 'Registro dei certificati', pagina: Certificati, soloAdmin: true },
-  '/account': { titolo: 'Account', pagina: Account, soloAdmin: true },
+  '/registro': { titolo: 'Registro corsi e corsisti', pagina: Registro },
+  '/certificati': { titolo: 'Registro dei certificati', pagina: Certificati },
+  '/account': { titolo: 'Account', pagina: Account },
 };
 
 function Schermata({ children }: { children: React.ReactNode }) {
@@ -107,7 +107,7 @@ export function App() {
   if (fase === 'primo_avvio') return <PrimoAvvio />;
   if (fase === 'accesso' || !utente || !dati) return <Accesso />;
 
-  // primo accesso: password provvisoria da sostituire, poi Personal Data del frequentatore
+  // primo accesso: password provvisoria da sostituire (i Personal Data li inserisce il Training Manager o il direttore)
   if (utente.deve_cambiare_password) {
     return (
       <Schermata>
@@ -119,29 +119,20 @@ export function App() {
       </Schermata>
     );
   }
-  if (utente.ruolo === 'trainee' && !dati.anagrafiche.some((a) => a.user_id === utente.id)) {
-    return (
-      <Schermata>
-        <h1 className="titolo-sezione">Trainee data</h1>
-        <Text className="debole" mt={4} mb="md">
-          Primo accesso: compila i tuoi dati anagrafici. Potrai modificarli in seguito dalla pagina «Dati».
-        </Text>
-        <FormAnagrafica f={utente} sola={false} />
-      </Schermata>
-    );
-  }
 
   const menu = menuPer(utente, corso, ruolo);
   const prima = menu.ordinate[0];
   const scelta = corsiDi(dati, utente).length !== 1 && !corso;
   const voce = percorso === '/' ? (scelta ? PAGINE['/corsi'] : PAGINE[prima?.a ?? '/corsi']) : PAGINE[percorso];
-  const consentita = voce && !(voce.soloAdmin && utente.ruolo !== 'admin');
+  // le pagine riservate non si aprono nemmeno scrivendone l'indirizzo
+  const consentita = voce && puoAprire(percorso, utente, ruolo);
   const senzaCorso = consentita && voce.corso && !corso;
   const titolo = !consentita ? 'Pagina non trovata' : senzaCorso ? 'Scegli il corso' : voce.titolo;
   const Pagina = !consentita ? null : senzaCorso ? Corsi : voce.pagina;
 
   return (
     <Guscio titolo={titolo}>
+      <Conferma />
       <Foglio>
         {Pagina ? (
           <Pagina />

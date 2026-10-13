@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { DemoBackend } from '../backend/demo';
 import type { Backend, Sessione } from '../backend/tipi';
 import { caricaConfig } from '../config';
+import { conferme } from '../dominio/conferme';
 import { messaggioErrore } from '../dominio/errori';
 import type { Comando } from '../dominio/motore';
 import type { Dati, Utente } from '../dominio/tipi';
@@ -18,6 +19,8 @@ interface Stato {
   aggiornatoAlle: Date | null;
   /** Task appena registrati: la loro riga riceve il tratto di evidenziatore. */
   appena: number[];
+  /** Domanda in attesa di risposta prima di salvare (corso completato, frequentatore escluso). */
+  conferma: { messaggio: string; rispondi(si: boolean): void } | null;
   avvia(): Promise<void>;
   entra(s: Sessione): Promise<void>;
   esci(): Promise<void>;
@@ -46,6 +49,7 @@ export const useStato = create<Stato>((set, get) => ({
   dati: null,
   aggiornatoAlle: null,
   appena: [],
+  conferma: null,
 
   avvia() {
     // una sola volta, anche se React monta due volte in sviluppo
@@ -96,8 +100,14 @@ export const useStato = create<Stato>((set, get) => ({
   },
 
   async esegui(c, messaggioOk) {
-    const { backend, utente } = get();
+    const { backend, utente, dati: attuali } = get();
     if (!backend || !utente) return false;
+    // corso completato o frequentatore fuori dal corso: la modifica si salva solo dopo una conferma esplicita
+    for (const messaggio of attuali ? conferme(attuali, c) : []) {
+      const si = await new Promise<boolean>((rispondi) => set({ conferma: { messaggio, rispondi } }));
+      set({ conferma: null });
+      if (!si) return false;
+    }
     try {
       const dati = await backend.esegui(c);
       set({ dati, utente: dati.utenti.find((u) => u.id === utente.id) ?? utente, aggiornatoAlle: new Date() });

@@ -42,6 +42,8 @@ export interface Corso {
   data_inizio: string | null;
   /** Data stimata di fine corso: oltre questa il programma settimanale riporta il ritardo. */
   data_fine: string | null;
+  /** Data effettiva di chiusura: c'è solo quando il corso è completato, e da lì sostituisce ovunque quella stimata. */
+  data_chiusura: string | null;
   /** Durata prevista, in settimane. */
   durata_settimane: number | null;
   maintenance_organization: string;
@@ -50,16 +52,26 @@ export interface Corso {
   aula: string;
   /** Gruppo firma del comandante, in calce al programma settimanale. */
   gruppo_firma: string;
+  /** Direttore del corso scritto a mano, quando non è uno degli istruttori (altrimenti lo dice l'iscrizione «direttore»). */
+  direttore_nome: string;
+  /** Istruttori nominati per la fase pratica: vedono il corso e i logbook dei frequentatori. */
+  istruttori_pratica: ID[];
+  /** Identificativi degli aeromobili disponibili per i task pratici (es. EI906). */
+  aeromobili: string[];
+  /** Falso quando il corso è completato: resta consultabile, ogni modifica chiede conferma. */
   attivo: boolean;
   created_at: string;
   updated_at: string;
 }
 
+/** Chi fa parte di un corso: i frequentatori che gli sono assegnati e l'istruttore che lo dirige. */
 export interface Iscrizione {
   id: ID;
   corso_id: ID;
   user_id: ID;
-  ruolo: RuoloCorso;
+  ruolo: 'direttore' | 'trainee';
+  /** Dal giorno indicato il frequentatore è fuori dal corso: i suoi dati restano, fermi a quella data. */
+  escluso_il: string | null;
   created_at: string;
 }
 
@@ -127,14 +139,16 @@ export interface Lezione {
   /** Posizione dentro il periodo: più lezioni brevi possono dividersi la stessa ora (0 = la prima). */
   parte: number;
   minuti: number;
-  /** Materia del programma: il gruppo di chapter che condivide le ore di lezione. */
+  /** Materia del programma: un chapter previsto dal syllabus, con le sue ore. */
   materia: string;
-  /** Chapter svolto nella lezione, fra quelli previsti dal syllabus per la materia. */
-  chapter: string;
   istruttore_id: ID | null;
+  /** Persona di riferimento senza account (solo pratiche amministrative: RSPP o altri). */
+  persona: string;
+  /** Lezione di recupero: i frequentatori a cui è destinata (solo a loro scala le assenze). */
+  frequentatori: ID[];
   /** Aula del periodo; vuota = aula del corso. */
   aula: string;
-  /** Lezione, recupero oppure un periodo non didattico (MEO, sospensione, esame). */
+  /** Lezione, recupero oppure un'altra attività del periodo (MEO, sospensione, esami, pratica…). */
   tipo: TipoPeriodo;
   /** Il programma diventa visibile ai frequentatori solo dopo la validazione. */
   validata: boolean;
@@ -149,27 +163,54 @@ export interface Lezione {
 export type StatoPresenza = 'presente' | 'parziale' | 'assente';
 
 /** Cosa si svolge in un periodo del programma settimanale. */
-export type TipoPeriodo = 'lezione' | 'recupero' | 'meo' | 'sospensione' | 'esame';
+export type TipoPeriodo = 'lezione' | 'recupero' | 'meo' | 'sospensione' | 'esame' | 'esame_pratico' | 'pratica' | 'valutazione' | 'pa';
 
+/** Nell'ordine della tendina «Cosa si svolge». */
 export const ETICHETTA_PERIODO: Record<TipoPeriodo, string> = {
   lezione: 'Lezione',
   recupero: 'Lezione di recupero',
-  meo: 'Mantenimento Efficienza Operativa',
+  meo: 'Mantenimento efficienza operativa',
   sospensione: 'Sospensione',
   esame: 'Esame teorico',
+  esame_pratico: 'Esame pratico',
+  pratica: 'Practical training',
+  valutazione: 'Valutazione in itinere',
+  pa: 'Pratiche amministrative',
 };
 
-/** Sigla mostrata nella griglia della settimana. */
+/** Codice dell'attività, nella griglia della settimana e nella colonna COD. del modulo. */
 export const SIGLA_PERIODO: Record<TipoPeriodo, string> = {
   lezione: '',
   recupero: 'REC',
   meo: 'MEO',
-  sospensione: 'SOSP',
-  esame: 'ESAME',
+  sospensione: '////',
+  esame: 'EX',
+  esame_pratico: 'EX',
+  pratica: 'PT',
+  valutazione: 'VI',
+  pa: 'PA',
+};
+
+/** Persona indicata accanto al periodo: istruttore della lezione, presidente di commissione, riferimento. */
+export const ETICHETTA_ISTRUTTORE: Record<TipoPeriodo, string> = {
+  lezione: 'Istruttore',
+  recupero: 'Istruttore',
+  meo: 'Istruttore di riferimento',
+  sospensione: '',
+  esame: 'Presidente di commissione',
+  esame_pratico: 'Presidente di commissione',
+  pratica: 'Istruttore',
+  valutazione: 'Istruttore',
+  pa: 'Persona di riferimento',
 };
 
 /** Solo lezioni e recuperi hanno una materia del programma. */
 export const conMateria = (tipo: TipoPeriodo) => tipo === 'lezione' || tipo === 'recupero';
+/** La sospensione è una cella sbarrata: niente istruttore né altri dati. */
+export const conIstruttore = (tipo: TipoPeriodo) => tipo !== 'sospensione';
+/** Solo nelle pratiche amministrative il riferimento può essere una persona senza account (es. l'RSPP). */
+export const conPersona = (tipo: TipoPeriodo) => tipo === 'pa';
+export const RSPP = 'RSPP';
 
 /** Rapportino presenze di una giornata di corso: lo compilano i frequentatori, lo valida chi guida. */
 export interface Rapportino {
@@ -249,12 +290,12 @@ export interface Certificato {
   modificato_da: ID | null;
 }
 
-/** Materia che un istruttore è abilitato a erogare. */
+/** Chapter che un istruttore è abilitato a erogare a lezione, per mezzo (MDS): vale per tutte le categorie. */
 export interface Abilitazione {
   id: ID;
   user_id: ID;
-  programma: string;
-  materia: string;
+  mds: string;
+  chapter: string;
 }
 
 export interface Dati {
@@ -293,9 +334,22 @@ export function aggiornaDati(d: Dati): Dati {
     ...d,
     // «direttore» era un tipo di account: ora è un istruttore con un incarico nel corso (resta nell'iscrizione)
     utenti: d.utenti.map((u) => ({ ...u, grado: u.grado ?? '', cognome: u.cognome ?? '', ruolo: (u.ruolo as string) === 'direttore' ? 'instructor' : u.ruolo })),
-    corsi: d.corsi.map((c) => ({ ...c, durata_settimane: c.durata_settimane ?? null, aula: c.aula ?? '', gruppo_firma: c.gruppo_firma ?? '' })),
+    corsi: d.corsi.map((c) => ({
+      ...c,
+      durata_settimane: c.durata_settimane ?? null,
+      data_chiusura: c.data_chiusura ?? null,
+      aula: c.aula ?? '',
+      gruppo_firma: c.gruppo_firma ?? '',
+      direttore_nome: c.direttore_nome ?? '',
+      // gli istruttori non si iscrivono più ai corsi: chi lo era resta nominato per la fase pratica
+      istruttori_pratica: c.istruttori_pratica ?? d.iscrizioni.filter((i) => i.corso_id === c.id && (i.ruolo as string) === 'instructor').map((i) => i.user_id),
+      aeromobili: c.aeromobili ?? [],
+    })),
+    iscrizioni: d.iscrizioni.filter((i) => (i.ruolo as string) !== 'instructor').map((i) => ({ ...i, escluso_il: i.escluso_il ?? null })),
     anagrafiche: d.anagrafiche.map((a) => ({ ...a, ente: a.ente ?? '' })),
-    lezioni: d.lezioni.map((l) => ({ ...l, aula: l.aula ?? '', chapter: l.chapter ?? '', parte: l.parte ?? 0 })),
+    lezioni: d.lezioni.map((l) => ({ ...l, aula: l.aula ?? '', parte: l.parte ?? 0, persona: l.persona ?? '', frequentatori: l.frequentatori ?? [] })),
+    // le abilitazioni erano per programma e materia: ora per mezzo e chapter (quelle vecchie vanno reinserite)
+    abilitazioni: d.abilitazioni.filter((a) => a.mds && a.chapter),
   };
 }
 

@@ -38,20 +38,15 @@ export interface ProgrammaPratico {
 
 // --- programma teorico (MTT): materie da erogare a lezione -------------------
 
-export interface Voce {
-  item: number;
-  chapter: string;
-  subject: string;
-  livello: string;
-}
-
+/** Un chapter previsto dal syllabus, con le sue ore: quelli senza ore non sono nel programma. */
 export interface Materia {
   id: string;
   modulo: number;
   minuti: number;
   titolo: string;
-  voci: Voce[];
-  chapters: string[];
+  chapter: string;
+  livello: string;
+  item: number;
 }
 
 export interface ProgrammaTeorico {
@@ -132,17 +127,20 @@ export function titoloBreveModulo(titolo: string) {
 
 export const materiaDi = (p: ProgrammaTeorico, id: string) => p.materie.find((m) => m.id === id);
 
-/**
- * Chapter che si possono mettere a lezione per una materia: solo quelli previsti dal syllabus
- * (il trattino al posto del livello segna i chapter non applicabili al corso).
- */
-export function chapterPrevisti(m: Materia): Voce[] {
-  const previsti = m.voci.filter((v) => v.livello !== '-');
-  return previsti.length ? previsti : m.voci;
+/** Chapter previsti dal syllabus teorico di un mezzo, in tutte le sue categorie: su questi si abilitano gli istruttori. */
+export function chapterDelMds(mds: string | null | undefined): { chapter: string; titolo: string }[] {
+  // lo stesso titolo scritto con maiuscole diverse nei programmi delle varie categorie conta una volta
+  const titoli = new Map<string, Map<string, string>>();
+  for (const p of PROGRAMMI_TEORICI) {
+    if (p.aeromobile !== mds) continue;
+    for (const m of p.materie) {
+      const visti = titoli.get(m.chapter) ?? new Map<string, string>();
+      if (!visti.has(m.titolo.toLowerCase())) visti.set(m.titolo.toLowerCase(), m.titolo);
+      titoli.set(m.chapter, visti);
+    }
+  }
+  return [...titoli].map(([chapter, t]) => ({ chapter, titolo: [...t.values()].join(' / ') }));
 }
-
-/** Voce del chapter della lezione; le lezioni salvate senza chapter prendono il primo della materia. */
-export const voceLezione = (m: Materia, chapter: string): Voce => chapterPrevisti(m).find((v) => v.chapter === chapter) ?? chapterPrevisti(m)[0];
 export const oreDaMinuti = (m: number) => `${Math.floor(m / 60)}${m % 60 ? `:${String(m % 60).padStart(2, '0')}` : ''} h`;
-/** "Ch 63, 63A, 64" per il sottotitolo di una materia. */
-export const chapterMateria = (m: Materia) => `Ch ${m.chapters.join(', ')}`;
+/** "Ch 63" per il sottotitolo di una materia. */
+export const chapterMateria = (m: Materia) => `Ch ${m.chapter}`;

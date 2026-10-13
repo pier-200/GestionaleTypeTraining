@@ -3,7 +3,7 @@ import { IconArrowRight } from '@tabler/icons-react';
 import { formatoPercentuale, type RigaReport } from '../../dominio/compliance';
 import { oggiISO, ruoloNelCorso } from '../../dominio/motore';
 import { programmaPratico, programmaTeorico, soloTeorica, titoloBreveModulo } from '../../dominio/programmi';
-import { avanzamento, formatoData, mediaPratica, ore, type Situazione } from '../../dominio/viste';
+import { avanzamento, formatoData, formatoFine, mediaPratica, ore, type Situazione } from '../../dominio/viste';
 import { Ciambella, IntestazionePagina, Quota, ScalaQuote, Timbro } from '../componenti/disegno';
 import { MieLezioni } from '../componenti/MieLezioni';
 import { link, useCorso, useFrequentatore } from '../navigazione';
@@ -29,7 +29,7 @@ export function Quadro() {
     <>
       <IntestazionePagina
         titolo={corso.nome}
-        sotto={`${corso.codice} · ${corso.mds} Cat. ${corso.categoria} · ${formatoData(corso.data_inizio)} – ${formatoData(corso.data_fine)}`}
+        sotto={`${corso.codice} · ${corso.mds} Cat. ${corso.categoria} · ${formatoData(corso.data_inizio)} – ${formatoFine(corso)}`}
       />
 
       <MieLezioni />

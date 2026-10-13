@@ -8,7 +8,7 @@ import { formatoData, registrazioniDi } from './dominio/viste';
 
 /**
  * Compliance Report in PDF identico al modulo ufficiale: le pagine sono quelle del PDF originale
- * (public/modelli/compliance-report.pdf) e si scrivono solo i valori nelle celle, alle posizioni
+ * (`modelli/Compliance Report.pdf`) e si scrivono solo i valori nelle celle, alle posizioni
  * ricavate da scripts/layout_compliance.py. Carattere Helvetica, metricamente equivalente all'Arial del modulo.
  */
 
@@ -133,11 +133,11 @@ export async function creaCompliancePdf(dati: Dati, corso: Corso, utente: Utente
 /** Dal pulsante: apre il PDF in una nuova scheda (da lì si stampa), o lo scarica se il browser blocca la finestra. */
 export async function apriCompliancePdf(dati: Dati, corso: Corso, utente: Utente, finestra: Window | null) {
   const [modello, logo] = await Promise.all([
-    fetch('./modelli/compliance-report.pdf').then((r) => {
+    fetch('./modelli/Compliance Report.pdf').then((r) => {
       if (!r.ok) throw new Error('Modulo del Compliance Report non trovato.');
       return r.arrayBuffer();
     }),
-    // logo facoltativo dell'organizzazione: basta pubblicarlo come public/modelli/logo.png
+    // logo facoltativo dell'organizzazione: basta metterlo nella cartella modelli come logo.png
     fetch('./modelli/logo.png')
       .then((r) => (r.ok && r.headers.get('content-type')?.includes('png') ? r.arrayBuffer() : null))
       .catch(() => null),
