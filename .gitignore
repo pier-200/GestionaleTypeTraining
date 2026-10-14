@@ -17,3 +17,4 @@ modelli/
 .impeccable/quadro.mjs
 __pycache__/
 .impeccable/giro.mjs
+supabase/.temp/
