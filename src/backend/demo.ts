@@ -18,7 +18,6 @@ const FORMATO = '2026-10-13-abilitazioni-per-chapter';
 export class DemoBackend implements Backend {
   readonly tipo = 'demo' as const;
   readonly nome = 'Dimostrativo (dati nel browser)';
-  readonly permessiLatoServer = false;
   private readonly locale = archivio('local');
   private readonly scheda = archivio('session');
 
@@ -123,6 +122,20 @@ export class DemoBackend implements Backend {
     this.locale.scrivi(PASSWORD, JSON.stringify(pw));
     this.locale.scrivi(DATI, JSON.stringify(esito.dati));
     return esito.dati;
+  }
+
+  /**
+   * Nella prova i modelli arrivano dalla cartella locale `modelli`, che espongono solo `npm run dev` e
+   * `vite preview`: il sito pubblicato non li contiene, perché stanno nel repository privato dei dati.
+   */
+  async elencoModelli(): Promise<string[]> {
+    const r = await fetch('./modelli/indice.json').catch(() => null);
+    return r?.ok ? ((await r.json()) as string[]) : [];
+  }
+
+  async leggiModello(nome: string): Promise<Uint8Array | null> {
+    const r = await fetch(`./modelli/${nome.split('/').map(encodeURIComponent).join('/')}`).catch(() => null);
+    return r?.ok ? new Uint8Array(await r.arrayBuffer()) : null;
   }
 
   osserva(avvisa: () => void) {

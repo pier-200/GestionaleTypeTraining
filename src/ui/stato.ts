@@ -37,7 +37,6 @@ async function creaBackend(): Promise<Backend> {
   if (new URLSearchParams(window.location.search).has('demo')) return new DemoBackend();
   const config = await caricaConfig();
   if (config.tipo === 'github') return new (await import('../backend/github/GitHubBackend')).GitHubBackend(config);
-  if (config.tipo === 'supabase') return new (await import('../backend/supabase')).SupabaseBackend(config);
   return new DemoBackend();
 }
 

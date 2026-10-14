@@ -22,6 +22,8 @@ async function main() {
   const nome = arg('nome', 'Training Manager');
   const token = (arg('token') ?? (process.argv.includes('--stdin') ? readFileSync(0, 'utf8') : process.env.TT_TOKEN) ?? '').trim();
   if (!token) throw new Error('Manca il token GitHub: --token <github_pat_…>, variabile TT_TOKEN oppure --stdin');
+  // nel portachiavi pubblico va solo un token fine-grained limitato ai due repository, mai quello della GitHub CLI
+  if (!/^github_pat_[A-Za-z0-9_]{20,}$/.test(token)) throw new Error(`Serve un token fine-grained (github_pat_…) con accesso ai soli ${repoDati} e ${repoAccessi}`);
 
   const api = async (metodo, percorso, corpo) => {
     const r = await fetch(`https://api.github.com/${percorso}`, {

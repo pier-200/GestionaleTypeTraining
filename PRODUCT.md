@@ -9,7 +9,7 @@ web
 ## Stack
 
 React + Vite + TypeScript, pubblicata su GitHub Pages come PWA (nome breve "TT"), come indicato in PROGETTO_Logbook_PTT.md §7.
-Archivio dati intercambiabile da `config.json` (scelta dell'utente, 2026-09-22): `demo` (browser, situazione esempio), `supabase` (PostgreSQL + RLS + Realtime) oppure `github` (repository privato con portachiavi cifrato, come Gestionale PdS).
+Archivio dati da `config.json`: `github` (repository privato con portachiavi cifrato, come Gestionale PdS; dal 2026-10-14 l'unico archivio reale, Supabase rimosso) oppure `demo` (browser, situazione esempio).
 
 ## Users
 
@@ -27,7 +27,7 @@ Il catalogo dei 190 task e le regole di conformità sono quelli del documento uf
 
 ## Operating Context
 
-- Documento ufficiale: T1 Military Type Training CH-47F Cat. B1.3, Allegato 1. Sorgenti nella cartella `modelli/` (Excel dei programmi, modulo del programma settimanale, PDF Generality and Purpose, Personnel Data, Compliance Report), pubblicata accanto all'applicazione.
+- Documento ufficiale: T1 Military Type Training CH-47F Cat. B1.3, Allegato 1. Sorgenti nella cartella `modelli/` (Excel dei programmi, modulo del programma settimanale, PDF Generality and Purpose, Personnel Data, Compliance Report): online nel repository privato dei dati, leggibili solo dopo l'accesso.
 - Regole: ≥50% task eseguiti per ciascun modulo, per ciascun task type e per ciascun chapter. Più registrazioni dello stesso task contano una volta.
 - Task eseguiti su simulatore o in aula si registrano con "SIM" o "CLA" al posto della matricola (da minimizzare).
 - La "Commissione tecnica esaminatrice" non è gestita.

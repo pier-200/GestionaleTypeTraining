@@ -12,7 +12,8 @@
     "test": "vitest run",
     "e2e": "node tests/e2e.mjs",
     "programmi": "cd scripts && py -3.11 import_programma_mtt.py && py -3.11 import_catalogo.py",
-    "pubblica": "node scripts/pubblica.mjs"
+    "pubblica": "node scripts/pubblica.mjs",
+    "modelli": "node scripts/carica-modelli.mjs"
   },
   "dependencies": {
     "@fontsource/barlow": "^5.3.0",
@@ -21,7 +22,6 @@
     "@mantine/core": "^9.6.2",
     "@mantine/hooks": "^9.6.2",
     "@mantine/notifications": "^9.6.2",
-    "@supabase/supabase-js": "^2.116.0",
     "@tabler/icons-react": "^3.47.0",
     "fflate": "^0.8.3",
     "pdf-lib": "^1.17.1",
@@ -31,7 +31,6 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.5.8",
     "@playwright/test": "^1.63.0",
     "@types/node": "^22.20.4",
     "@types/react": "^19.3.0",

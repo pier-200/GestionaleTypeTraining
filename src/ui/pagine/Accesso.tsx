@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Alert, Button, Checkbox, PasswordInput, Stack, Text, TextInput } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import type { DemoBackend } from '../../backend/demo';
+import type { GitHubBackend } from '../../backend/github/GitHubBackend';
 import { formatoPercentuale } from '../../dominio/compliance';
-import { messaggioErrore } from '../../dominio/errori';
+import { ErroreApp, messaggioErrore } from '../../dominio/errori';
 import { ETICHETTA_RUOLO } from '../../dominio/tipi';
 import { nomeUtente, situazione } from '../../dominio/viste';
 import { corsiDi } from '../../dominio/motore';
@@ -33,6 +34,8 @@ export function Accesso() {
   const [ricordami, setRicordami] = useState(true);
   const [errore, setErrore] = useState('');
   const [attesa, setAttesa] = useState<string | null>(null);
+  const [tokenScaduto, setTokenScaduto] = useState(false);
+  const [nuovoToken, setNuovoToken] = useState('');
   const [, setGiro] = useState(0);
   if (!backend) return null;
   const demo = backend.tipo === 'demo' ? (backend as DemoBackend) : null;
@@ -43,6 +46,7 @@ export function Accesso() {
     try {
       await entra(await fn());
     } catch (e) {
+      if (e instanceof ErroreApp && e.codice === 'TOKEN_SCADUTO') setTokenScaduto(true);
       setErrore(messaggioErrore(e));
     } finally {
       setAttesa(null);
@@ -62,18 +66,35 @@ export function Accesso() {
       <div className="accesso-foglio">
         <section>
           <Testata />
-          <form onSubmit={(e) => (e.preventDefault(), void prova('form', () => backend.accedi(username, password, ricordami)))}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void prova('form', () =>
+                tokenScaduto ? (backend as GitHubBackend).rinnovaTokenEAccedi(username, password, nuovoToken, ricordami) : backend.accedi(username, password, ricordami),
+              );
+            }}
+          >
             <Stack gap="md">
               <TextInput label="Username" value={username} onChange={(e) => setUsername(e.currentTarget.value)} autoComplete="username" autoCapitalize="none" required />
               <PasswordInput label="Password" value={password} onChange={(e) => setPassword(e.currentTarget.value)} autoComplete="current-password" required />
+              {tokenScaduto && (
+                <PasswordInput
+                  label="Nuovo token di accesso GitHub"
+                  description="Fine-grained token con accesso ai soli repository dei dati e degli accessi, «Contents: Read and write» (vedi docs/PUBBLICAZIONE.md)."
+                  value={nuovoToken}
+                  onChange={(e) => setNuovoToken(e.currentTarget.value)}
+                  autoComplete="off"
+                  required
+                />
+              )}
               <Checkbox label="Resta connesso su questo dispositivo" checked={ricordami} onChange={(e) => setRicordami(e.currentTarget.checked)} />
               {errore && (
                 <Alert color="rosso" variant="light" title="Accesso non riuscito">
                   {errore}
                 </Alert>
               )}
-              <Button type="submit" size="md" loading={attesa === 'form'} rightSection={<IconArrowRight size={18} />}>
-                Accedi
+              <Button type="submit" size="md" loading={attesa === 'form'} disabled={tokenScaduto && nuovoToken.trim().length < 20} rightSection={<IconArrowRight size={18} />}>
+                {tokenScaduto ? 'Rinnova il token e accedi' : 'Accedi'}
               </Button>
               <Text size="sm" className="debole">
                 Gli account sono creati dal Training Manager: senza account non si accede.
@@ -180,12 +201,21 @@ export function PrimoAvvio() {
             }}
           >
             <Stack gap="md">
-              {github && <PasswordInput label="Token GitHub (fine-grained, Contents: read and write)" value={v.token} onChange={(e) => setV({ ...v, token: e.currentTarget.value })} required />}
+              {github && (
+                <PasswordInput
+                  label="Token GitHub"
+                  description="Fine-grained token con accesso ai soli repository dei dati e degli accessi, «Contents: Read and write». Viene cifrato nel portachiavi."
+                  value={v.token}
+                  onChange={(e) => setV({ ...v, token: e.currentTarget.value })}
+                  autoComplete="off"
+                  required
+                />
+              )}
               <TextInput label="Username del Training Manager" value={v.username} onChange={(e) => setV({ ...v, username: e.currentTarget.value })} autoCapitalize="none" required />
               <TextInput label="Grado, nome e cognome" value={v.nome} onChange={(e) => setV({ ...v, nome: e.currentTarget.value })} required />
               <PasswordInput
                 label="Password"
-                description={github ? 'Almeno 4 caratteri: protegge il token, per i dati veri usarne una lunga.' : 'La password dell’utente creato nel pannello Supabase.'}
+                description={github ? 'Almeno 4 caratteri: protegge il token, per i dati veri usarne una lunga.' : undefined}
                 value={v.password}
                 onChange={(e) => setV({ ...v, password: e.currentTarget.value })}
                 required

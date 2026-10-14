@@ -1,6 +1,7 @@
 import { strFromU8, strToU8 } from 'fflate';
 import { giorniSettimana, inOrdine, orariLezioni, orarioPeriodo, periodiDelGiorno, settimanaDiCorso } from './dominio/pianificazione';
 import { programmaTeorico } from './dominio/programmi';
+import type { Backend } from './backend/tipi';
 import type { CampiLezione } from './dominio/motore';
 import { SIGLA_PERIODO, type Corso, type Dati } from './dominio/tipi';
 import { contenutoLezione, fineCorso, formatoDataBreve, frequentatori, nomeDirettore, nomeModulo, riferimentoLezione } from './dominio/viste';
@@ -8,14 +9,14 @@ import { pulisciNome, scarica } from './esporta';
 import { apriXlsx, chiudiXlsx, senzaMetadati, type Parti } from './xlsx';
 
 /**
- * Programma settimanale sul modulo ufficiale: il foglio è quello di `modelli/Programma settimanale.xlsx`
+ * Programma settimanale sul modulo ufficiale: il foglio è quello di `Programma settimanale.xlsx` dei modelli
  * e si scrivono solo i valori nelle celle, che conservano stile, unioni e impostazione di stampa.
  * Quando più lezioni si dividono un periodo la tabella prende una riga in più per ciascuna e il resto
  * del modulo scende. Da Excel si stampa in PDF così com'è, su una pagina A4.
  */
 
-/** Dove sta il modulo: nella cartella `modelli`, che la build copia accanto all'applicazione. */
-export const MODELLO_SETTIMANA = './modelli/Programma settimanale.xlsx';
+/** Il modulo, nella cartella `modelli` del repository privato dei dati (lo legge solo chi accede). */
+export const MODELLO_SETTIMANA = 'Programma settimanale.xlsx';
 
 type Valore = string | number | null;
 /** Una riga della tabella delle lezioni. */
@@ -222,9 +223,9 @@ export function creaModuloSettimana(modello: Uint8Array, dati: Dati, corso: Cors
 }
 
 /** Dal pulsante: scarica il programma della settimana sul modulo ufficiale. */
-export async function esportaSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]) {
-  const risposta = await fetch(MODELLO_SETTIMANA);
-  if (!risposta.ok) throw new Error('Modulo del programma settimanale non trovato.');
-  const bytes = creaModuloSettimana(new Uint8Array(await risposta.arrayBuffer()), dati, corso, lunedi, lezioni);
+export async function esportaSettimana(leggi: Backend['leggiModello'], dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]) {
+  const modello = await leggi(MODELLO_SETTIMANA);
+  if (!modello) throw new Error(`Modulo del programma settimanale non trovato: manca «${MODELLO_SETTIMANA}» nella cartella modelli.`);
+  const bytes = creaModuloSettimana(modello, dati, corso, lunedi, lezioni);
   scarica(new Blob([bytes as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `Programma_settimanale_${pulisciNome(corso.codice)}_${lunedi}.xlsx`);
 }

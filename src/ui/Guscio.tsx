@@ -24,7 +24,7 @@ export function Guscio({ titolo, children }: { titolo: string; children: ReactNo
   const f = frequentatore?.id;
   const href = (v: Voce) => link(v.a, corso, v.frequentatore ? f : null);
   const corrente = (v: Voce) => (percorso === v.a || (percorso === '/' && v.a === primaVoce?.a) ? ('page' as const) : undefined);
-  const aggiornamento = backend.tipo === 'supabase' ? 'In tempo reale' : backend.tipo === 'github' ? 'Controllo ogni 30 s' : 'Dati in questo browser';
+  const aggiornamento = backend.tipo === 'github' ? 'Controllo ogni 30 s' : 'Dati in questo browser';
   const corsi = corsiDi(dati, utente);
 
   /** Riscontro sempre visibile: quanto è svolto della teoria e quanto è eseguito della pratica. */

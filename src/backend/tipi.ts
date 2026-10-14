@@ -17,10 +17,8 @@ export interface DatiPrimoAvvio {
 
 /** Interfaccia comune agli archivi: l'interfaccia utente non conosce i dettagli di persistenza. */
 export interface Backend {
-  readonly tipo: 'demo' | 'github' | 'supabase';
+  readonly tipo: 'demo' | 'github';
   readonly nome: string;
-  /** I permessi sono applicati anche dal server (non solo dall'app). */
-  readonly permessiLatoServer: boolean;
 
   avvia(): Promise<StatoAvvio>;
   primoAvvio(d: DatiPrimoAvvio): Promise<Sessione>;
@@ -34,6 +32,10 @@ export interface Backend {
   esegui(comando: Comando): Promise<Dati>;
   /** Richiama `avvisa` quando altri utenti modificano i dati; restituisce la funzione per smettere. */
   osserva(avvisa: () => void): () => void;
+  /** File della cartella `modelli` (moduli ufficiali, programmi, abilitazioni), con il percorso relativo. */
+  elencoModelli(): Promise<string[]>;
+  /** Contenuto di un file della cartella `modelli`; null se non c'è. */
+  leggiModello(nome: string): Promise<Uint8Array | null>;
 }
 
 /** Chiavi di archiviazione nel browser: tutte con prefisso, perché le pagine github.io dello stesso account condividono l'origine. */

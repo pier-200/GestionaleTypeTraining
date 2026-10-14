@@ -5,8 +5,7 @@ import { conIstruttore, conMateria, conPersona, type Abilitazione, type Anagrafi
 
 /**
  * Comandi di modifica dei dati, con permessi e validazioni. Il motore è eseguito
- * nel browser dagli archivi demo e GitHub; con Supabase le stesse regole sono
- * ripetute dal database (database/schema.sql) e il motore serve per i messaggi immediati.
+ * nel browser dagli archivi demo e GitHub: i permessi li applica l'applicazione.
  */
 
 export type CampiRegistrazione = Pick<

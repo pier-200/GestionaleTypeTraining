@@ -1,195 +1,97 @@
-# Pubblicazione e archivio condiviso
+# Pubblicazione e archivio su GitHub
 
-L'app è online su **https://pier-200.github.io/GestionaleTypeTraining/** con archivio **Supabase** già configurato
-(progetto `dyragieggyvgayteotlm`, regione eu-west-1): tutti lavorano sugli stessi dati.
-
-Collegamenti da distribuire:
+L'app è online su **https://pier-200.github.io/GestionaleTypeTraining/** e, come il Gestionale PdS, usa **solo
+GitHub**: nessun database esterno, nessun computer da tenere acceso.
 
 | Link | A chi |
 |---|---|
 | `https://pier-200.github.io/GestionaleTypeTraining/` | tutti (un'unica applicazione, pagine secondo il ruolo) |
-| `https://pier-200.github.io/GestionaleTypeTraining/?demo` | prova con dati finti |
+| `https://pier-200.github.io/GestionaleTypeTraining/?demo` | prova con dati finti, salvati solo nel browser |
 
-In alternativa a Supabase si può usare un **repository GitHub privato** (sezione B). L'archivio si sceglie in
-`public/config.json` e si ripubblica.
+## Come è fatto
 
-## Aggiornamento al modello a corsi (23/09/2026)
+| Repository | Visibilità | Contenuto |
+|---|---|---|
+| `pier-200/GestionaleTypeTraining` | pubblico | il codice; il ramo `gh-pages` è il sito (GitHub Pages) |
+| `pier-200/tt-dati` | **privato** | i dati (`db/…`: account, corsi, frequentatori, logbook, programmi settimanali, presenze, certificati) e i **modelli** (`modelli/…`) |
+| `pier-200/tt-accessi` | pubblico | solo `keyring.json`, il portachiavi **cifrato** |
 
-Chi aveva già il database installato prima dei corsi deve, **una volta sola** e in quest'ordine, nel SQL Editor:
+- Il sito non contiene né dati né modelli. Per leggerli serve il token di `tt-dati`, che sta nel portachiavi cifrato
+  (PBKDF2 600.000 + AES-GCM): ogni account lo sblocca con la propria password. Senza accesso GitHub risponde «non
+  trovato», anche a chi conosce l'indirizzo.
+- Ogni salvataggio è un commit in `tt-dati`: la cronologia conserva ogni versione.
+- Limite noto, come nel PdS: i permessi per ruolo li applica l'applicazione; chi ha un account e sa usare le API di
+  GitHub potrebbe leggere o modificare il repository dei dati (ogni modifica resta comunque nella cronologia).
 
-1. `database/migrazione-corsi.sql` – crea il corso «T1-2026/1», vi collega registrazioni, training data e iscrizioni,
-   aggiunge il ruolo «direttore» e toglie dal database il catalogo dei task (ora sta nell'applicazione).
-2. `database/schema.sql` – nuove tabelle (corsi, iscrizioni, lezioni, abilitazioni), permessi per corso e tempo reale.
-
-## Aggiornamento presenze e validazioni (23/09/2026)
-
-Basta rieseguire **`database/schema.sql`** nel SQL Editor: aggiunge le tabelle `rapportini` e `presenze`, i campi
-`recupero`, `validata`, `validata_da` e `validata_il` delle lezioni, le relative policy (il frequentatore vede solo il
-programma validato, compila il rapportino finché non è validato) e la pubblicazione realtime delle nuove tabelle.
-Non serve alcuna migrazione dei dati: le lezioni già inserite restano non validate finché il direttore non le valida.
-
-## Aggiornamento direttore per corso e modulo del programma settimanale (12/10/2026)
-
-- **Archivio GitHub (in uso)**: nessuna operazione. Al primo caricamento l'applicazione completa da sola i dati salvati
-  prima: un account «direttore» diventa «istruttore» e conserva l'incarico nei corsi che dirigeva. Per gli istruttori
-  già creati conviene aprire **Account → Modifica** e dividere il nominativo in grado, nome e cognome: il modulo del
-  programma settimanale usa «Grado Cognome» e «Grado COGNOME Nome». Per i corsi già creati, in **Corsi → Modifica** si
-  inseriscono durata in settimane, aula e gruppo firma del comandante.
-- **Supabase**: rieseguire **`database/schema.sql`** (toglie il ruolo «direttore» dagli account, aggiunge un solo
-  direttore per corso e i campi nuovi di corsi, lezioni, account e Personal Data, toglie ora di inizio e ore al giorno)
-  e ripubblicare la Edge Function `gestione-utenti`.
-
-## Aggiornamento abilitazioni per chapter, esclusioni e chiusura del corso (14/10/2026)
-
-- **Archivio GitHub (in uso)**: nessuna operazione. Al primo caricamento l'applicazione completa da sola i dati salvati
-  prima: gli istruttori che erano iscritti a un corso diventano «istruttori della fase pratica» di quel corso, le
-  lezioni e i corsi prendono i campi nuovi. Le **abilitazioni** salvate prima (per programma e materia) non valgono
-  più: vanno reinserite in **Materie e istruttori**, per mezzo e chapter, a mano o dall'Excel. Finché mancano, nel
-  programma settimanale nessun istruttore è selezionabile per le lezioni.
-- **Supabase**: rieseguire **`database/schema.sql`** (iscrizioni dei soli frequentatori con data di esclusione,
-  direttore e istruttori della fase pratica nei dati del corso, data di chiusura, aeromobili, nuovi tipi di periodo,
-  abilitazioni per mezzo e chapter, permessi aggiornati).
-- **Cartella `modelli`**: i format ufficiali stanno in `modelli/` e la build li copia accanto all'applicazione (vedi
-  il README, «Cartella modelli»). Prima di `npm run pubblica` la cartella deve contenere almeno
-  `Programma settimanale.xlsx` e `Compliance Report.pdf`.
-
-## Stato dell'installazione Supabase (22/09/2026)
-
-- Schema, sicurezza per corso (RLS) e tempo reale installati (`database/schema.sql`).
-- Edge Function `gestione-utenti` pubblicata con Verify JWT disattivato; registrazione libera disattivata.
-- Account **training.manager** (Training Manager) con password provvisoria, da cambiare al primo accesso.
-- Situazione esempio caricata con account propri. Credenziali nel file locale
-  `Desktop\Gestione Practical Type Training\Credenziali Type Training (riservato).txt` (mai nel repository).
-- Prima dell'uso reale: SQL Editor → eseguire `database/elimina_esempio.sql` (toglie account e dati dell'esempio).
-
-Per ripetere l'installazione su un altro progetto: passi 2-4 della sezione A, poi
-`SUPABASE_URL=… SUPABASE_SERVICE_KEY=… node scripts/semina-supabase.mjs <username TM> "<Grado Nome Cognome>" [--esempio] --credenziali <file>`.
-
-> Prima di caricare dati reali di personale militare su un servizio esterno, verificare con l'ente che sia ammesso
-> (vedi §7 del documento di progetto).
-
----
-
-## Archivio in uso dal 23/09/2026: repository GitHub
-
-Per non dipendere dai token Supabase l'app lavora sull'**archivio GitHub**. Repository già creati:
-
-- **`pier-200/tt-dati`** (privato): i dati del gestionale, un file JSON per collezione, un commit per salvataggio.
-- **`pier-200/tt-accessi`** (pubblico): solo `keyring.json`, il portachiavi **cifrato** (PBKDF2 600.000 + AES-GCM).
-
-`public/config.json` punta già a questi due repository. Resta da fare **una volta sola**:
-
-1. GitHub → **Settings → Developer settings → Fine-grained tokens → Generate new token**: accesso ai soli repository
-   `tt-dati` e `tt-accessi`, permesso **Contents: Read and write**, scadenza lunga. Copiare il token (`github_pat_…`).
-2. Configurazione, in uno dei due modi:
-   - da riga di comando, senza toccare l'interfaccia:
-
-     ```bash
-     node scripts/configura-github.mjs --token <github_pat_…> --username admin --password admin
-     ```
-
-   - oppure aprire https://pier-200.github.io/GestionaleTypeTraining/ → **Configurazione iniziale** e compilare token,
-     username, nome e password del Training Manager.
-
-   Il token viene cifrato nel portachiavi e non va dato a nessuno.
-3. Da **Account** creare gli account di istruttori e frequentatori; da **Corsi** creare il corso indicando il
-   **direttore del corso**, gli istruttori della fase pratica e gli aeromobili; da **Corso e iscritti** assegnare i
-   frequentatori; da **Materie e istruttori** inserire i chapter a cui ogni istruttore è abilitato.
-
-> La password del Training Manager protegge il token dentro il portachiavi, che sta su un repository **pubblico**:
-> una password corta (per esempio `admin`) va bene per le prime prove, per i dati veri serve una password lunga e un
-> token limitato ai soli due repository.
-
-I dati rimasti sul progetto Supabase non vengono toccati: per tornarci basta rimettere `"tipo": "supabase"` in
-`public/config.json` (dopo aver rieseguito `database/schema.sql`) e ripubblicare.
-
-## A. Archivio Supabase (consigliato)
-
-Permessi applicati dal database, aggiornamento in tempo reale, piano gratuito.
-
-### 1. Creare il progetto
-
-1. Registrarsi su <https://supabase.com> e creare un **New project** (nome `gestionale-tt`, regione europea, password
-   del database robusta da conservare).
-2. Dal PC dell'ufficio aprire `https://<progetto>.supabase.co`: se la pagina è bloccata dalla rete, usare l'archivio GitHub (sezione B).
-
-### 2. Installare catalogo, schema e funzione
-
-1. **SQL Editor → New query**: incollare tutto `database/schema.sql` e premere **Run** (lo script si può rieseguire).
-   Il catalogo dei task e il programma teorico non stanno nel database: sono file dell'applicazione (`src/dati/programmi`).
-3. **Edge Functions → Deploy a new function → Via editor**: nome **`gestione-utenti`**, incollare
-   `supabase/functions/gestione-utenti/index.ts`, **Deploy**. Nella scheda della funzione disattivare **Verify JWT**
-   (la funzione verifica da sé che chi la chiama sia il Training Manager).
-
-### 3. Autenticazione
-
-1. **Authentication → Sign In / Providers**: disattivare **Allow new users to sign up**.
-2. **Authentication → Users → Add user → Create new user**: email `<username>@ptt.local` (es. `tm.rossi@ptt.local`),
-   password, spuntare **Auto Confirm User**. Sarà il Training Manager.
-
-Gli indirizzi `@ptt.local` sono solo tecnici: agli utenti basta lo username. Se Supabase rifiutasse il dominio, usarne
-un altro sia qui sia nel campo `dominioEmail` di `config.json`.
-
-### 4. Collegare l'app
-
-In **Project Settings → API Keys** copiare l'URL del progetto e la **Publishable key** (o la chiave `anon`), poi in
-`public/config.json`:
+`public/config.json` punta già ai due repository:
 
 ```json
-{
-  "archivio": {
-    "tipo": "supabase",
-    "url": "https://abcdefghijkl.supabase.co",
-    "chiavePubblica": "sb_publishable_...",
-    "dominioEmail": "ptt.local"
-  }
-}
+{ "archivio": { "tipo": "github", "owner": "pier-200", "repoDati": "tt-dati", "repoAccessi": "tt-accessi", "branch": "main" } }
 ```
 
-La chiave pubblica è fatta per stare nel browser: senza un utente autenticato e attivo non consente nulla.
-Ripubblicare con `npm run pubblica` (oppure modificare `config.json` direttamente nel ramo `gh-pages` da GitHub).
+## Stato (14/10/2026)
 
-### 5. Primo accesso
+- `tt-dati` (privato) contiene già i **modelli** (cartella `modelli/`, 21 file); nessun dato.
+- `tt-accessi` (pubblico) contiene solo il README: **manca la configurazione iniziale** (portachiavi e Training Manager).
 
-Aprire l'app: compare **Configurazione iniziale**. Inserire lo username (la parte prima di `@`), grado nome e cognome e
-la password dell'utente creato al punto 3. Da **Account e corso** il Training Manager crea poi istruttori e frequentatori
-con password provvisoria, e inserisce i Practical Type Training Data per l'intero corso.
+## 1. Il token GitHub (una volta sola)
 
-### Manutenzione
+1. GitHub → foto profilo → **Settings → Developer settings → Personal access tokens → Fine-grained tokens →
+   Generate new token**.
+2. *Token name*: `Gestionale Type Training`; *Expiration*: la durata massima (annotare la scadenza).
+3. *Repository access*: **Only select repositories** → `tt-dati` e `tt-accessi`. Nessun altro.
+4. *Permissions → Repository permissions → Contents*: **Read and write** (Metadata resta «Read-only»).
+5. **Generate token** e copiare il valore (`github_pat_…`): serve una sola volta, al punto 2.
 
-- Piano gratuito: 500 MB di database, 5 GB di traffico al mese, 50.000 utenti attivi, 200 connessioni in tempo reale.
-  Un corso di 20 frequentatori e 20 istruttori ne usa una piccola frazione (pochi MB di dati, qualche centinaio di MB di traffico al mese):
-  l'app rilegge tutto solo all'accesso e poi riceve solo le registrazioni nuove.
-- I progetti gratuiti si sospendono dopo 7 giorni senza alcun accesso: durante il corso l'uso quotidiano li tiene attivi.
-  Se succede (es. tra un corso e l'altro), dal pannello Supabase → progetto → **Restore**: i dati restano.
-- Il piano gratuito non ha backup automatici: a fine corso (e periodicamente) esportare l'**Excel complessivo**.
-- Password del Training Manager dimenticata: in **SQL Editor**
-  `update auth.users set encrypted_password = extensions.crypt('NuovaPassword2026', extensions.gen_salt('bf')) where email = 'training.manager@ptt.local';`
+L'applicazione accetta solo token fine-grained (`github_pat_…`): un token classico (`ghp_…`) o quello della GitHub CLI
+(`gho_…`) aprirebbe tutti i repository dell'account a chi riuscisse a decifrare il portachiavi, che è pubblico.
 
----
+## 2. Configurazione iniziale
 
-## B. Archivio su repository GitHub privato
+In uno dei due modi:
 
-Usa solo domini GitHub. Limite: i permessi sono applicati dall'app, quindi un utente esperto potrebbe modificare dati
-altrui direttamente su GitHub (ogni salvataggio resta comunque nella cronologia ed è recuperabile).
+- aprire https://pier-200.github.io/GestionaleTypeTraining/ → **Configurazione iniziale**: token, username, grado
+  nome e cognome, password del Training Manager → **Configura e accedi**;
+- oppure da riga di comando, nella cartella del progetto:
 
-1. Creare due repository: uno **privato** per i dati e uno **pubblico** per il portachiavi cifrato (per questa
-   installazione: `tt-dati` e `tt-accessi`, già creati).
-2. **Settings → Developer settings → Fine-grained tokens → Generate new token**: accesso ai soli due repository,
-   permesso **Contents: Read and write**, scadenza massima. Copiare il token (`github_pat_…`).
-3. In `public/config.json`:
+  ```bash
+  node scripts/configura-github.mjs --token <github_pat_…> --username admin --password <password>
+  ```
 
-   ```json
-   { "archivio": { "tipo": "github", "owner": "pier-200", "repoDati": "tt-dati", "repoAccessi": "tt-accessi" } }
-   ```
+Il token finisce cifrato nel portachiavi e non va dato a nessuno. La password del Training Manager protegge il
+token: per i dati veri usarne una lunga.
 
-4. Ripubblicare, aprire l'app e completare **Configurazione iniziale** con il token, lo username e la password del
-   Training Manager.
-5. Quando il token scade o un utente lascia il corso: generare un token nuovo e ripetere la configurazione del portachiavi
-   (eliminare `keyring.json` da `tt-accessi`, rientrare con lo **stesso** username del Training Manager: i dati restano),
-   poi reimpostare le password dei frequentatori da **Account e corso**.
+## 3. Primo utilizzo
 
----
+Da **Account** creare istruttori e frequentatori; da **Corsi** creare il corso indicando il direttore, gli istruttori
+della fase pratica e gli aeromobili; da **Corso e iscritti** assegnare i frequentatori; da **Materie e istruttori**
+inserire i chapter a cui ogni istruttore è abilitato (a mano o dall'Excel delle abilitazioni).
+
+## Modelli
+
+I format ufficiali (programma settimanale, Compliance Report, programmi, Excel delle abilitazioni, `logo.png`
+facoltativo) stanno in `tt-dati/modelli/`. Per aggiornarli:
+
+- dal progetto, dopo aver sostituito i file nella cartella locale `modelli/`:
+
+  ```bash
+  npm run modelli -- --token <github_pat_…>      # oppure TT_TOKEN=<github_pat_…> npm run modelli
+  ```
+
+  carica in un solo commit i file nuovi o cambiati; quelli presenti solo online restano;
+- oppure da GitHub: `tt-dati` → cartella `modelli` → **Add file → Upload files** (per esempio l'Excel delle
+  abilitazioni, che poi si importa da «Materie e istruttori»).
+
+## Manutenzione
+
+- **Token scaduto o revocato**: all'accesso il Training Manager vede il campo «Nuovo token di accesso GitHub»; ne crea
+  uno come al punto 1 e lo incolla: l'accesso torna per tutti. Gli altri utenti non devono fare nulla.
+- **Un utente lascia il corso**: disattivarlo da **Account**, poi **Account → Aggiorna token GitHub** con un token
+  nuovo (chiavi rigenerate per tutti, password invariate) e infine revocare il vecchio token su GitHub: chi conservasse
+  una copia delle vecchie chiavi non legge più i dati.
+- **Password dell'unico Training Manager dimenticata**: in `tt-accessi` eliminare `keyring.json`, rifare la
+  configurazione iniziale **con lo stesso username** (i dati restano), poi reimpostare le password degli altri.
+- **Backup**: la cronologia di `tt-dati`; a fine corso conviene anche l'**Excel complessivo** dall'applicazione.
 
 ## Aggiornare il sito
 
@@ -198,4 +100,12 @@ git commit -am "..."   # il sito deve corrispondere al codice salvato
 npm run pubblica       # compila e sostituisce il ramo gh-pages
 ```
 
-GitHub Pages serve il ramo `gh-pages` (Settings → Pages → Deploy from a branch).
+La build non include la cartella `modelli`: i modelli si aggiornano a parte (vedi «Modelli»).
+
+## Storico
+
+- Fino al 13/10/2026 il codice poteva usare anche un archivio **Supabase** (progetto `dyragieggyvgayteotlm`, mai usato
+  per dati reali). Dal 14/10/2026 è stato tolto, come nel Gestionale PdS: schema SQL, funzione e script non ci sono
+  più. Il progetto Supabase si può eliminare dal pannello di Supabase.
+- Il 14/10/2026, per poche ore, i modelli erano pubblicati accanto al sito (`…/GestionaleTypeTraining/modelli/`):
+  ora non più.

@@ -177,8 +177,7 @@ categorie C solo il teorico). Oggi ci sono tutti i 9 corsi: CH-47F B1.3/B2/C, UC
 
 ## Cartella modelli
 
-Tutti i format forniti stanno nella cartella **`modelli/`**, nella cartella principale del programma, e
-l'applicazione usa solo quelli:
+I format ufficiali stanno in una cartella **`modelli/`** e l'applicazione usa solo quelli:
 
 | File | A cosa serve |
 |---|---|
@@ -189,22 +188,19 @@ l'applicazione usa solo quelli:
 | Excel delle abilitazioni (quando ci sarà) | importato dalla pagina «Materie e istruttori» |
 | `logo.png` (facoltativo) | logo sul Compliance Report |
 
-**Come arrivano online.** La cartella non sta nel repository (`.gitignore`): contiene i file originali, con i dati di
-chi li ha preparati. Un plugin di Vite ([`vite.config.ts`](vite.config.ts)) la rende disponibile all'applicazione:
+**Dove stanno.** Online i modelli stanno nel **repository privato dei dati** (`pier-200/tt-dati`, cartella
+`modelli/`), come i dati dei corsi: l'applicazione li legge con il token del portachiavi, quindi **solo dopo
+l'accesso**. Il sito pubblicato non li contiene e GitHub, senza token, risponde «non trovato».
 
-- in sviluppo (`npm run dev`) serve i file direttamente da `modelli/`, all'indirizzo `./modelli/<file>`;
-- a ogni build copia tutta la cartella in `dist/modelli/` e ne scrive l'elenco in `dist/modelli/indice.json`.
-  `npm run pubblica` carica `dist` su GitHub Pages, quindi online i file stanno accanto all'applicazione:
-  `https://pier-200.github.io/GestionaleTypeTraining/modelli/<file>`;
-- dagli Excel pubblicati toglie autore, percorso di salvataggio e stampante (`senzaMetadati` in
-  [`src/xlsx.ts`](src/xlsx.ts)); il contenuto dei fogli resta identico;
-- se mancano `Programma settimanale.xlsx` o `Compliance Report.pdf` la build si ferma, così non si pubblica
-  un'applicazione che non può compilarli.
-
-Per aggiornare un modulo basta sostituire il file in `modelli/` e rilanciare `npm run pubblica`.
-
-> Tutto ciò che sta in `modelli/` diventa **pubblico**: chiunque conosca l'indirizzo può scaricarlo. Non vanno messi
-> lì file con dati personali reali.
+- **Aggiornarli**: dalla cartella locale `modelli/` del progetto (fuori da git) con `npm run modelli`, che carica in un
+  solo commit i file nuovi o cambiati (token: `--token github_pat_…`, variabile `TT_TOKEN` oppure
+  `gh auth token | node scripts/carica-modelli.mjs --stdin`). In alternativa da GitHub: `tt-dati` → `modelli` →
+  **Add file → Upload files**. I file presenti solo online restano.
+- **In locale**: la stessa cartella serve agli script (`npm run programmi`, layout del Compliance Report), ai test e
+  alla modalità dimostrativa, a cui `npm run dev` e `vite preview` la espongono ([`vite.config.ts`](vite.config.ts)).
+  Nella prova pubblicata (`?demo`) i modelli non ci sono: Excel e PDF dei moduli si provano in locale.
+- Lettura: `elencoModelli` e `leggiModello` dell'archivio ([`GitHubBackend.ts`](src/backend/github/GitHubBackend.ts));
+  ogni file si scarica la prima volta che serve e resta in memoria fino all'uscita.
 
 **Excel delle abilitazioni.** Una tabella sul primo foglio, con una riga di intestazione e tre informazioni, in
 qualunque ordine:
@@ -217,8 +213,8 @@ qualunque ordine:
 
 Dalla pagina «Materie e istruttori» si sceglie il file fra quelli di `modelli`, si preme «Leggi il file», si controlla
 l'anteprima (le righe non riconosciute sono elencate) e si conferma con «Importa». Per ogni istruttore e mezzo
-presenti nel file l'importazione sostituisce i chapter che aveva. Se il file riporta nominativi reali conviene il
-pulsante **«Dal computer…»**, che lo legge senza pubblicarlo.
+presenti nel file l'importazione sostituisce i chapter che aveva. Con **«Dal computer…»** si importa un file senza
+caricarlo prima nell'archivio.
 
 ## Stampa del Compliance Report
 
@@ -254,21 +250,30 @@ autori, percorsi e impostazioni della stampante). Lo scaricano il Training Manag
 
 ## Archivio dei dati
 
-Si sceglie in [`public/config.json`](public/config.json), senza ricompilare:
+Come il Gestionale PdS, l'applicazione usa **solo GitHub** (nessun database esterno). In
+[`public/config.json`](public/config.json):
 
-| `archivio.tipo` | Dove stanno i dati | Permessi | Aggiornamento |
-|---|---|---|---|
-| `demo` (sempre con `?demo`) | nel browser di chi apre l'app | applicati dall'app | tra schede |
-| `github` (in uso) | repository privato `pier-200/tt-dati` + portachiavi cifrato in `tt-accessi` | applicati dall'app | controllo ogni 30 s |
-| `supabase` (pronto) | PostgreSQL centrale | **dal database**, per corso (RLS) | in tempo reale |
+| `archivio.tipo` | Dove stanno i dati | Aggiornamento |
+|---|---|---|
+| `github` (in uso) | repository **privato** `pier-200/tt-dati` (dati e modelli) + portachiavi cifrato nel repository pubblico `pier-200/tt-accessi` | controllo ogni 30 s |
+| `demo` (sempre con `?demo`) | nel browser di chi apre l'app, situazione esempio | tra schede |
 
-Al primo accesso il Training Manager inserisce un token GitHub fine-grained (Contents: Read and write sui due
-repository): viene cifrato nel portachiavi e non va condiviso. In alternativa la configurazione si fa da riga di
-comando con `node scripts/configura-github.mjs --token <github_pat_…> --username admin --password admin`.
+- **Chi legge i dati**: solo chi accede. Il token GitHub che apre `tt-dati` sta nel portachiavi, cifrato
+  (PBKDF2 600.000 + AES-GCM): ogni account lo sblocca con la propria password. Senza credenziali il repository dei
+  dati non è leggibile, nemmeno conoscendone l'indirizzo.
+- **Il token**: uno solo, **fine-grained**, con accesso ai soli `tt-dati` e `tt-accessi` e permesso
+  **Contents: Read and write**. L'applicazione rifiuta i token classici e quello della GitHub CLI (`ghp_…`,
+  `gho_…`), che aprirebbero tutti i repository dell'account.
+- **Token scaduto o revocato**: all'accesso il Training Manager vede il campo «Nuovo token» e lo rinnova per tutti.
+  Da **Account → Aggiorna token GitHub** lo si sostituisce in qualunque momento (per esempio dopo aver disattivato
+  qualcuno): chiavi nuove per tutti, password invariate; poi si revoca il vecchio token su GitHub.
+- **Permessi**: li applica l'applicazione (limite noto, come nel PdS: chi ha un account e sa usare le API di GitHub
+  potrebbe leggere l'intero repository dei dati).
+- Ogni salvataggio è un commit in `tt-dati`: la cronologia conserva tutte le versioni.
 
-Istruzioni e migrazione: [docs/PUBBLICAZIONE.md](docs/PUBBLICAZIONE.md).
+Configurazione e manutenzione: [docs/PUBBLICAZIONE.md](docs/PUBBLICAZIONE.md).
 
-> La repository è pubblica: mai dati reali né credenziali nei file. La situazione esempio è inventata.
+> La repository del codice è pubblica: mai dati reali né credenziali nei file. La situazione esempio è inventata.
 
 ## Situazione esempio
 
@@ -283,27 +288,28 @@ almeno un abilitato) e i frequentatori. «Ripristina la situazione esempio» rip
 ```bash
 npm install
 npm run dev          # http://localhost:5174
-npm test             # dominio, pianificazione, presenze e schema SQL (PGlite)
+npm test             # dominio, pianificazione, presenze, moduli, archivio GitHub (con un GitHub finto)
 npm run build && npx vite preview --port 4174 && npm run e2e   # prova nel browser Edge
 TT_TOKEN=<token GitHub> node tests/collaudo-github.mjs           # collaudo dell'archivio GitHub su repo di prova
+npm run modelli -- --token <github_pat_…>                        # carica la cartella modelli nel repository dei dati
 npm run pubblica     # compila e aggiorna GitHub Pages (ramo gh-pages)
 ```
 
 Struttura:
 
 ```
-database/schema.sql            tabelle, RLS per corso, tempo reale       database/migrazione-corsi.sql  passaggio al modello a corsi
 scripts/import_catalogo.py     programma pratico dall'Excel             scripts/import_programma_mtt.py  programma teorico
-scripts/layout_compliance.py   posizioni dei valori nel modulo PDF      scripts/semina-supabase.mjs      TM e situazione esempio
-modelli/                       format ufficiali, pubblicati con l'app   src/moduloSettimana.ts           compilazione del modulo
+scripts/layout_compliance.py   posizioni dei valori nel modulo PDF      scripts/configura-github.mjs     configurazione iniziale
+modelli/                       copia locale dei format ufficiali        scripts/carica-modelli.mjs       modelli nel repository dei dati
+src/moduloSettimana.ts         compilazione del modulo settimanale
 src/xlsx.ts                    lettura degli Excel, pulizia dei metadati src/dominio/abilitazioni.ts     lettura dell'Excel delle abilitazioni
-supabase/functions/gestione-utenti   creazione e modifica account (Edge Function)
 src/dominio/    programmi, compliance, pianificazione, presenze, motore dei comandi (permessi), conferme, viste
-src/backend/    archivi demo, github, supabase                          src/esporta.ts  Excel e CSV
+src/backend/    archivi demo e github (portachiavi, API)                 src/esporta.ts  Excel e CSV
 src/ui/         interfaccia: guscio, avanzamento del corso, pagine MTT e PTT, stile «app tascabile» (DESIGN.md)
-tests/          dominio, pianificazione e presenze, modulo del programma settimanale, schema SQL, end-to-end
+tests/          dominio, pianificazione e presenze, moduli, archivio GitHub, end-to-end
 ```
 
-Gli Excel e i PDF originali restano fuori dalla repository pubblica: stanno nella cartella `modelli/`, che serve per
-compilare, per i test dei moduli e per rigenerare i programmi. Su un altro computer si ricrea copiandovi i file (quelli
-pubblicati si scaricano da `…/GestionaleTypeTraining/modelli/`, elencati in `modelli/indice.json`).
+Gli Excel e i PDF originali restano fuori dalla repository pubblica del codice: online stanno in `tt-dati/modelli`,
+in locale nella cartella `modelli/` (per i test dei moduli e per rigenerare i programmi). Su un altro computer la
+cartella si ricrea scaricandola da `tt-dati` (GitHub → `modelli` → Download, oppure `git clone` con le proprie
+credenziali).

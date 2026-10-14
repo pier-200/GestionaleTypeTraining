@@ -10,6 +10,7 @@ import {
   creaKeyring,
   impostaCredenziali,
   rimuoviUtente,
+  ruotaChiavi,
   sbloccaKeyring,
   validaKeyring,
   type ChiaviSessione,
@@ -20,7 +21,19 @@ type ConfigGitHub = Extract<Config, { tipo: 'github' }>;
 
 const SESSIONE = 'github:sessione';
 const FILE_KEYRING = 'keyring.json';
+/** Cartella dei format ufficiali nel repository dei dati: privata come i dati, la legge solo chi accede. */
+const MODELLI = 'modelli/';
 const FORMATO = 1;
+
+/**
+ * Solo token «fine-grained», limitati ai due repository dell'archivio: un token classico o quello della GitHub CLI
+ * aprirebbe tutti i repository dell'account a chi riuscisse a decifrare il portachiavi, che è pubblico.
+ */
+function controllaToken(token: string, c: ConfigGitHub) {
+  if (!/^github_pat_[A-Za-z0-9_]{20,}$/.test(token)) {
+    throw new ErroreApp('VALIDAZIONE', `Serve un token «fine-grained» (inizia con github_pat_) con accesso ai soli repository ${c.repoDati} e ${c.repoAccessi}, «Contents: Read and write».`);
+  }
+}
 const README = `# Dati del Gestionale Type Training
 
 Repository **privato** gestito dall'applicazione: non modificare i file a mano.
@@ -31,6 +44,8 @@ Ogni salvataggio crea un commit, quindi qualsiasi versione precedente è recuper
 - \`db/lezioni/<id corso>.json\`: programma della parte teorica
 - \`db/presenze/<id corso>.json\`: rapportini presenze e assenze della parte teorica
 - \`db/certificati.json\`: registro dei certificati AER(EP).P-147
+- \`modelli/\`: format ufficiali (programma settimanale, Compliance Report, programmi, abilitazioni degli istruttori);
+  si aggiornano con \`npm run modelli\` dal progetto oppure da GitHub (Add file → Upload files)
 `;
 
 /** Un file per collezione; registrazioni e lezioni divise per frequentatore e per corso (salvataggi più leggeri). */
@@ -93,7 +108,6 @@ function daFile(file: Map<string, string>): Dati {
 export class GitHubBackend implements Backend {
   readonly tipo = 'github' as const;
   readonly nome: string;
-  readonly permessiLatoServer = false;
   private readonly locale = archivio('local');
   private readonly scheda = archivio('session');
   private api: ApiGitHub | null = null;
@@ -103,6 +117,9 @@ export class GitHubBackend implements Backend {
   /** Contenuto dei file all'ultimo caricamento, per scrivere solo quelli cambiati. */
   private file = new Map<string, string>();
   private dati: Dati | null = null;
+  /** File della cartella `modelli` all'ultimo caricamento (percorso → sha) e contenuti già letti (sha → byte). */
+  private modelli = new Map<string, string>();
+  private contenutiModelli = new Map<string, Uint8Array>();
   private coda: Promise<unknown> = Promise.resolve();
 
   constructor(private readonly c: ConfigGitHub) {
@@ -125,8 +142,7 @@ export class GitHubBackend implements Backend {
     throw new ErroreApp('RETE', 'Impossibile leggere gli accessi da GitHub: verificare la connessione.');
   }
 
-  private async aggiornaKeyring(trasforma: (k: Keyring) => Promise<Keyring | null>, messaggio: string) {
-    const api = this.richiediApi();
+  private async aggiornaKeyring(trasforma: (k: Keyring) => Promise<Keyring | null>, messaggio: string, api = this.richiediApi()) {
     for (let i = 0; i < 4; i++) {
       const x = await api.leggiContenuto(this.c.owner, this.c.repoAccessi, FILE_KEYRING, this.c.branch);
       if (!x) throw new ErroreApp('CONFIGURAZIONE', 'Portachiavi degli accessi non trovato.');
@@ -168,6 +184,7 @@ export class GitHubBackend implements Backend {
     if (problema) throw new ErroreApp('VALIDAZIONE', problema);
     const token = d.token?.trim();
     if (!token) throw new ErroreApp('VALIDAZIONE', 'Indicare il token di accesso GitHub.');
+    controllaToken(token, this.c);
     const api = new ApiGitHub(token);
     const dati = await api.leggiRepository(this.c.owner, this.c.repoDati);
     if (!dati) throw new ErroreApp('CONFIGURAZIONE', `Repository ${this.c.owner}/${this.c.repoDati} non trovato o non accessibile con il token.`);
@@ -228,10 +245,65 @@ export class GitHubBackend implements Backend {
     } catch (e) {
       this.api = null;
       if (e instanceof ErroreApp && e.codice === 'AUTENTICAZIONE' && /token/i.test(e.message)) {
-        throw new ErroreApp('AUTENTICAZIONE', 'Il token GitHub è scaduto o revocato: il Training Manager deve generarne uno nuovo (vedi docs/PUBBLICAZIONE.md).');
+        // come nel Gestionale PdS: il Training Manager rinnova il token dalla pagina di accesso, per tutti
+        throw chiavi.ka
+          ? new ErroreApp('TOKEN_SCADUTO', 'Il token di accesso a GitHub è scaduto o è stato revocato. Come Training Manager puoi inserire qui un nuovo token: l’accesso torna per tutti gli utenti.')
+          : new ErroreApp('AUTENTICAZIONE', 'Il token di accesso a GitHub è scaduto o è stato revocato: il Training Manager deve rinnovarlo accedendo all’applicazione.');
       }
       throw e;
     }
+  }
+
+  /**
+   * Rinnovo del token scaduto dalla pagina di accesso: le credenziali del Training Manager sbloccano
+   * le chiavi amministrative anche quando il token precedente non funziona più.
+   */
+  async rinnovaTokenEAccedi(username: string, password: string, nuovoToken: string, ricordami: boolean): Promise<Sessione> {
+    const keyring = await this.keyringPubblico();
+    if (!keyring) throw new ErroreApp('CONFIGURAZIONE', 'Configurazione iniziale non completata.');
+    await this.sostituisciToken(await sbloccaKeyring(keyring, username.trim().toLowerCase(), password), nuovoToken);
+    return this.accedi(username, password, ricordami);
+  }
+
+  /** Sostituisce il token GitHub e rigenera le chiavi di accesso di tutti gli utenti (solo Training Manager). */
+  async ruotaToken(nuovoToken: string): Promise<void> {
+    if (!this.chiavi || !this.utenteId) throw new ErroreApp('AUTENTICAZIONE', 'Sessione scaduta: accedere di nuovo.');
+    const nuove = await this.sostituisciToken(this.chiavi, nuovoToken);
+    const ricordata = this.locale.leggi(SESSIONE) != null;
+    this.chiavi = nuove;
+    this.api = new ApiGitHub(nuove.token);
+    (ricordata ? this.locale : this.scheda).scrivi(SESSIONE, JSON.stringify({ utenteId: this.utenteId, chiavi: nuove }));
+  }
+
+  /**
+   * Prova il nuovo token (lettura e scrittura del repository dei dati, scrittura del portachiavi) e lo cifra
+   * con chiavi nuove per tutti: chi conservasse le chiavi vecchie non lo può decifrare. Le password non cambiano.
+   */
+  private async sostituisciToken(chiavi: ChiaviSessione, nuovoToken: string): Promise<ChiaviSessione> {
+    if (!chiavi.ka) throw new ErroreApp('PERMESSO_NEGATO', 'Solo il Training Manager può sostituire il token.');
+    const token = nuovoToken.trim();
+    controllaToken(token, this.c);
+    const api = new ApiGitHub(token);
+    const ammessi = `il token deve avere accesso ai soli repository ${this.c.repoDati} e ${this.c.repoAccessi}, con «Contents: Read and write»`;
+    try {
+      if (!(await api.leggiRef(this.c.owner, this.c.repoDati, this.c.branch))) throw new ErroreApp('CONFIGURAZIONE', '');
+      await api.creaBlob(this.c.owner, this.c.repoDati, bytesDaTesto('verifica del token'));
+    } catch (e) {
+      if (e instanceof ErroreApp && e.codice === 'RETE') throw e;
+      throw new ErroreApp('CONFIGURAZIONE', `Il nuovo token non legge o non scrive ${this.c.owner}/${this.c.repoDati}: ${ammessi}.`);
+    }
+    const esito: { chiavi?: ChiaviSessione } = {};
+    await this.aggiornaKeyring(
+      async (k) => {
+        const r = await ruotaChiavi(k, chiavi, token);
+        esito.chiavi = r.chiavi;
+        return r.keyring;
+      },
+      `${chiavi.username}: sostituzione del token e rigenerazione delle chiavi`,
+      api,
+    );
+    if (!esito.chiavi) throw new ErroreApp('CONFIGURAZIONE', `Portachiavi non aggiornato: ${ammessi}.`);
+    return esito.chiavi;
   }
 
   async esci() {
@@ -240,6 +312,9 @@ export class GitHubBackend implements Backend {
     this.utenteId = null;
     this.dati = null;
     this.testa = null;
+    this.file = new Map();
+    this.modelli = new Map();
+    this.contenutiModelli.clear();
     this.locale.rimuovi(SESSIONE);
     this.scheda.rimuovi(SESSIONE);
   }
@@ -267,8 +342,11 @@ export class GitHubBackend implements Backend {
     if (!commit) throw new ErroreApp('CONFIGURAZIONE', `Il repository ${this.c.owner}/${this.c.repoDati} è vuoto o non accessibile.`);
     if (this.dati && this.testa?.commit === commit) return this.dati;
     const { albero } = await api.leggiCommit(this.c.owner, this.c.repoDati, commit);
-    const elementi = (await api.leggiAlbero(this.c.owner, this.c.repoDati, albero)).filter((e) => e.type === 'blob' && e.path.startsWith('db/'));
+    const tutti = (await api.leggiAlbero(this.c.owner, this.c.repoDati, albero)).filter((e) => e.type === 'blob');
+    const elementi = tutti.filter((e) => e.path.startsWith('db/'));
     const file = new Map(await Promise.all(elementi.map(async (e) => [e.path, testoDaBytes(await api.leggiBlob(this.c.owner, this.c.repoDati, e.sha))] as const)));
+    // dei modelli si tiene solo l'elenco: il contenuto si scarica quando serve
+    this.modelli = new Map(tutti.filter((e) => e.path.startsWith(MODELLI)).map((e) => [e.path.slice(MODELLI.length), e.sha]));
     this.file = file;
     this.testa = { commit, albero };
     this.dati = daFile(file);
@@ -316,6 +394,20 @@ export class GitHubBackend implements Backend {
     });
     this.coda = lavoro.catch(() => undefined);
     return lavoro;
+  }
+
+  async elencoModelli(): Promise<string[]> {
+    await this.caricaDati();
+    return [...this.modelli.keys()].sort();
+  }
+
+  async leggiModello(nome: string): Promise<Uint8Array | null> {
+    await this.caricaDati();
+    const sha = this.modelli.get(nome);
+    if (!sha) return null;
+    const letto = this.contenutiModelli.get(sha) ?? (await this.richiediApi().leggiBlob(this.c.owner, this.c.repoDati, sha));
+    this.contenutiModelli.set(sha, letto);
+    return letto;
   }
 
   osserva(avvisa: () => void) {

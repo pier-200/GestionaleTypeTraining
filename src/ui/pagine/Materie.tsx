@@ -17,7 +17,7 @@ const candidato = (nome: string) => /\.xlsx$/i.test(nome) && !nome.includes('/')
  * Valgono per tutti i corsi di quel mezzo; nel programma settimanale si sceglie solo fra gli abilitati.
  */
 export function Materie() {
-  const { dati, esegui } = useStato();
+  const { dati, esegui, backend } = useStato();
   const [mds, setMds] = useState(MDS[0].codice);
   const [scelto, setScelto] = useState<string | null>(null);
   const [selezione, setSelezione] = useState<string[] | null>(null);
@@ -26,17 +26,17 @@ export function Materie() {
   const [nome, setNome] = useState<string | null>(null);
   const [lettura, setLettura] = useState<LetturaAbilitazioni | null>(null);
 
-  // l'elenco dei file in `modelli` è pubblicato accanto all'applicazione
+  // i modelli stanno nel repository privato dei dati: l'elenco arriva dall'archivio, solo a chi ha fatto l'accesso
   useEffect(() => {
-    fetch('./modelli/indice.json')
-      .then((r) => (r.ok ? (r.json() as Promise<string[]>) : []))
+    backend
+      ?.elencoModelli()
       .then((elenco) => {
         const excel = elenco.filter(candidato);
         setFile(excel);
         setNome((n) => n ?? excel[0] ?? null);
       })
       .catch(() => setFile([]));
-  }, []);
+  }, [backend]);
 
   if (!dati) return null;
   const istruttori = istruttoriAttivi(dati);
@@ -53,14 +53,14 @@ export function Materie() {
     if (ok) setSelezione(null);
   };
 
-  /** Legge il file scelto fra quelli di `modelli`, oppure uno preso dal computer (che così non viene pubblicato). */
+  /** Legge il file scelto fra quelli di `modelli`, oppure uno preso dal computer (senza caricarlo nell'archivio). */
   const leggi = async (locale?: File) => {
     if (!locale && !nome) return;
     try {
-      const risposta = locale ?? (await fetch(`./modelli/${encodeURIComponent(nome!)}`));
-      if (!locale && !(risposta as Response).ok) throw new Error(`File «${nome}» non trovato nella cartella modelli.`);
+      const bytes = locale ? new Uint8Array(await locale.arrayBuffer()) : await backend!.leggiModello(nome!);
+      if (!bytes) throw new Error(`File «${nome}» non trovato nella cartella modelli.`);
       const { righeXlsx } = await import('../../xlsx');
-      setLettura(leggiAbilitazioni(righeXlsx(new Uint8Array(await risposta.arrayBuffer())), dati));
+      setLettura(leggiAbilitazioni(righeXlsx(bytes), dati));
     } catch (e) {
       notifications.show({ color: 'rosso', title: 'File non letto', message: messaggioErrore(e) });
     }
@@ -80,9 +80,9 @@ export function Materie() {
 
       <Sezione titolo="Importa dall’Excel delle abilitazioni">
         <Text className="debole" size="sm" mb="sm">
-          Il file va messo nella cartella <code>modelli</code> del programma: una tabella con l’istruttore (username oppure cognome e nome), il mezzo («MDS») e i chapter («Chapter», anche più d’uno
-          separati da virgola). Per ogni istruttore e mezzo presenti nel file, l’importazione sostituisce i chapter che aveva. Ciò che sta in <code>modelli</code> è pubblicato con
-          l’applicazione, quindi scaricabile da chi ne conosce l’indirizzo: se il file riporta nominativi reali conviene sceglierlo dal computer, senza pubblicarlo.
+          Il file va messo nella cartella <code>modelli</code> del repository privato dei dati, che legge solo chi accede: una tabella con l’istruttore (username oppure cognome e
+          nome), il mezzo («MDS») e i chapter («Chapter», anche più d’uno separati da virgola). Per ogni istruttore e mezzo presenti nel file, l’importazione sostituisce i
+          chapter che aveva. In alternativa il file si sceglie dal computer.
         </Text>
         <Group align="flex-end" gap="sm" className="non-stampare">
           <Select

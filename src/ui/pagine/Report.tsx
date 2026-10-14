@@ -71,7 +71,7 @@ function Tabella({ colonna, righe, totali, separa, requisito }: { colonna: strin
 }
 
 function ReportDi({ f, corso }: { f: Utente; corso: Corso }) {
-  const { dati } = useStato();
+  const { dati, backend } = useStato();
   const [pdf, setPdf] = useState(false);
   if (!dati) return null;
 
@@ -83,7 +83,7 @@ function ReportDi({ f, corso }: { f: Utente; corso: Corso }) {
     setPdf(true);
     try {
       const { apriCompliancePdf } = await import('../../stampaReport');
-      await apriCompliancePdf(dati!, corso, f, finestra);
+      await apriCompliancePdf(dati!, corso, f, finestra, (nome) => backend!.leggiModello(nome));
     } catch (e) {
       finestra?.close();
       notifications.show({ color: 'rosso', title: 'PDF non creato', message: messaggioErrore(e) });

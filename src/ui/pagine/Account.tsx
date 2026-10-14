@@ -1,13 +1,61 @@
 import { useState } from 'react';
-import { Button, CopyButton, Drawer, Group, SegmentedControl, Select, SimpleGrid, Stack, Switch, Text, TextInput } from '@mantine/core';
+import { Button, CopyButton, Drawer, Group, Modal, PasswordInput, SegmentedControl, Select, SimpleGrid, Stack, Switch, Text, TextInput } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconCopy, IconPencil, IconPlus, IconRefresh } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import { IconCopy, IconKey, IconPencil, IconPlus, IconRefresh } from '@tabler/icons-react';
+import type { GitHubBackend } from '../../backend/github/GitHubBackend';
 import { nuovoUuid } from '../../backend/github/crittografia';
+import { messaggioErrore } from '../../dominio/errori';
 import { RE_USERNAME, errorePassword } from '../../dominio/motore';
 import { ETICHETTA_RUOLO, type Istruttore, type Ruolo, type Utente } from '../../dominio/tipi';
 import { chiaveOrdine, esclusoDal, formatoData, frequentatori, nomeIstruttore, nomeUtente } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
 import { useStato } from '../stato';
+
+/** Sostituzione del token GitHub, come nel Gestionale PdS: chiavi nuove per tutti, password invariate. */
+function ModaleToken({ chiudi }: { chiudi: () => void }) {
+  const backend = useStato((s) => s.backend) as GitHubBackend | null;
+  const [token, setToken] = useState('');
+  const [attesa, setAttesa] = useState(false);
+  return (
+    <Modal opened onClose={chiudi} title={<span className="titolo-sezione">Aggiorna il token di accesso GitHub</span>} size="lg" centered>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setAttesa(true);
+          try {
+            await backend!.ruotaToken(token);
+            notifications.show({ message: 'Token aggiornato e chiavi di accesso rigenerate.' });
+            chiudi();
+          } catch (x) {
+            notifications.show({ color: 'rosso', title: 'Token non aggiornato', message: messaggioErrore(x) });
+          } finally {
+            setAttesa(false);
+          }
+        }}
+      >
+        <Stack gap="sm">
+          <Text size="sm">
+            Il nuovo token viene provato sul repository dei dati e cifrato con chiavi nuove per tutti gli utenti: le password non cambiano. Dopo l’aggiornamento
+            revoca il token precedente su GitHub, così chi è stato disattivato non può più leggere i dati nemmeno con una copia delle vecchie chiavi.
+          </Text>
+          <Text size="sm" className="debole">
+            Su GitHub: Settings → Developer settings → Fine-grained tokens → Generate new token; accesso ai soli due repository dell’archivio, «Contents: Read and write».
+          </Text>
+          <PasswordInput label="Nuovo token (github_pat_…)" value={token} onChange={(e) => setToken(e.currentTarget.value)} autoComplete="off" data-autofocus />
+          <Group justify="flex-end">
+            <Button variant="default" onClick={chiudi}>
+              Annulla
+            </Button>
+            <Button type="submit" loading={attesa} disabled={token.trim().length < 20}>
+              Aggiorna token
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Modal>
+  );
+}
 
 /** Password provvisoria leggibile: niente caratteri ambigui (0/O, 1/l). */
 function generaPassword() {
@@ -188,6 +236,7 @@ export function Account() {
   const [account, setAccount] = useState<Utente | 'nuovo' | null>(null);
   const [istruttore, setIstruttore] = useState<Istruttore | 'nuovo' | null>(null);
   const [filtro, setFiltro] = useState('tutti');
+  const [tokenAperto, setTokenAperto] = useState(false);
   if (!dati || !backend) return null;
   const ordine: Record<Ruolo, number> = { admin: 0, instructor: 1, trainee: 2 };
   const utenti = [...dati.utenti].sort((a, b) => ordine[a.ruolo] - ordine[b.ruolo] || Number(b.attivo) - Number(a.attivo) || chiaveOrdine(dati, a).localeCompare(chiaveOrdine(dati, b)));
@@ -211,7 +260,18 @@ export function Account() {
 
   return (
     <>
-      <IntestazionePagina titolo="Account" sotto={`Archivio: ${backend.nome}${backend.permessiLatoServer ? '' : ' · permessi applicati dall’app'}`} />
+      <IntestazionePagina
+        titolo="Account"
+        sotto={`Archivio: ${backend.nome} · permessi applicati dall’app`}
+        azioni={
+          backend.tipo === 'github' ? (
+            <Button variant="default" leftSection={<IconKey size={16} />} onClick={() => setTokenAperto(true)}>
+              Aggiorna token GitHub
+            </Button>
+          ) : undefined
+        }
+      />
+      {tokenAperto && <ModaleToken chiudi={() => setTokenAperto(false)} />}
       <Select
         aria-label="Quali account mostrare"
         value={filtro}

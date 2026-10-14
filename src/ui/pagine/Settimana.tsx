@@ -23,7 +23,7 @@ const DURATE = [15, 30, 45, MINUTI_PERIODO];
  * Un periodo è un'ora: la riempie una lezione sola oppure più lezioni brevi, una dopo l'altra.
  */
 export function Settimana() {
-  const { dati, utente, esegui } = useStato();
+  const { dati, utente, esegui, backend } = useStato();
   const corso = useCorso();
   const { query } = usePosizione();
   const [inBozza, setInBozza] = useState<{ lunedi: string; lezioni: CampiLezione[] } | null>(null);
@@ -178,7 +178,7 @@ export function Settimana() {
   const esporta = async () => {
     try {
       const { esportaSettimana } = await import('../../moduloSettimana');
-      await esportaSettimana(dati, corso, lunedi, correnti);
+      await esportaSettimana((nome) => backend!.leggiModello(nome), dati, corso, lunedi, correnti);
     } catch (e) {
       notifications.show({ color: 'rosso', title: 'Excel non creato', message: messaggioErrore(e) });
     }

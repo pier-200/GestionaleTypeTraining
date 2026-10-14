@@ -489,21 +489,6 @@ await page.getByRole('button', { name: 'Riammetti' }).click();
 await conferma.getByRole('button', { name: 'Sì, confermo' }).click();
 await page.getByText('Riammesso al corso').waitFor({ timeout: 15000 });
 
-// 19. i file della cartella modelli sono pubblicati accanto all'applicazione, senza i dati di chi li ha preparati
-const modelli = await page.evaluate(async () => {
-  const elenco = await (await fetch('./modelli/indice.json')).json();
-  const stato = {};
-  for (const nome of elenco) stato[nome] = (await fetch(`./modelli/${nome.split('/').map(encodeURIComponent).join('/')}`)).status;
-  const xlsx = new Uint8Array(await (await fetch('./modelli/Programma%20settimanale.xlsx')).arrayBuffer());
-  return { elenco, stato, xlsx: Array.from(xlsx) };
-});
-for (const atteso of ['Programma settimanale.xlsx', 'Compliance Report.pdf', 'Generality and Purpose.pdf', 'Personnel Data.pdf', 'Programmi Type Training/CH-47F - MTT - B1.3.xlsx']) {
-  assert.ok(modelli.elenco.includes(atteso), `in modelli c’è ${atteso}`);
-}
-assert.deepEqual(Object.entries(modelli.stato).filter(([, s]) => s !== 200), [], 'ogni file di modelli è raggiungibile');
-const partiModello = Object.keys(unzipSync(new Uint8Array(modelli.xlsx)));
-assert.ok(partiModello.includes('xl/worksheets/sheet1.xml') && !partiModello.some((p) => /docProps|printerSettings/.test(p)), 'modelli pubblicati senza autore né stampante');
-
 await browser.close();
 assert.deepEqual(errori, [], `errori JavaScript: ${errori.join('; ')}`);
 console.log('e2e: tutti i controlli superati');

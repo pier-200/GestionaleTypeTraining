@@ -6,8 +6,7 @@ import { ErroreApp } from './dominio/errori';
  */
 export type Config =
   | { tipo: 'demo' }
-  | { tipo: 'github'; owner: string; repoDati: string; repoAccessi: string; branch: string }
-  | { tipo: 'supabase'; url: string; chiavePubblica: string; dominioEmail: string };
+  | { tipo: 'github'; owner: string; repoDati: string; repoAccessi: string; branch: string };
 
 const stringa = (v: unknown, nome: string) => {
   if (typeof v !== 'string' || !v.trim()) throw new ErroreApp('CONFIGURAZIONE', `config.json: il campo "${nome}" è obbligatorio.`);
@@ -27,15 +26,8 @@ export function interpretaConfig(grezza: unknown): Config {
         repoAccessi: stringa(b.repoAccessi, 'archivio.repoAccessi'),
         branch: typeof b.branch === 'string' && b.branch.trim() ? b.branch.trim() : 'main',
       };
-    case 'supabase':
-      return {
-        tipo: 'supabase',
-        url: stringa(b.url, 'archivio.url').replace(/\/+$/, ''),
-        chiavePubblica: stringa(b.chiavePubblica, 'archivio.chiavePubblica'),
-        dominioEmail: typeof b.dominioEmail === 'string' && b.dominioEmail.trim() ? b.dominioEmail.trim() : 'ptt.local',
-      };
     default:
-      throw new ErroreApp('CONFIGURAZIONE', `config.json: archivio "${String(b.tipo)}" non riconosciuto (valori ammessi: demo, github, supabase).`);
+      throw new ErroreApp('CONFIGURAZIONE', `config.json: archivio "${String(b.tipo)}" non riconosciuto (valori ammessi: demo, github).`);
   }
 }
 
