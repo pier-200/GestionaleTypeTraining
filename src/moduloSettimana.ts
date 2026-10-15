@@ -42,10 +42,41 @@ function preparaModello(originale: Parti): Parti {
       .replace(/ t="s"><v>(\d+)<\/v>/g, (_, i: string) => ` t="inlineStr"><is><t xml:space="preserve">${stringhe[Number(i)]}</t></is>`)
       .replace(/<extLst>[\s\S]*?<\/extLst>/g, '')
       // nell'originale l'ottava riga dei frequentatori non ha il numero
-      .replace(/<c r="A54" s="(\d+)"\/>/, '<c r="A54" s="$1"><v>8</v></c>'),
+      .replace(/<c r="A54" s="(\d+)"\/>/, '<c r="A54" s="$1"><v>8</v></c>')
+      // stampa: A4 verticale, sempre in una sola pagina, con margini che le stampanti non tagliano
+      .replace(/<sheetPr[^>]*\/>|<sheetPr[^>]*>[\s\S]*?<\/sheetPr>/, '')
+      .replace(/(<worksheet[^>]*>)/, '$1<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>')
+      .replace(/<pageMargins[^>]*\/>/, `<pageMargins left="${MARGINE.lato}" right="${MARGINE.lato}" top="${MARGINE.alto}" bottom="${MARGINE.alto}" header="0" footer="0"/>`)
+      .replace(/<pageSetup[^>]*\/>/, '<pageSetup paperSize="9" orientation="portrait" fitToWidth="1" fitToHeight="1" horizontalDpi="600" verticalDpi="600"/>'),
   );
   parti[STILI] = strToU8(leggi(STILI).replace(/<alignment (?![^>]*wrapText)/g, '<alignment shrinkToFit="1" '));
   return parti;
+}
+
+/** Oltre questa lunghezza il titolo del chapter non sta in una riga di ADDESTRAMENTO: va a capo su due. */
+const TITOLO_IN_UNA_RIGA = 46;
+/** Altezza in punti di ogni riga di testo in più (la riga del modulo è alta 14,25). */
+const ALTEZZA_RIGA_TESTO = 12.5;
+
+/**
+ * Per le celle di ADDESTRAMENTO aggiunge agli stili una variante che va a capo invece di rimpicciolire il testo:
+ * restituisce, per ogni stile usato nella colonna, quello che va a capo.
+ */
+function stiliACapo(parti: Parti): Map<string, string> {
+  const foglio = strFromU8(parti[FOGLIO]);
+  const stili = strFromU8(parti[STILI]);
+  const elenco = stili.match(/<cellXfs count="(\d+)">([\s\S]*?)<\/cellXfs>/);
+  if (!elenco) return new Map();
+  const xf = [...elenco[2].matchAll(/<xf [^>]*?(?:\/>|>[\s\S]*?<\/xf>)/g)].map((m) => m[0]);
+  const usati = new Set([...foglio.matchAll(/<c r="C(\d+)" s="(\d+)"/g)].filter(([, riga]) => Number(riga) >= PRIMA_RIGA_LEZIONI && Number(riga) <= ULTIMA_RIGA_LEZIONI).map((m) => m[2]));
+  const mappa = new Map<string, string>();
+  const nuovi: string[] = [];
+  for (const s of usati) {
+    mappa.set(s, String(xf.length + nuovi.length));
+    nuovi.push(xf[Number(s)].replace(/shrinkToFit="1" /, '').replace(/<alignment /, '<alignment wrapText="1" '));
+  }
+  parti[STILI] = strToU8(stili.replace(elenco[0], `<cellXfs count="${xf.length + nuovi.length}">${elenco[2]}${nuovi.join('')}</cellXfs>`));
+  return mappa;
 }
 
 /** Prima e ultima riga di ciascun giorno nel modulo, da lunedì a venerdì. */
@@ -61,8 +92,8 @@ const ULTIMA_RIGA_LEZIONI = 41;
 const ULTIMA_RIGA = 63;
 /** Dopo quattro periodi il modulo ha la riga della pausa pranzo. */
 const PERIODI_DEL_MATTINO = 4;
-/** Righe che stanno in una pagina alla scala del modulo: oltre, la stampa si riduce per restare in un foglio. */
-const RIGHE_IN_PAGINA = 66;
+/** Margini di stampa in pollici (circa 0,6 e 0,8 cm): abbastanza per qualunque stampante, il resto è il modulo. */
+const MARGINE = { lato: 0.25, alto: 0.3 };
 const SIGLA_GIORNO = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven'];
 /** Elenco dei frequentatori: due colonne da 8 righe a partire da questa. */
 const RIGA_FREQUENTATORI = 47;
@@ -149,7 +180,14 @@ export function compilaFoglio(foglio: string, celle: Record<string, Valore>): st
 }
 
 /** Il foglio del modulo compilato, e di quante righe si è allungato rispetto all'originale. */
-export function foglioSettimana(modello: string, dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]): { foglio: string; righeInPiu: number } {
+export function foglioSettimana(
+  modello: string,
+  dati: Dati,
+  corso: Corso,
+  lunedi: string,
+  lezioni: readonly CampiLezione[],
+  aCapo: ReadonlyMap<string, string> = new Map(),
+): { foglio: string; righeInPiu: number } {
   const foglio = compilaFoglio(modello, celleFisse(dati, corso, lunedi));
   const rigaDelModulo = (n: number) => {
     const riga = foglio.match(new RegExp(`<row r="${n}"[^>]*>[\\s\\S]*?</row>`))?.[0];
@@ -157,11 +195,19 @@ export function foglioSettimana(modello: string, dati: Dati, corso: Corso, luned
     return riga;
   };
   /** Copia di una riga del modulo, portata al numero indicato e compilata. */
-  const copia = (da: number, a: number, valori: Record<string, Valore>) =>
-    compilaFoglio(
-      rigaDelModulo(da).replace(`<row r="${da}"`, `<row r="${a}"`).replace(/<c r="([A-Z]+)\d+"/g, `<c r="$1${a}"`),
+  const copia = (da: number, a: number, valori: Record<string, Valore>) => {
+    let riga = rigaDelModulo(da).replace(`<row r="${da}"`, `<row r="${a}"`).replace(/<c r="([A-Z]+)\d+"/g, `<c r="$1${a}"`);
+    // titolo lungo: il testo va a capo e la riga si alza quanto serve, invece di rimpicciolire fino a non leggersi
+    if (typeof valori.C === 'string' && valori.C.length > TITOLO_IN_UNA_RIGA) {
+      riga = riga
+        .replace(/(<row [^>]*?)ht="[\d.]+"/, `$1ht="${14.25 + ALTEZZA_RIGA_TESTO * (Math.ceil(valori.C.length / TITOLO_IN_UNA_RIGA) - 1)}"`)
+        .replace(new RegExp(`(<c r="C${a}" s=")(\\d+)"`), (tutto, inizio: string, stile: string) => (aCapo.has(stile) ? `${inizio}${aCapo.get(stile)}"` : tutto));
+    }
+    return compilaFoglio(
+      riga,
       Object.fromEntries(Object.entries(valori).map(([colonna, v]) => [`${colonna}${a}`, v])),
     );
+  };
 
   const date = giorniSettimana(lunedi);
   const righe: string[] = [];
@@ -201,8 +247,6 @@ export function foglioSettimana(modello: string, dati: Dati, corso: Corso, luned
       const tutte = [...altre, ...unioni];
       return `<mergeCells count="${tutte.length}">${tutte.map((ref) => `<mergeCell ref="${ref}"/>`).join('')}</mergeCells>`;
     })
-    // con molte righe in più la scala si riduce quanto basta a restare in una pagina
-    .replace(/(<pageSetup[^>]*? scale=")(\d+)"/, (_, inizio: string, scala: string) => `${inizio}${Math.min(Number(scala), Math.floor((Number(scala) * RIGHE_IN_PAGINA) / (ULTIMA_RIGA + righeInPiu)))}"`);
   return { foglio: testa + righe.join('') + coda, righeInPiu };
 }
 
@@ -210,7 +254,8 @@ export function foglioSettimana(modello: string, dati: Dati, corso: Corso, luned
 export function creaModuloSettimana(modello: Uint8Array, dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]): Uint8Array {
   const parti = preparaModello(apriXlsx(modello));
   const { numero } = settimanaDiCorso(corso, lunedi);
-  const { foglio, righeInPiu } = foglioSettimana(strFromU8(parti[FOGLIO]), dati, corso, lunedi, lezioni);
+  const aCapo = stiliACapo(parti);
+  const { foglio, righeInPiu } = foglioSettimana(strFromU8(parti[FOGLIO]), dati, corso, lunedi, lezioni, aCapo);
   parti[FOGLIO] = strToU8(foglio);
   // il foglio prende il numero della settimana, come nell'originale ("10 SETTIMANA"), e l'area di stampa segue le righe aggiunte
   const nomeFoglio = numero ? `${numero} ${NOME_FOGLIO}` : NOME_FOGLIO;

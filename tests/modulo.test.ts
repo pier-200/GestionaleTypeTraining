@@ -102,8 +102,8 @@ it('il file Excel è il modulo ufficiale compilato: stessa struttura, nessun dat
   expect(Object.keys(parti).sort()).toEqual(Object.keys(pulito).sort());
   const foglio = strFromU8(parti[FOGLIO]);
   const originale = strFromU8(pulito[FOGLIO]);
-  // senza periodi divisi stile, unioni e impostazione di stampa restano quelli del modulo, cella per cella
-  const struttura = (xml: string) => [unioni(xml), xml.match(/<dimension[^>]*>/)![0], xml.match(/<pageSetup[^>]*>/)![0], xml.match(/<cols>.*<\/cols>/)![0], [...xml.matchAll(/<c r="([A-Z]+\d+)"( s="\d+")?/g)].map((m) => m[0])];
+  // senza periodi divisi stile e unioni restano quelli del modulo, cella per cella (la stampa diventa «una pagina A4»)
+  const struttura = (xml: string) => [unioni(xml), xml.match(/<dimension[^>]*>/)![0], xml.match(/<cols>.*<\/cols>/)![0], [...xml.matchAll(/<c r="([A-Z]+\d+)"( s="\d+")?/g)].map((m) => m[0])];
   expect(struttura(foglio)).toEqual(struttura(originale));
   expect([leggi(foglio, 'H6'), leggi(foglio, 'C43'), leggi(foglio, 'A11'), leggi(foglio, 'A39')]).toEqual([2, 'Cap. NERI Marco', 'Lun\n13/07', 'Ven\n17/07']);
   expect([leggi(foglio, 'B11'), leggi(foglio, 'C11'), leggi(foglio, 'G11'), leggi(foglio, 'I11')]).toEqual(['08:20-09:20', 'Rotor Drives', 63, 'Aula N.1']);
@@ -156,7 +156,10 @@ it('più lezioni nello stesso periodo: una riga ciascuna, il resto del modulo sc
   // i bordi di testa e di coda della giornata restano sulla prima e sull'ultima riga, le righe aggiunte sono interne
   const originale = foglioDi(modello);
   expect([11, 12, 18, 19, 20, 44, 45].map((n) => stile(foglio, `B${n}`))).toEqual([11, 12, 12, 12, 17, 40, 41].map((n) => stile(originale, `B${n}`)));
-  expect(foglio.match(/<pageSetup[^>]*>/)![0]).toContain(' scale="83"');
+  // la stampa resta in una pagina A4 anche con le righe in più: è Excel ad adattare la scala
+  expect(foglio.match(/<pageSetup[^>]*>/)![0]).toBe('<pageSetup paperSize="9" orientation="portrait" fitToWidth="1" fitToHeight="1" horizontalDpi="600" verticalDpi="600"/>');
+  expect(foglio).toContain('<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>');
+  expect(foglio).toContain('<pageMargins left="0.25" right="0.25" top="0.3" bottom="0.3" header="0" footer="0"/>');
   expect(strFromU8(unzipSync(bytes)['xl/workbook.xml'])).toContain(`'15 SETTIMANA'!$A$1:$I$67<`);
 });
 
@@ -181,4 +184,16 @@ it('le righe di un Excel si leggono sia dal file salvato da Excel sia da quello 
   const compilato = righeXlsx(creaModuloSettimana(modello, dati, corso, LUNEDI, lezioni));
   expect(compilato.find((r) => r[0] === 'DIRETTORE DEL CORSO:')![2]).toBe('Cap. NERI Marco');
   expect(compilato.find((r) => r[1] === '08:20-09:20')!.slice(1, 7)).toEqual(['08:20-09:20', 'Rotor Drives', '', '', '', '63']);
+});
+
+it('un titolo troppo lungo per una riga va a capo e la riga si alza, invece di rimpicciolire fino a non leggersi', () => {
+  // m009 «Standard practices including armament safety - only type particular» supera la riga
+  const bytes = creaModuloSettimana(modello, dati, corso, '2026-10-12', [lez('lunga', '2026-10-12', 0, 0, 60, { materia: 'm009' }), lez('corta', '2026-10-12', 1, 0, 60, { materia: 'm008' })]);
+  const parti = unzipSync(bytes);
+  const foglio = strFromU8(parti[FOGLIO]);
+  expect(foglio.match(/<row r="11"[^>]*>/)![0]).toContain('ht="26.75"');
+  expect(foglio.match(/<row r="12"[^>]*>/)![0]).toContain('ht="14.25"');
+  const xf = [...strFromU8(parti['xl/styles.xml']).match(/<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/)![1].matchAll(/<xf [^>]*?(?:\/>|>[\s\S]*?<\/xf>)/g)].map((m) => m[0]);
+  expect(xf[Number(stile(foglio, 'C11'))]).toContain('wrapText="1"');
+  expect(xf[Number(stile(foglio, 'C12'))]).toContain('shrinkToFit="1"');
 });
