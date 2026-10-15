@@ -2,6 +2,7 @@ import { Text } from '@mantine/core';
 import { IconAlertTriangleFilled } from '@tabler/icons-react';
 import { oggiISO, ruoloNelCorso } from '../../dominio/motore';
 import { oreDaMinuti, programmaTeorico } from '../../dominio/programmi';
+import { conMateria } from '../../dominio/tipi';
 import { formatoData, lezioniVisibili, nomeUtente, ore, oreDocenti } from '../../dominio/viste';
 import { IntestazionePagina, Quota, ScalaQuote, Sezione } from '../componenti/disegno';
 import { useCorso } from '../navigazione';
@@ -14,8 +15,10 @@ export function Docenti() {
   const programma = programmaTeorico(corso?.programma_teorico);
   if (!dati || !utente || !corso || !programma) return null;
   const ruolo = ruoloNelCorso(dati, utente, corso.id);
-  const lezioni = lezioniVisibili(dati, corso.id, ruolo);
-  const righe = oreDocenti(dati, corso.id, lezioni, oggiISO());
+  const periodi = lezioniVisibili(dati, corso.id, ruolo);
+  // le lezioni vere e proprie: sospensioni, esami, MEO e le altre attività non hanno un chapter da spiegare
+  const lezioni = periodi.filter((l) => conMateria(l.tipo));
+  const righe = oreDocenti(dati, corso.id, periodi, oggiISO());
   const totale = righe.reduce((s, r) => s + r.minuti, 0);
   const svolte = righe.reduce((s, r) => s + r.svolti, 0);
   const senza = lezioni.filter((l) => !l.istruttore_id);
