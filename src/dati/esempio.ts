@@ -1,12 +1,13 @@
 import { generaSettimana, lunediDi, sommaGiorni } from '../dominio/pianificazione';
 import { minimoMeta } from '../dominio/compliance';
-import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, materiaDi, type Task } from '../dominio/programmi';
+import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, chapterDelMds, materiaDi, programmaTeorico, type Materia, type Task } from '../dominio/programmi';
 import type { Abilitazione, Anagrafica, Certificato, Corso, Dati, DatiTraining, Iscrizione, Istruttore, Lezione, Presenza, Rapportino, Registrazione, StatoPresenza, TipoEsecuzione, Utente } from '../dominio/tipi';
 
 /**
  * Situazione esempio SINTETICA per la modalità dimostrativa: persone, matricole e
  * approvazioni sono inventate. Generata in modo deterministico (stesso seme, stessi dati).
- * Due corsi: uno in svolgimento (teoria conclusa, pratica in corso) e uno appena iniziato (solo teoria).
+ * Tre corsi: uno in svolgimento (teoria conclusa, pratica in corso), uno appena iniziato (solo teoria) e uno
+ * UC-228 Cat. C che parte il 16/11, con il programma già pronto.
  */
 
 export const PASSWORD_DEMO = 'ptt-demo-2026';
@@ -42,6 +43,8 @@ const INIZIO = '2026-07-06';
 const ISTANTE_BASE = '2026-07-01T08:00:00.000Z';
 const CORSO_1 = 'c-2026-1';
 const CORSO_2 = 'c-2026-2';
+const CORSO_3 = 'c-2026-3';
+const UC228_C = programmaTeorico('mtt-uc228-c')!;
 
 const ISTRUTTORI: Istruttore[] = [
   ['ist-rinaldi', 'Mar. Ca.', 'Paolo', 'Rinaldi'],
@@ -210,6 +213,46 @@ TEORICO.materie.forEach((m, i) => {
   ABILITATI.set(m.chapter, [...new Set([...(ABILITATI.get(m.chapter) ?? []), ...chi])]);
 });
 
+/**
+ * UC-228 Cat. C (57 ore): quattro istruttori, circa 14 ore ciascuno; ognuno completa i moduli che apre, tranne il
+ * modulo 3 (20 ore), diviso fra i chapter dal 21 al 27 e quelli dal 28 al 43.
+ */
+const ISTRUTTORE_UC228_C = (m: Materia) =>
+  m.modulo === 1 || m.modulo === 7
+    ? 'u-rinaldi'
+    : m.modulo === 2 || m.modulo === 4 || m.modulo === 6
+      ? 'u-greco'
+      : m.modulo === 5 || (m.modulo === 3 && m.id <= 'm030')
+        ? 'u-neri'
+        : 'u-colombo';
+
+/** Programma completo del corso UC-228 Cat. C: ogni periodo occupato, finché le ore non finiscono. */
+function lezioniUc228C(): Lezione[] {
+  const lezioni: Lezione[] = [];
+  for (let lunedi = '2026-11-16'; ; lunedi = sommaGiorni(lunedi, 7)) {
+    const proposte = generaSettimana(UC228_C, lezioni, lunedi, { istruttorePerMateria: ISTRUTTORE_UC228_C });
+    if (!proposte.length) return lezioni;
+    for (const p of proposte) {
+      lezioni.push({
+        id: `l-${CORSO_3}-${lezioni.length}`,
+        corso_id: CORSO_3,
+        ...p,
+        persona: '',
+        frequentatori: [],
+        aula: '',
+        tipo: 'lezione',
+        validata: true,
+        validata_da: 'u-neri',
+        validata_il: '2026-11-13T12:00:00.000Z',
+        note: '',
+        creato_il: '2026-11-13T10:00:00.000Z',
+        modificato_il: '2026-11-13T10:00:00.000Z',
+        modificato_da: 'u-neri',
+      });
+    }
+  }
+}
+
 /** Lezioni delle prime settimane, tenute da istruttori abilitati al chapter. */
 function lezioniEsempio(corsoId: string, inizio: string, settimane: number, g: ReturnType<typeof generatore>): Lezione[] {
   const lezioni: Lezione[] = [];
@@ -308,6 +351,18 @@ export function datiEsempio(): Dati {
       istruttori_pratica: [],
       created_at: '2026-09-10T08:00:00.000Z',
     }),
+    corso(CORSO_3, 'T1-2026/3', 'T1 Type Training UC-228 Cat. C – 1° corso 2026', {
+      mds: 'UC-228',
+      categoria: 'C',
+      programma_teorico: UC228_C.id,
+      programma_pratico: null,
+      data_inizio: '2026-11-16',
+      data_fine: '2026-11-30',
+      durata_settimane: 3,
+      istruttori_pratica: [],
+      aeromobili: [],
+      created_at: '2026-10-15T08:00:00.000Z',
+    }),
   ];
 
   const utenti: Utente[] = [
@@ -329,6 +384,7 @@ export function datiEsempio(): Dati {
     iscrizione(CORSO_1, 'u-neri', 'direttore'),
     ...NUOVI.map((p) => iscrizione(CORSO_2, p.id, 'trainee')),
     iscrizione(CORSO_2, 'u-neri', 'direttore'),
+    iscrizione(CORSO_3, 'u-neri', 'direttore'),
   ];
 
   const training: DatiTraining[] = FREQUENTATORI.map((p) => ({
@@ -343,7 +399,11 @@ export function datiEsempio(): Dati {
   }));
 
   // abilitazioni: per mezzo e chapter, valide per tutti i corsi CH-47F
-  const abilitazioni: Abilitazione[] = [...ABILITATI].flatMap(([chapter, chi]) => chi.map((user_id) => ({ id: `${user_id}|CH-47F|${chapter}`, user_id, mds: 'CH-47F', chapter })));
+  const abilitazioni: Abilitazione[] = [
+    ...[...ABILITATI].flatMap(([chapter, chi]) => chi.map((user_id) => ({ id: `${user_id}|CH-47F|${chapter}`, user_id, mds: 'CH-47F', chapter }))),
+    // UC-228: per ora i quattro istruttori sono abilitati a tutti i chapter
+    ...['u-rinaldi', 'u-greco', 'u-neri', 'u-colombo'].flatMap((user_id) => chapterDelMds('UC-228').map(({ chapter }) => ({ id: `${user_id}|UC-228|${chapter}`, user_id, mds: 'UC-228', chapter }))),
+  ];
 
   // primo corso: teoria conclusa e validata, con una lezione di recupero a settembre
   const lezioni1 = lezioniEsempio(CORSO_1, INIZIO, 3, g);
@@ -432,7 +492,7 @@ export function datiEsempio(): Dati {
     training,
     istruttori: ISTRUTTORI,
     registrazioni: FREQUENTATORI.flatMap((p) => registrazioni(p, g)),
-    lezioni: [...lezioni1, ...lezioni2],
+    lezioni: [...lezioni1, ...lezioni2, ...lezioniUc228C()],
     abilitazioni,
     rapportini: [...presenze1.rapportini, ...presenze2.rapportini],
     presenze: [...presenze1.presenze, ...presenze2.presenze],

@@ -192,7 +192,7 @@ describe('logbook e account', () => {
     expect(() => applica(off.dati, reg('u-gallo'), ctx('u-gallo'))).toThrow(/non abilitato/);
     const nuovo: Comando = { tipo: 'corso.salva', corso: { ...corso(dati, C1), id: 'c-x', codice: 'T1-2027/1', nome: 'Nuovo corso' } };
     expect(() => applica(dati, nuovo, ctx('u-neri'))).toThrow(/Training Manager/);
-    expect(applica(dati, nuovo, ctx('u-tm')).dati.corsi).toHaveLength(3);
+    expect(applica(dati, nuovo, ctx('u-tm')).dati.corsi).toHaveLength(4);
   });
 
   it('i Personal Data li vedono tutti, li modificano solo il TM e il direttore del corso', () => {
@@ -215,7 +215,7 @@ describe('programma settimanale', () => {
     expect(salvaLezioni([lezione]).some((l) => l.id === 'l-x')).toBe(true);
     expect(() => salvaLezioni([lezione], 'u-rinaldi')).toThrow(/Training Manager|permessi/);
     // chi non è abilitato a quel chapter non tiene la lezione, e nemmeno chi non è un istruttore
-    const nonAbilitato = dati.utenti.find((u) => u.ruolo === 'instructor' && !dati.abilitazioni.some((a) => a.user_id === u.id && a.chapter === M[0].chapter))!.id;
+    const nonAbilitato = dati.utenti.find((u) => u.ruolo === 'instructor' && !dati.abilitazioni.some((a) => a.user_id === u.id && a.mds === 'CH-47F' && a.chapter === M[0].chapter))!.id;
     expect(() => salvaLezioni([{ ...lezione, istruttore_id: nonAbilitato }])).toThrow(/non abilitato al chapter 05/);
     expect(() => salvaLezioni([{ ...lezione, istruttore_id: 'u-gallo' }])).toThrow(/Istruttore non trovato/);
     expect(() => salvaLezioni([{ ...lezione, materia: 'm999' }])).toThrow(/non previsto dal syllabus/);
@@ -287,14 +287,15 @@ describe('abilitazioni degli istruttori', () => {
   it('per mezzo e chapter: le assegna solo il TM, solo sui chapter del syllabus', () => {
     const cmd: Comando = { tipo: 'abilitazioni.imposta', user_id: 'u-colombo', mds: 'CH-47F', chapters: ['34', '34', '62A', 'inesistente', 'AVES 1'] };
     const dopo = applica(dati, cmd, ctx('u-tm')).dati;
-    expect(dopo.abilitazioni.filter((a) => a.user_id === 'u-colombo').map((a) => `${a.mds} ${a.chapter}`)).toEqual(['CH-47F 34', 'CH-47F AVES 1']); // sostituisce quelle che aveva
+    expect(dopo.abilitazioni.filter((a) => a.user_id === 'u-colombo' && a.mds === 'CH-47F').map((a) => `${a.mds} ${a.chapter}`)).toEqual(['CH-47F 34', 'CH-47F AVES 1']); // sostituisce quelle che aveva
     expect(() => applica(dati, cmd, ctx('u-neri'))).toThrow(/Training Manager/); // nemmeno il direttore
     expect(() => applica(dati, { ...cmd, user_id: 'u-gallo' }, ctx('u-tm'))).toThrow(/Istruttore non trovato/);
     expect(() => applica(dati, { ...cmd, mds: 'AB-212' }, ctx('u-tm'))).toThrow(/Mezzo non previsto/);
     // le abilitazioni di un mezzo non toccano quelle di un altro
     const due = applica(dopo, { tipo: 'abilitazioni.importa', righe: [{ user_id: 'u-colombo', mds: 'UC-228', chapters: ['05'] }, { user_id: 'u-greco', mds: 'UC-228', chapters: ['05', '06'] }] }, ctx('u-tm')).dati;
     expect(due.abilitazioni.filter((a) => a.user_id === 'u-colombo')).toHaveLength(3);
-    expect(abilitatiPer(due, 'UC-228', '05').map((u) => u.id).sort()).toEqual(['u-colombo', 'u-greco']);
+    expect(due.abilitazioni.filter((a) => a.user_id === 'u-greco' && a.mds === 'UC-228').map((a) => a.chapter)).toEqual(['05', '06']);
+    expect(abilitatiPer(due, 'UC-228', '05').map((u) => u.id).sort()).toEqual(['u-colombo', 'u-greco', 'u-neri', 'u-rinaldi']);
     // dopo l'abilitazione l'istruttore diventa selezionabile per quel chapter
     const navigation = M.find((m) => m.chapter === '34')!;
     expect(salvaLezioni([lez('n', { materia: navigation.id, istruttore_id: 'u-colombo' })], 'u-neri', dopo)[0].istruttore_id).toBe('u-colombo');
@@ -330,7 +331,7 @@ describe('abilitazioni degli istruttori', () => {
     expect(leggiAbilitazioni([['a', 'b']], dati)).toMatchObject({ righe: [], scartate: [expect.stringMatching(/Intestazione/)] });
     // importate, valgono come quelle inserite a mano
     const dopo = applica(dati, { tipo: 'abilitazioni.importa', righe: letto.righe }, ctx('u-tm')).dati;
-    expect(dopo.abilitazioni.filter((a) => a.user_id === 'u-rinaldi').map((a) => a.chapter)).toEqual(['05', '06', '12']);
+    expect(dopo.abilitazioni.filter((a) => a.user_id === 'u-rinaldi' && a.mds === 'CH-47F').map((a) => a.chapter)).toEqual(['05', '06', '12']);
     expect(abilitatiPer(dopo, 'CH-47F', '12').map((u) => u.id)).toContain('u-rinaldi');
   });
 });
@@ -532,5 +533,28 @@ describe('visibilità delle pagine', () => {
     expect(soloTeoria.pratica).toEqual([]);
     expect(soloTeoria.corso.map((v) => v.a)).toEqual(['/quadro', '/corso', '/dati']);
     expect(voci('u-marchetti', C2).corso.map((v) => v.a)).toEqual(['/quadro', '/dati']);
+  });
+});
+
+describe('corso UC-228 Cat. C dell’esempio', () => {
+  it('57 ore dal 16/11 senza periodi vuoti, circa 14 ore per istruttore, moduli interi tranne il 3', () => {
+    const l = lezioniDi(dati, 'c-2026-3');
+    expect(l.reduce((s, x) => s + x.minuti, 0)).toBe(57 * 60);
+    const perGiorno = new Map<string, number>();
+    for (const x of l) perGiorno.set(x.data, (perGiorno.get(x.data) ?? 0) + x.minuti);
+    expect([...perGiorno]).toEqual([['2026-11-16', 360], ['2026-11-17', 360], ['2026-11-18', 360], ['2026-11-19', 360], ['2026-11-20', 180], ['2026-11-23', 360], ['2026-11-24', 360], ['2026-11-25', 360], ['2026-11-26', 360], ['2026-11-27', 180], ['2026-11-30', 180]]);
+    const ore = new Map<string, number>();
+    for (const x of l) ore.set(x.istruttore_id!, (ore.get(x.istruttore_id!) ?? 0) + x.minuti / 60);
+    expect(Object.fromEntries(ore)).toEqual({ 'u-rinaldi': 14.5, 'u-greco': 14, 'u-neri': 14, 'u-colombo': 14.5 });
+    const uc = programmaTeorico('mtt-uc228-c')!;
+    const chiPerModulo = new Map<number, Set<string>>();
+    for (const x of l) {
+      const modulo = uc.materie.find((m) => m.id === x.materia)!.modulo;
+      chiPerModulo.set(modulo, (chiPerModulo.get(modulo) ?? new Set()).add(x.istruttore_id!));
+    }
+    expect([...chiPerModulo].filter(([, chi]) => chi.size > 1).map(([m]) => m)).toEqual([3]);
+    // il direttore lo salva così com'è: ogni istruttore è abilitato ai chapter dell'UC-228
+    const giorni = [...perGiorno.keys()];
+    expect(() => applica(dati, { tipo: 'lezioni.sostituisci', corso_id: 'c-2026-3', giorni, lezioni: l }, ctx('u-neri'))).not.toThrow();
   });
 });

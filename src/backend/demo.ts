@@ -9,7 +9,7 @@ const PASSWORD = 'demo:password';
 const SESSIONE = 'demo:sessione';
 const VERSIONE = 'demo:versione';
 /** Da aumentare quando la situazione esempio cambia forma: i dati vecchi nel browser vengono rigenerati. */
-const FORMATO = '2026-10-13-abilitazioni-per-chapter';
+const FORMATO = '2026-10-15-corso-uc228-c';
 
 /**
  * Archivio dimostrativo: i dati restano nel browser di chi apre l'app (localStorage),
