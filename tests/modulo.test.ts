@@ -143,7 +143,7 @@ it('più lezioni nello stesso periodo: una riga ciascuna, il resto del modulo sc
   // lunedì: righe 11-20 (3 in più), con la pausa pranzo scesa di una riga
   expect(leggi(foglio, 'A11')).toBe('Lun\n12/10');
   expect([riga(11), riga(12)]).toEqual(lun[0]);
-  expect(riga(16)).toEqual(['13:00-14:00', 'PAUSA PRANZO', '////', null, '////']);
+  expect(riga(16)).toEqual(['13:00-14:00', 'PAUSA PRANZO', '////', '////', '////']); // pausa pranzo sbarrata in COD., ISTRUTTORE e AULA
   expect([18, 19, 20].map((n) => riga(n).slice(0, 3))).toEqual([['15:10-15:25', 'Navigation', 34], ['15:25-15:40', 'Information Systems', 46], ['15:40-16:10', 'Cargo and Accessory Compartments', 50]]);
   expect([leggi(foglio, 'A21'), leggi(foglio, 'B21')]).toEqual(['Mar\n13/10', '08:20-09:05']);
   // venerdì: righe 42-45; in tutto 4 righe in più, e sotto la tabella tutto scende di 4
