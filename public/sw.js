@@ -1,7 +1,7 @@
 // Service worker del Gestionale Type Training: rende l'app installabile e ne tiene in cache i file.
 // Pagine e config.json: prima la rete (dati e versioni sempre aggiornati), la cache solo senza rete.
-// File con hash (assets/): prima la cache. Le chiamate agli archivi (GitHub, Supabase) non passano di qui.
-const CACHE = 'tt-v2';
+// File con hash (assets/): prima la cache. Le chiamate agli archivi (GitHub) non passano di qui.
+const CACHE = 'tt-v3';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icona.svg'])));
@@ -30,7 +30,8 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   e.respondWith(
-    fetch(e.request)
+    // senza la cache HTTP del browser: GitHub Pages la concede per 10 minuti e farebbe usare la versione precedente
+    fetch(e.request.url, { cache: 'no-cache', credentials: 'same-origin' })
       .then((r) => {
         const copia = r.clone();
         if (r.ok) caches.open(CACHE).then((c) => c.put(e.request, copia));
