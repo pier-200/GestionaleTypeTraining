@@ -1,7 +1,7 @@
 // Service worker del Gestionale Type Training: rende l'app installabile e ne tiene in cache i file.
 // Pagine e config.json: prima la rete (dati e versioni sempre aggiornati), la cache solo senza rete.
 // File con hash (assets/): prima la cache. Le chiamate agli archivi (GitHub) non passano di qui.
-const CACHE = 'tt-v3';
+const CACHE = 'tt-v4';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icona.svg'])));
@@ -9,7 +9,15 @@ self.addEventListener('install', (e) => {
 });
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((chiavi) => Promise.all(chiavi.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(
+    (async () => {
+      const vecchie = (await caches.keys()).filter((k) => k !== CACHE);
+      await Promise.all(vecchie.map((k) => caches.delete(k)));
+      await self.clients.claim();
+      // è uscita una versione nuova: le schede aperte si ricaricano, altrimenti resterebbe in uso quella precedente
+      if (vecchie.length) for (const c of await self.clients.matchAll({ type: 'window' })) c.navigate(c.url).catch(() => undefined);
+    })(),
+  );
 });
 
 self.addEventListener('fetch', (e) => {
