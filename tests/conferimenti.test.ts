@@ -40,7 +40,8 @@ it('ogni foglio è un mezzo: chi non ha un account si crea, poi ogni chapter del
   expect([dopo.mancanti, dopo.scartate]).toEqual([[], []]);
   const importato = applica(dati, { tipo: 'abilitazioni.importa', righe: dopo.righe }, ctx).dati;
   for (const mds of ['CH-47F', 'UC-228', 'VC-180A']) {
-    const senza = chapterDelMds(mds).filter((c) => !abilitatiPer(importato, mds, c.chapter).some((u) => u.id !== 'u-rinaldi' && u.id !== 'u-greco' && u.id !== 'u-neri' && u.id !== 'u-colombo'));
+    // contano solo gli account appena creati dal file (id = username «nome.cognome»), non quelli dell'esempio
+    const senza = chapterDelMds(mds).filter((c) => !abilitatiPer(importato, mds, c.chapter).some((u) => u.id.includes('.')));
     expect(senza.map((c) => c.chapter), mds).toEqual([]);
   }
   // istruttori per mezzo come nel file: le colonne con almeno una «X»

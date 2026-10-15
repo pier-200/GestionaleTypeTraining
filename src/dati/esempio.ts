@@ -1,4 +1,4 @@
-import { generaSettimana, lunediDi, sommaGiorni } from '../dominio/pianificazione';
+import { generaSettimana, giorniSettimana, lunediDi, periodiDelGiorno, sommaGiorni } from '../dominio/pianificazione';
 import { minimoMeta } from '../dominio/compliance';
 import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, materiaDi, programmaTeorico, type Materia, type Task } from '../dominio/programmi';
 import type { Abilitazione, Anagrafica, Certificato, Corso, Dati, DatiTraining, Iscrizione, Istruttore, Lezione, Presenza, Rapportino, Registrazione, StatoPresenza, TipoEsecuzione, Utente } from '../dominio/tipi';
@@ -7,7 +7,7 @@ import type { Abilitazione, Anagrafica, Certificato, Corso, Dati, DatiTraining, 
  * Situazione esempio SINTETICA per la modalità dimostrativa: persone, matricole e
  * approvazioni sono inventate. Generata in modo deterministico (stesso seme, stessi dati).
  * Tre corsi: uno in svolgimento (teoria conclusa, pratica in corso), uno appena iniziato (solo teoria) e uno
- * UC-228 Cat. C che parte il 16/11, con il programma già pronto.
+ * UC-228 Cat. C dal 9/11, con il programma già pronto secondo i conferimenti.
  */
 
 export const PASSWORD_DEMO = 'ptt-demo-2026';
@@ -214,61 +214,103 @@ TEORICO.materie.forEach((m, i) => {
 });
 
 /**
- * Conferimenti UC-228 dell'esempio: quattro schemi del foglio «UC-228» di Conferimenti.xlsx (cartella modelli),
- * dati agli istruttori inventati della demo. I nominativi veri restano solo nell'archivio privato.
+ * Corso UC-228 Cat. C dell'esempio: cinque istruttori con le colonne del foglio «UC-228» di Conferimenti.xlsx (cartella
+ * modelli). I nomi sono abbreviazioni dei cognomi: i nominativi veri restano solo nell'archivio privato.
  */
+const ISTRUTTORI_UC228: [id: string, cognome: string][] = [
+  ['u-cang', 'Cang'],
+  ['u-luon', 'Luon'],
+  ['u-ciav', 'Ciav'],
+  ['u-toto', 'Toto'],
+  ['u-mast', 'Mast'],
+];
+/** Generale, cellula e impianti meccanici, AVES: comune a Ciav, Toto e Mast. */
+const CELLULA_UC228 = ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '21A', '21C', '25', '25A', '26', '28', '28A', '29', '29A', '32', '32A', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'];
 const CONFERIMENTI_UC228: Record<string, string[]> = {
-  // cellula, impianti meccanici, motore ed elica
-  'u-rinaldi': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '25', '25A', '26', '27', '28', '28A', '29', '29A', '32', '32A', '70A', '70B', '71', '72', '73', '75', '76', '78', '79', '74', '77', '61', '61A', '61B', '61C', '61F', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
-  // avionica
-  'u-greco': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '21', '21A', '21C', '22', '23', '24', '25', '25A', '26', '27', '27A', '30', '31', '31A', '33', '34', '35', '43', '93', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
-  // cellula, impianti meccanici, motore ed elica (senza carrello)
-  'u-neri': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '21A', '21C', '25', '25A', '26', '27', '28', '28A', '29', '29A', '70A', '70B', '71', '72', '73', '75', '76', '78', '79', '74', '77', '61', '61A', '61B', '61C', '61F', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
-  // tutto il syllabus
-  'u-colombo': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '21A', '21C', '22', '23', '24', '25', '25A', '26', '27', '28', '28A', '29', '29A', '30', '31', '31A', '32', '32A', '33', '34', '35', '43', '70A', '70B', '71', '72', '73', '75', '76', '78', '79', '74', '77', '61', '61A', '61B', '61C', '61F', '93', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
+  // cellula, impianti meccanici con i comandi di volo, motore ed elica
+  'u-cang': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '25', '25A', '26', '27', '28', '28A', '29', '29A', '32', '32A', '70A', '70B', '71', '72', '73', '75', '76', '78', '79', '74', '77', '61', '61A', '61B', '61C', '61F', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
+  // tutto il syllabus: è l'unico con l'avionica
+  'u-luon': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '21A', '21C', '22', '23', '24', '25', '25A', '26', '27', '28', '28A', '29', '29A', '30', '31', '31A', '32', '32A', '33', '34', '35', '43', '70A', '70B', '71', '72', '73', '75', '76', '78', '79', '74', '77', '61', '61A', '61B', '61C', '61F', '93', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
+  'u-ciav': CELLULA_UC228,
+  'u-toto': CELLULA_UC228,
+  'u-mast': CELLULA_UC228,
 };
 
-/** Chapter di avionica del modulo 3: vanno all'istruttore di avionica, il resto del modulo a chi ha tutto il syllabus. */
-const AVIONICA = new Set(['22', '23', '24', '30', '31', '31A', '33', '34', '35', '43']);
+/** Modulo 3: avionica e comandi di volo li ha solo Luon; gli impianti meccanici vanno a Toto. */
+const AVIONICA_E_COMANDI = new Set(['22', '23', '24', '27', '27A', '30', '31', '31A', '33', '34', '35', '43']);
+
+/** Un modulo per istruttore, tranne il 3 che i conferimenti dividono fra Luon e Toto. */
+const ISTRUTTORE_UC228_C = (m: Materia) =>
+  m.modulo === 1
+    ? 'u-ciav'
+    : m.modulo === 2 || m.modulo === 7
+      ? 'u-mast'
+      : m.modulo === 4 || m.modulo === 5
+        ? 'u-cang'
+        : m.modulo === 6 || (m.modulo === 3 && AVIONICA_E_COMANDI.has(m.chapter))
+          ? 'u-luon'
+          : 'u-toto';
 
 /**
- * UC-228 Cat. C (57 ore), secondo i conferimenti: circa 14 ore a testa e ogni istruttore completa i moduli che apre,
- * tranne il modulo 3 (20 ore), diviso fra avionica e impianti meccanici.
+ * Le giornate di lezione, con chi insegna e per quante ore, nell'ordine della giornata: ogni periodo pieno, al massimo
+ * 3 ore a testa e 2 istruttori al giorno. Dal 16 al 20/11 sospensione; il 1/12, giorno dopo l'ultima lezione, esame.
  */
-const ISTRUTTORE_UC228_C = (m: Materia) =>
-  m.modulo === 1 || m.modulo === 8
-    ? 'u-rinaldi'
-    : m.modulo === 2 || m.modulo === 4
-      ? 'u-neri'
-      : m.modulo === 6 || m.modulo === 7 || (m.modulo === 3 && AVIONICA.has(m.chapter))
-        ? 'u-greco'
-        : 'u-colombo';
+const GIORNATE_UC228_C: [data: string, turni: [chi: string, ore: number][]][] = [
+  ['2026-11-09', [['u-ciav', 3], ['u-mast', 3]]],
+  ['2026-11-10', [['u-ciav', 3], ['u-mast', 3]]],
+  ['2026-11-11', [['u-ciav', 3], ['u-cang', 3]]],
+  ['2026-11-12', [['u-cang', 3], ['u-luon', 3]]],
+  ['2026-11-13', [['u-ciav', 1.5], ['u-mast', 1.5]]],
+  ['2026-11-23', [['u-luon', 3], ['u-toto', 3]]],
+  ['2026-11-24', [['u-cang', 3], ['u-toto', 3]]],
+  ['2026-11-25', [['u-luon', 3], ['u-toto', 3]]],
+  ['2026-11-26', [['u-cang', 3], ['u-luon', 3]]],
+  ['2026-11-27', [['u-toto', 3]]],
+  ['2026-11-30', [['u-mast', 2.5], ['u-toto', 0.5]]],
+];
 
-/** Programma completo del corso UC-228 Cat. C: ogni periodo occupato, finché le ore non finiscono. */
+/** Programma del corso UC-228 Cat. C: ogni istruttore riprende le sue materie, nell'ordine del syllabus, da dove era rimasto. */
 function lezioniUc228C(): Lezione[] {
+  const daFare = new Map<string, { materia: string; minuti: number }[]>();
+  for (const m of UC228_C.materie) daFare.set(ISTRUTTORE_UC228_C(m), [...(daFare.get(ISTRUTTORE_UC228_C(m)) ?? []), { materia: m.id, minuti: m.minuti }]);
   const lezioni: Lezione[] = [];
-  for (let lunedi = '2026-11-16'; ; lunedi = sommaGiorni(lunedi, 7)) {
-    const proposte = generaSettimana(UC228_C, lezioni, lunedi, { istruttorePerMateria: ISTRUTTORE_UC228_C });
-    if (!proposte.length) return lezioni;
-    for (const p of proposte) {
-      lezioni.push({
-        id: `l-${CORSO_3}-${lezioni.length}`,
-        corso_id: CORSO_3,
-        ...p,
-        persona: '',
-        frequentatori: [],
-        aula: '',
-        tipo: 'lezione',
-        validata: true,
-        validata_da: 'u-neri',
-        validata_il: '2026-11-13T12:00:00.000Z',
-        note: '',
-        creato_il: '2026-11-13T10:00:00.000Z',
-        modificato_il: '2026-11-13T10:00:00.000Z',
-        modificato_da: 'u-neri',
-      });
+  const aggiungi = (l: Pick<Lezione, 'data' | 'ordine' | 'parte' | 'minuti' | 'materia' | 'istruttore_id' | 'tipo'>) =>
+    lezioni.push({
+      id: `l-${CORSO_3}-${lezioni.length}`,
+      corso_id: CORSO_3,
+      ...l,
+      persona: '',
+      frequentatori: [],
+      aula: '',
+      validata: true,
+      validata_da: 'u-neri',
+      validata_il: '2026-11-06T12:00:00.000Z',
+      note: '',
+      creato_il: '2026-11-06T10:00:00.000Z',
+      modificato_il: '2026-11-06T10:00:00.000Z',
+      modificato_da: 'u-neri',
+    });
+  for (const [data, turni] of GIORNATE_UC228_C) {
+    let minuto = 0; // dall'inizio del primo periodo: i turni si susseguono senza buchi
+    for (const [chi, ore] of turni) {
+      const suoi = daFare.get(chi)!;
+      for (let restano = ore * 60; restano > 0; ) {
+        // una lezione non va oltre la materia, il turno o la fine del periodo (poi c'è la pausa)
+        const minuti = Math.min(restano, suoi[0].minuti, 60 - (minuto % 60));
+        const ordine = Math.floor(minuto / 60);
+        aggiungi({ data, ordine, parte: lezioni.filter((x) => x.data === data && x.ordine === ordine).length, minuti, materia: suoi[0].materia, istruttore_id: chi, tipo: 'lezione' });
+        suoi[0].minuti -= minuti;
+        if (!suoi[0].minuti) suoi.shift();
+        restano -= minuti;
+        minuto += minuti;
+      }
     }
   }
+  giorniSettimana('2026-11-16').forEach((data, g) => {
+    for (let ordine = 0; ordine < periodiDelGiorno(g); ordine++) aggiungi({ data, ordine, parte: 0, minuti: 60, materia: '', istruttore_id: null, tipo: 'sospensione' });
+  });
+  for (const ordine of [0, 1]) aggiungi({ data: '2026-12-01', ordine, parte: 0, minuti: 60, materia: '', istruttore_id: null, tipo: 'esame' });
+  return lezioni;
 }
 
 /** Lezioni delle prime settimane, tenute da istruttori abilitati al chapter. */
@@ -374,9 +416,9 @@ export function datiEsempio(): Dati {
       categoria: 'C',
       programma_teorico: UC228_C.id,
       programma_pratico: null,
-      data_inizio: '2026-11-16',
-      data_fine: '2026-11-30',
-      durata_settimane: 3,
+      data_inizio: '2026-11-09',
+      data_fine: '2026-12-01',
+      durata_settimane: 4,
       istruttori_pratica: [],
       aeromobili: [],
       created_at: '2026-10-15T08:00:00.000Z',
@@ -390,6 +432,8 @@ export function datiEsempio(): Dati {
     utente('u-rinaldi', 'paolo.rinaldi', 'instructor', ['Mar. Ca.', 'Paolo', 'Rinaldi'], 'ist-rinaldi'),
     utente('u-colombo', 'andrea.colombo', 'instructor', ['Lgt.', 'Andrea', 'Colombo'], 'ist-colombo'),
     utente('u-greco', 'stefano.greco', 'instructor', ['1° Mar.', 'Stefano', 'Greco'], 'ist-greco'),
+    // istruttori del corso UC-228: abbreviazioni dei cognomi veri
+    ...ISTRUTTORI_UC228.map(([id, cognome]) => utente(id, cognome.toLowerCase(), 'instructor', ['', '', cognome])),
     ...FREQUENTATORI.filter((p) => p.id !== 'u-fontana').map((p) => utente(p.id, p.username, 'trainee')),
     fontana,
     ...NUOVI.map((p) => utente(p.id, p.username, 'trainee')),
@@ -419,7 +463,7 @@ export function datiEsempio(): Dati {
   // abilitazioni: per mezzo e chapter, valide per tutti i corsi CH-47F
   const abilitazioni: Abilitazione[] = [
     ...[...ABILITATI].flatMap(([chapter, chi]) => chi.map((user_id) => ({ id: `${user_id}|CH-47F|${chapter}`, user_id, mds: 'CH-47F', chapter }))),
-    // UC-228: come nel file dei conferimenti
+    // UC-228: come nel file dei conferimenti, per i cinque istruttori del corso
     ...Object.entries(CONFERIMENTI_UC228).flatMap(([user_id, chapters]) => chapters.map((chapter) => ({ id: `${user_id}|UC-228|${chapter}`, user_id, mds: 'UC-228', chapter }))),
   ];
 
