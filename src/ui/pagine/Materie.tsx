@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, FileButton, Group, Select, Text } from '@mantine/core';
+import { Button, Checkbox, CopyButton, FileButton, Group, Select, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconAlertTriangleFilled, IconFileImport } from '@tabler/icons-react';
-import { leggiAbilitazioni, type LetturaAbilitazioni } from '../../dominio/abilitazioni';
+import { nuovoUuid } from '../../backend/github/crittografia';
+import { leggiFogli, usernameDa, type LetturaAbilitazioni } from '../../dominio/abilitazioni';
+import type { Foglio } from '../../xlsx';
+import { generaPassword } from './Account';
 import { messaggioErrore } from '../../dominio/errori';
 import { MDS, chapterDelMds } from '../../dominio/programmi';
 import { abilitatiPer, istruttoriAttivi, nomeUtente } from '../../dominio/viste';
@@ -25,6 +28,9 @@ export function Materie() {
   const [file, setFile] = useState<string[]>([]);
   const [nome, setNome] = useState<string | null>(null);
   const [lettura, setLettura] = useState<LetturaAbilitazioni | null>(null);
+  const [fogli, setFogli] = useState<Foglio[]>([]);
+  const [avanzamento, setAvanzamento] = useState('');
+  const [credenziali, setCredenziali] = useState<{ nominativo: string; username: string; password: string }[]>([]);
 
   // i modelli stanno nel repository privato dei dati: l'elenco arriva dall'archivio, solo a chi ha fatto l'accesso
   useEffect(() => {
@@ -59,19 +65,49 @@ export function Materie() {
     try {
       const bytes = locale ? new Uint8Array(await locale.arrayBuffer()) : await backend!.leggiModello(nome!);
       if (!bytes) throw new Error(`File «${nome}» non trovato nella cartella modelli.`);
-      const { righeXlsx } = await import('../../xlsx');
-      setLettura(leggiAbilitazioni(righeXlsx(bytes), dati));
+      const { fogliXlsx } = await import('../../xlsx');
+      const letti = fogliXlsx(bytes);
+      setFogli(letti);
+      setLettura(leggiFogli(letti, dati));
+      setCredenziali([]);
     } catch (e) {
       notifications.show({ color: 'rosso', title: 'File non letto', message: messaggioErrore(e) });
     }
   };
 
-  const importa = async () => {
-    if (!lettura?.righe.length) return;
+  /**
+   * Importa le abilitazioni; con `creaMancanti` prima crea gli account degli istruttori del file che non ne hanno
+   * uno (username «nome.cognome», password provvisoria da consegnare), poi rilegge il file e importa per tutti.
+   */
+  const importa = async (creaMancanti = false) => {
+    if (!lettura) return;
     setAttesa(true);
-    const ok = await esegui({ tipo: 'abilitazioni.importa', righe: lettura.righe }, `Abilitazioni importate per ${new Set(lettura.righe.map((r) => r.user_id)).size} istruttori`);
-    setAttesa(false);
-    if (ok) setLettura(null);
+    const nuove: typeof credenziali = [];
+    try {
+      if (creaMancanti) {
+        const usati = dati.utenti.map((u) => u.username);
+        for (const [i, m] of lettura.mancanti.entries()) {
+          setAvanzamento(`Creazione degli account: ${i + 1} di ${lettura.mancanti.length}…`);
+          const username = usernameDa(m.nome, m.cognome, usati);
+          const password = generaPassword();
+          const ok = await esegui({ tipo: 'utente.crea', utente: { id: nuovoUuid(), username, ruolo: 'instructor', grado: m.grado, nome: m.nome, cognome: m.cognome, istruttore_id: null }, password });
+          if (!ok) return;
+          usati.push(username);
+          nuove.push({ nominativo: m.intestazione, username, password });
+        }
+      }
+      // con gli account nuovi la lettura trova anche i loro chapter
+      const aggiornata = creaMancanti ? leggiFogli(fogli, useStato.getState().dati!) : lettura;
+      setAvanzamento('Importazione delle abilitazioni…');
+      const ok =
+        !aggiornata.righe.length ||
+        (await esegui({ tipo: 'abilitazioni.importa', righe: aggiornata.righe }, `Abilitazioni importate per ${new Set(aggiornata.righe.map((r) => r.user_id)).size} istruttori`));
+      if (ok) setLettura(null);
+    } finally {
+      setCredenziali(nuove);
+      setAvanzamento('');
+      setAttesa(false);
+    }
   };
 
   return (
@@ -107,9 +143,14 @@ export function Materie() {
               </Button>
             )}
           </FileButton>
-          {lettura && (
+          {lettura && !lettura.mancanti.length && (
             <Button onClick={() => void importa()} loading={attesa} disabled={!lettura.righe.length}>
               Importa
+            </Button>
+          )}
+          {lettura && lettura.mancanti.length > 0 && (
+            <Button onClick={() => void importa(true)} loading={attesa}>
+              Crea {lettura.mancanti.length} account e importa
             </Button>
           )}
         </Group>
@@ -125,11 +166,59 @@ export function Materie() {
                 {nomeUtente(dati, r.user_id)} · {r.mds}: <span className="cifre">{r.chapters.join(', ')}</span>
               </Text>
             ))}
+            {lettura.mancanti.length > 0 && (
+              <Text size="sm" mt="sm">
+                <b>Senza account ({lettura.mancanti.length}):</b> {lettura.mancanti.map((m) => m.intestazione).join(' · ')}. Con «Crea {lettura.mancanti.length} account e importa»
+                diventano istruttori (username «nome.cognome», password provvisoria da consegnare di persona) e ricevono i loro chapter.
+              </Text>
+            )}
+            {avanzamento && (
+              <Text size="sm" className="debole" mt="xs">
+                {avanzamento}
+              </Text>
+            )}
             {lettura.scartate.map((s) => (
               <Text key={s} size="sm" className="rosso">
                 {s}
               </Text>
             ))}
+          </div>
+        )}
+        {credenziali.length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <Group justify="space-between" mb={6}>
+              <Text fw={600}>Account creati: credenziali da consegnare di persona</Text>
+              <CopyButton value={credenziali.map((c) => `${c.nominativo}\t${c.username}\t${c.password}`).join('\n')}>
+                {({ copied, copy }) => (
+                  <Button size="compact-sm" variant="default" onClick={copy}>
+                    {copied ? 'Copiate' : 'Copia tutte'}
+                  </Button>
+                )}
+              </CopyButton>
+            </Group>
+            <div className="scorre">
+              <table className="tabella">
+                <thead>
+                  <tr>
+                    <th>Istruttore</th>
+                    <th>Username</th>
+                    <th>Password provvisoria</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {credenziali.map((c) => (
+                    <tr key={c.username}>
+                      <td>{c.nominativo}</td>
+                      <td className="cifre">{c.username}</td>
+                      <td className="cifre">{c.password}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Text size="xs" className="debole" mt={4}>
+              Restano visibili finché non si lascia la pagina: al primo accesso ognuno sceglie la propria password.
+            </Text>
           </div>
         )}
       </Sezione>

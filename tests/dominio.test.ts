@@ -296,6 +296,7 @@ describe('abilitazioni degli istruttori', () => {
     expect(due.abilitazioni.filter((a) => a.user_id === 'u-colombo')).toHaveLength(3);
     expect(due.abilitazioni.filter((a) => a.user_id === 'u-greco' && a.mds === 'UC-228').map((a) => a.chapter)).toEqual(['05', '06']);
     expect(abilitatiPer(due, 'UC-228', '05').map((u) => u.id).sort()).toEqual(['u-colombo', 'u-greco', 'u-neri', 'u-rinaldi']);
+    expect(abilitatiPer(dati, 'UC-228', '22').map((u) => u.id).sort()).toEqual(['u-colombo', 'u-greco']); // avionica, come nei conferimenti
     // dopo l'abilitazione l'istruttore diventa selezionabile per quel chapter
     const navigation = M.find((m) => m.chapter === '34')!;
     expect(salvaLezioni([lez('n', { materia: navigation.id, istruttore_id: 'u-colombo' })], 'u-neri', dopo)[0].istruttore_id).toBe('u-colombo');
@@ -537,16 +538,18 @@ describe('visibilità delle pagine', () => {
 });
 
 describe('corso UC-228 Cat. C dell’esempio', () => {
-  it('57 ore dal 16/11 senza periodi vuoti, circa 14 ore per istruttore, moduli interi tranne il 3', () => {
+  it('57 ore dal 16/11 senza periodi vuoti, circa 14 ore per istruttore secondo i conferimenti, moduli interi tranne il 3', () => {
     const l = lezioniDi(dati, 'c-2026-3');
+    const uc = programmaTeorico('mtt-uc228-c')!;
     expect(l.reduce((s, x) => s + x.minuti, 0)).toBe(57 * 60);
     const perGiorno = new Map<string, number>();
     for (const x of l) perGiorno.set(x.data, (perGiorno.get(x.data) ?? 0) + x.minuti);
     expect([...perGiorno]).toEqual([['2026-11-16', 360], ['2026-11-17', 360], ['2026-11-18', 360], ['2026-11-19', 360], ['2026-11-20', 180], ['2026-11-23', 360], ['2026-11-24', 360], ['2026-11-25', 360], ['2026-11-26', 360], ['2026-11-27', 180], ['2026-11-30', 180]]);
     const ore = new Map<string, number>();
     for (const x of l) ore.set(x.istruttore_id!, (ore.get(x.istruttore_id!) ?? 0) + x.minuti / 60);
-    expect(Object.fromEntries(ore)).toEqual({ 'u-rinaldi': 14.5, 'u-greco': 14, 'u-neri': 14, 'u-colombo': 14.5 });
-    const uc = programmaTeorico('mtt-uc228-c')!;
+    expect(Object.fromEntries(ore)).toEqual({ 'u-rinaldi': 14.5, 'u-greco': 14.5, 'u-neri': 13.5, 'u-colombo': 14.5 });
+    // ogni lezione va a chi ha il conferimento di quel chapter
+    expect(l.filter((x) => !dati.abilitazioni.some((a) => a.user_id === x.istruttore_id && a.mds === 'UC-228' && a.chapter === uc.materie.find((m) => m.id === x.materia)!.chapter))).toEqual([]);
     const chiPerModulo = new Map<number, Set<string>>();
     for (const x of l) {
       const modulo = uc.materie.find((m) => m.id === x.materia)!.modulo;

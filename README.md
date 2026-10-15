@@ -203,19 +203,16 @@ l'accesso**. Il sito pubblicato non li contiene e GitHub, senza token, risponde 
 - Lettura: `elencoModelli` e `leggiModello` dell'archivio ([`GitHubBackend.ts`](src/backend/github/GitHubBackend.ts));
   ogni file si scarica la prima volta che serve e resta in memoria fino all'uscita.
 
-**Excel delle abilitazioni.** Una tabella sul primo foglio, con una riga di intestazione e tre informazioni, in
-qualunque ordine:
+**Excel delle abilitazioni** (`Conferimenti.xlsx`). Un foglio per mezzo, con il nome dell'MDS (`CH-47F`, `UC-228`,
+`VC-180A`): una riga per chapter (colonna «ATA CH.») e una colonna per istruttore, intestata «Grado COGNOME Nome», con
+una «X» dove l'istruttore ha il conferimento. Le colonne ITEM, MODULO e SUBJECT si ignorano. È accettata anche una
+tabella a elenco (colonne istruttore, «MDS», «Chapter» con più chapter separati da virgola).
 
-| Colonna | Intestazioni riconosciute | Contenuto |
-|---|---|---|
-| istruttore | «Istruttore», «Nominativo», «Username», oppure «Cognome» e «Nome» separati | username dell'account, oppure cognome e nome (il grado davanti è ignorato) |
-| mezzo | «MDS», «Mezzo», «Aeromobile» | CH-47F, UC-228, VC-180A |
-| chapter | «Chapter», «Ch», «ATA», «Capitolo» | uno o più chapter separati da virgola (`05, 06, 12`); «tutti» per l'intero syllabus |
-
-Dalla pagina «Materie e istruttori» si sceglie il file fra quelli di `modelli`, si preme «Leggi il file», si controlla
-l'anteprima (le righe non riconosciute sono elencate) e si conferma con «Importa». Per ogni istruttore e mezzo
-presenti nel file l'importazione sostituisce i chapter che aveva. Con **«Dal computer…»** si importa un file senza
-caricarlo prima nell'archivio.
+Dalla pagina «Materie e istruttori» si sceglie il file fra quelli di `modelli`, si preme «Leggi il file» e si controlla
+l'anteprima. Gli istruttori del file che non hanno ancora un account si creano con **«Crea N account e importa»**:
+username «nome.cognome», password provvisoria mostrata una volta sola, da consegnare di persona. Poi per ogni istruttore
+e mezzo l'importazione sostituisce i chapter che aveva. Con **«Dal computer…»** si importa un file senza caricarlo
+prima nell'archivio.
 
 ## Stampa del Compliance Report
 

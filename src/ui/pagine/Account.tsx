@@ -58,7 +58,7 @@ function ModaleToken({ chiudi }: { chiudi: () => void }) {
 }
 
 /** Password provvisoria leggibile: niente caratteri ambigui (0/O, 1/l). */
-function generaPassword() {
+export function generaPassword() {
   const lettere = 'abcdefghjkmnpqrstuvwxyz';
   const cifre = '23456789';
   const r = crypto.getRandomValues(new Uint32Array(12));

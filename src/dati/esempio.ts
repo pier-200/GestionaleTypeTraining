@@ -1,6 +1,6 @@
 import { generaSettimana, lunediDi, sommaGiorni } from '../dominio/pianificazione';
 import { minimoMeta } from '../dominio/compliance';
-import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, chapterDelMds, materiaDi, programmaTeorico, type Materia, type Task } from '../dominio/programmi';
+import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, materiaDi, programmaTeorico, type Materia, type Task } from '../dominio/programmi';
 import type { Abilitazione, Anagrafica, Certificato, Corso, Dati, DatiTraining, Iscrizione, Istruttore, Lezione, Presenza, Rapportino, Registrazione, StatoPresenza, TipoEsecuzione, Utente } from '../dominio/tipi';
 
 /**
@@ -214,16 +214,34 @@ TEORICO.materie.forEach((m, i) => {
 });
 
 /**
- * UC-228 Cat. C (57 ore): quattro istruttori, circa 14 ore ciascuno; ognuno completa i moduli che apre, tranne il
- * modulo 3 (20 ore), diviso fra i chapter dal 21 al 27 e quelli dal 28 al 43.
+ * Conferimenti UC-228 dell'esempio: quattro schemi del foglio «UC-228» di Conferimenti.xlsx (cartella modelli),
+ * dati agli istruttori inventati della demo. I nominativi veri restano solo nell'archivio privato.
+ */
+const CONFERIMENTI_UC228: Record<string, string[]> = {
+  // cellula, impianti meccanici, motore ed elica
+  'u-rinaldi': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '25', '25A', '26', '27', '28', '28A', '29', '29A', '32', '32A', '70A', '70B', '71', '72', '73', '75', '76', '78', '79', '74', '77', '61', '61A', '61B', '61C', '61F', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
+  // avionica
+  'u-greco': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '21', '21A', '21C', '22', '23', '24', '25', '25A', '26', '27', '27A', '30', '31', '31A', '33', '34', '35', '43', '93', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
+  // cellula, impianti meccanici, motore ed elica (senza carrello)
+  'u-neri': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '21A', '21C', '25', '25A', '26', '27', '28', '28A', '29', '29A', '70A', '70B', '71', '72', '73', '75', '76', '78', '79', '74', '77', '61', '61A', '61B', '61C', '61F', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
+  // tutto il syllabus
+  'u-colombo': ['00', '05', '06', '07', '08', '09', '10', '11', '12', '20', '51', '53', '54', '55', '56', '57', '27A', '52', '21', '21A', '21C', '22', '23', '24', '25', '25A', '26', '27', '28', '28A', '29', '29A', '30', '31', '31A', '32', '32A', '33', '34', '35', '43', '70A', '70B', '71', '72', '73', '75', '76', '78', '79', '74', '77', '61', '61A', '61B', '61C', '61F', '93', 'AVES 1a', 'AVES 1b', 'AVES 1c', 'AVES 1d', 'AVES 2a', 'AVES 2b', 'AVES 3', 'AVES 4', 'AVES 5'],
+};
+
+/** Chapter di avionica del modulo 3: vanno all'istruttore di avionica, il resto del modulo a chi ha tutto il syllabus. */
+const AVIONICA = new Set(['22', '23', '24', '30', '31', '31A', '33', '34', '35', '43']);
+
+/**
+ * UC-228 Cat. C (57 ore), secondo i conferimenti: circa 14 ore a testa e ogni istruttore completa i moduli che apre,
+ * tranne il modulo 3 (20 ore), diviso fra avionica e impianti meccanici.
  */
 const ISTRUTTORE_UC228_C = (m: Materia) =>
-  m.modulo === 1 || m.modulo === 7
+  m.modulo === 1 || m.modulo === 8
     ? 'u-rinaldi'
-    : m.modulo === 2 || m.modulo === 4 || m.modulo === 6
-      ? 'u-greco'
-      : m.modulo === 5 || (m.modulo === 3 && m.id <= 'm030')
-        ? 'u-neri'
+    : m.modulo === 2 || m.modulo === 4
+      ? 'u-neri'
+      : m.modulo === 6 || m.modulo === 7 || (m.modulo === 3 && AVIONICA.has(m.chapter))
+        ? 'u-greco'
         : 'u-colombo';
 
 /** Programma completo del corso UC-228 Cat. C: ogni periodo occupato, finché le ore non finiscono. */
@@ -401,8 +419,8 @@ export function datiEsempio(): Dati {
   // abilitazioni: per mezzo e chapter, valide per tutti i corsi CH-47F
   const abilitazioni: Abilitazione[] = [
     ...[...ABILITATI].flatMap(([chapter, chi]) => chi.map((user_id) => ({ id: `${user_id}|CH-47F|${chapter}`, user_id, mds: 'CH-47F', chapter }))),
-    // UC-228: per ora i quattro istruttori sono abilitati a tutti i chapter
-    ...['u-rinaldi', 'u-greco', 'u-neri', 'u-colombo'].flatMap((user_id) => chapterDelMds('UC-228').map(({ chapter }) => ({ id: `${user_id}|UC-228|${chapter}`, user_id, mds: 'UC-228', chapter }))),
+    // UC-228: come nel file dei conferimenti
+    ...Object.entries(CONFERIMENTI_UC228).flatMap(([user_id, chapters]) => chapters.map((chapter) => ({ id: `${user_id}|UC-228|${chapter}`, user_id, mds: 'UC-228', chapter }))),
   ];
 
   // primo corso: teoria conclusa e validata, con una lezione di recupero a settembre

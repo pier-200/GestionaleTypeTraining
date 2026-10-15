@@ -32,14 +32,29 @@ export function senzaMetadati(parti: Parti): Parti {
 const daXml = (s: string) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
 const testoDi = (xml: string) => [...xml.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map((m) => daXml(m[1])).join('');
 
-/** Righe non vuote del primo foglio: ogni cella come testo, alla posizione della sua colonna. */
-export function righeXlsx(bytes: Uint8Array): string[][] {
+/** Un foglio della cartella di lavoro, con le sue righe non vuote. */
+export interface Foglio {
+  nome: string;
+  righe: string[][];
+}
+
+/** Tutti i fogli, nell'ordine della cartella: ogni cella come testo, alla posizione della sua colonna. */
+export function fogliXlsx(bytes: Uint8Array): Foglio[] {
   const parti = unzipSync(bytes);
   const leggi = (nome: string) => (parti[nome] ? strFromU8(parti[nome]) : '');
   const condivise = [...leggi('xl/sharedStrings.xml').matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) => testoDi(m[1]));
-  const id = leggi('xl/workbook.xml').match(/<sheet [^>]*r:id="([^"]+)"/)?.[1];
-  const relazione = [...leggi('xl/_rels/workbook.xml.rels').matchAll(/<Relationship [^>]*>/g)].find((m) => m[0].includes(`Id="${id}"`))?.[0];
-  const foglio = leggi(`xl/${(relazione?.match(/Target="([^"]+)"/)?.[1] ?? 'worksheets/sheet1.xml').replace(/^\/?xl\//, '')}`);
+  const relazioni = [...leggi('xl/_rels/workbook.xml.rels').matchAll(/<Relationship [^>]*>/g)].map((m) => m[0]);
+  const fogli = [...leggi('xl/workbook.xml').matchAll(/<sheet [^>]*>/g)].map((m) => {
+    const id = m[0].match(/r:id="([^"]+)"/)?.[1];
+    const destinazione = relazioni.find((r) => r.includes(`Id="${id}"`))?.match(/Target="([^"]+)"/)?.[1] ?? '';
+    return { nome: daXml(m[0].match(/name="([^"]*)"/)?.[1] ?? ''), percorso: `xl/${destinazione.replace(/^\/?xl\//, '')}` };
+  });
+  // un file ridotto all'osso può non avere la cartella di lavoro: vale il primo foglio
+  const elenco = fogli.length ? fogli : [{ nome: '', percorso: 'xl/worksheets/sheet1.xml' }];
+  return elenco.map(({ nome, percorso }) => ({ nome, righe: righeFoglio(leggi(percorso), condivise) }));
+}
+
+function righeFoglio(foglio: string, condivise: string[]): string[][] {
   const righe: string[][] = [];
   for (const r of foglio.matchAll(/<row [^>]*>([\s\S]*?)<\/row>/g)) {
     const riga: string[] = [];
@@ -53,3 +68,6 @@ export function righeXlsx(bytes: Uint8Array): string[][] {
   }
   return righe.filter((r) => r.some(Boolean));
 }
+
+/** Righe non vuote del primo foglio. */
+export const righeXlsx = (bytes: Uint8Array): string[][] => fogliXlsx(bytes)[0]?.righe ?? [];
