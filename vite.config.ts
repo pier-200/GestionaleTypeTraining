@@ -1,10 +1,16 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { defineConfig, type Connect, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { apriXlsx, chiudiXlsx, senzaMetadati } from './src/xlsx';
 
 const MODELLI = resolve(__dirname, 'modelli');
 const INDICE = 'indice.json';
+/**
+ * Moduli vuoti, uguali per tutti i corsi e senza dati: entrano nella build perché la demo pubblicata (`?demo`, senza
+ * accesso al repository dei dati) possa compilare Excel e PDF. Tutti gli altri modelli restano privati.
+ */
+const PER_LA_DEMO = ['Programma settimanale.xlsx', 'Compliance Report.pdf'];
 
 /** File della cartella `modelli`, con il percorso relativo (esclusi i file temporanei di Excel). */
 function elenca(cartella = MODELLI): string[] {
@@ -17,8 +23,8 @@ function elenca(cartella = MODELLI): string[] {
 
 /**
  * La cartella locale `modelli` è la copia di lavoro dei format ufficiali: la usano gli script e le prove, e
- * `npm run dev` e `vite preview` la espongono alla modalità dimostrativa. Non entra nella build: online i modelli
- * stanno nel repository privato dei dati (`npm run modelli` li carica) e li legge solo chi ha fatto l'accesso.
+ * `npm run dev` e `vite preview` la espongono alla modalità dimostrativa. Nella build entrano solo i moduli vuoti
+ * per la demo: per l'archivio reale i modelli stanno nel repository privato dei dati (`npm run modelli` li carica).
  */
 function modelli(): Plugin {
   const servi = (server: { middlewares: Connect.Server }) => {
@@ -31,7 +37,23 @@ function modelli(): Plugin {
       res.end(readFileSync(join(MODELLI, nome)));
     });
   };
-  return { name: 'modelli', configureServer: servi, configurePreviewServer: servi };
+  return {
+    name: 'modelli',
+    configureServer: servi,
+    configurePreviewServer: servi,
+    writeBundle(opzioni) {
+      const presenti = PER_LA_DEMO.filter((nome) => existsSync(join(MODELLI, nome)));
+      if (presenti.length < PER_LA_DEMO.length) this.warn(`Nella cartella modelli mancano ${PER_LA_DEMO.filter((n) => !presenti.includes(n)).join(', ')}: la demo pubblicata non potrà usarli.`);
+      const uscita = join(opzioni.dir ?? resolve(__dirname, 'dist'), 'modelli');
+      mkdirSync(uscita, { recursive: true });
+      for (const nome of presenti) {
+        const bytes = readFileSync(join(MODELLI, nome));
+        // dagli Excel si tolgono autore, percorso e stampante di chi li ha salvati
+        writeFileSync(join(uscita, nome), nome.endsWith('.xlsx') ? chiudiXlsx(senzaMetadati(apriXlsx(bytes))) : bytes);
+      }
+      writeFileSync(join(uscita, INDICE), JSON.stringify(presenti));
+    },
+  };
 }
 
 // base './': funziona a qualsiasi indirizzo (es. https://<utente>.github.io/<repository>/), con routing a hash.

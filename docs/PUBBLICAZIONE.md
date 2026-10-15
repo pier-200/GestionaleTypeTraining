@@ -16,7 +16,8 @@ GitHub**: nessun database esterno, nessun computer da tenere acceso.
 | `pier-200/tt-dati` | **privato** | i dati (`db/…`: account, corsi, frequentatori, logbook, programmi settimanali, presenze, certificati) e i **modelli** (`modelli/…`) |
 | `pier-200/tt-accessi` | pubblico | solo `keyring.json`, il portachiavi **cifrato** |
 
-- Il sito non contiene né dati né modelli. Per leggerli serve il token di `tt-dati`, che sta nel portachiavi cifrato
+- Il sito non contiene dati né modelli, tranne i due moduli vuoti che servono alla demo (programma settimanale e
+  Compliance Report, uguali per tutti i corsi). Per leggere dati e modelli serve il token di `tt-dati`, che sta nel portachiavi cifrato
   (PBKDF2 600.000 + AES-GCM): ogni account lo sblocca con la propria password. Senza accesso GitHub risponde «non
   trovato», anche a chi conosce l'indirizzo.
 - Ogni salvataggio è un commit in `tt-dati`: la cronologia conserva ogni versione.
@@ -100,7 +101,7 @@ git commit -am "..."   # il sito deve corrispondere al codice salvato
 npm run pubblica       # compila e sostituisce il ramo gh-pages
 ```
 
-La build non include la cartella `modelli`: i modelli si aggiornano a parte (vedi «Modelli»).
+La build include solo i due moduli vuoti per la demo; per l'archivio reale i modelli si aggiornano a parte (vedi «Modelli»).
 
 ## Storico
 

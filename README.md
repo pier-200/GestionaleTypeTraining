@@ -198,7 +198,8 @@ l'accesso**. Il sito pubblicato non li contiene e GitHub, senza token, risponde 
   **Add file → Upload files**. I file presenti solo online restano.
 - **In locale**: la stessa cartella serve agli script (`npm run programmi`, layout del Compliance Report), ai test e
   alla modalità dimostrativa, a cui `npm run dev` e `vite preview` la espongono ([`vite.config.ts`](vite.config.ts)).
-  Nella prova pubblicata (`?demo`) i modelli non ci sono: Excel e PDF dei moduli si provano in locale.
+  Nella prova pubblicata (`?demo`) ci sono solo i due moduli vuoti, uguali per tutti i corsi e senza dati
+  (`Programma settimanale.xlsx` e `Compliance Report.pdf`, senza metadati): la build li copia apposta.
 - Lettura: `elencoModelli` e `leggiModello` dell'archivio ([`GitHubBackend.ts`](src/backend/github/GitHubBackend.ts));
   ogni file si scarica la prima volta che serve e resta in memoria fino all'uscita.
 
