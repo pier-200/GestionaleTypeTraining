@@ -4,7 +4,7 @@ import { leggiAbilitazioni } from '../src/dominio/abilitazioni';
 import { calcolaReport, requisitiMancanti } from '../src/dominio/compliance';
 import { conferme } from '../src/dominio/conferme';
 import { applica, corsiDi, ruoloNelCorso, type CampiLezione, type Comando } from '../src/dominio/motore';
-import { generaSettimana, lunediDi, orariLezioni, statoTeorico } from '../src/dominio/pianificazione';
+import { generaSettimana, indiceGiorno, lunediDi, orariLezioni, periodiDelGiorno, statoTeorico } from '../src/dominio/pianificazione';
 import { assenzeDi } from '../src/dominio/presenze';
 import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, chapterDelMds, programmaTeorico } from '../src/dominio/programmi';
 import { aggiornaDati, type Dati, type TipoPeriodo } from '../src/dominio/tipi';
@@ -543,15 +543,24 @@ describe('corso UC-228 Cat. C dell’esempio', () => {
   const l = tutte.filter((x) => x.tipo === 'lezione');
   const chapter = (x: { materia: string }) => uc.materie.find((m) => m.id === x.materia)!;
 
-  it('dal 9 al 13/11, sospensione, dal 23/11 ogni periodo pieno fino a esaurire le 57 ore; esame il giorno dopo', () => {
+  it('dal 9 al 13/11, sospensione, dal 23/11 ogni periodo pieno fino a esaurire le 57 ore; poi MEO, esame, pratiche e fine', () => {
     expect(l.reduce((t, x) => t + x.minuti, 0)).toBe(57 * 60);
     const perGiorno = new Map<string, number>();
     for (const x of l) perGiorno.set(x.data, (perGiorno.get(x.data) ?? 0) + x.minuti / 60);
-    expect([...perGiorno]).toEqual([['2026-11-09', 6], ['2026-11-10', 6], ['2026-11-11', 6], ['2026-11-12', 6], ['2026-11-13', 3], ['2026-11-23', 6], ['2026-11-24', 6], ['2026-11-25', 6], ['2026-11-26', 6], ['2026-11-27', 3], ['2026-11-30', 3]]);
-    expect(new Set(tutte.filter((x) => x.tipo === 'sospensione').map((x) => x.data))).toEqual(new Set(['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20']));
-    expect(tutte.filter((x) => x.tipo === 'esame').map((x) => x.data)).toEqual(['2026-12-01', '2026-12-01']);
-    // nessun buco: in ogni giornata le lezioni partono dal primo periodo e si susseguono
-    for (const [data, ore] of perGiorno) expect(Math.max(...l.filter((x) => x.data === data).map((x) => x.ordine)), data).toBe(Math.ceil(ore) - 1);
+    expect([...perGiorno]).toEqual([['2026-11-09', 5], ['2026-11-10', 6], ['2026-11-11', 6], ['2026-11-12', 6], ['2026-11-13', 3], ['2026-11-23', 6], ['2026-11-24', 6], ['2026-11-25', 6], ['2026-11-26', 6], ['2026-11-27', 3], ['2026-11-30', 4]]);
+    const attivita = (tipo: string) => tutte.filter((x) => x.tipo === tipo).map((x) => `${x.data} ${x.ordine + 1}°`);
+    // la prima ora del corso e l'ora dopo l'esame: pratiche amministrative, con il direttore del corso
+    expect(attivita('pa')).toEqual(['2026-11-09 1°', '2026-12-01 3°']);
+    expect(attivita('meo')).toEqual(['2026-11-30 5°', '2026-11-30 6°']);
+    expect(attivita('esame')).toEqual(['2026-12-01 1°', '2026-12-01 2°']);
+    expect(tutte.filter((x) => x.tipo === 'pa' || x.tipo === 'meo').every((x) => x.istruttore_id === 'u-neri')).toBe(true);
+    // sbarrati: la settimana di sospensione e, finito il corso, il resto della settimana dell'esame
+    expect([...new Set(tutte.filter((x) => x.tipo === 'sospensione').map((x) => x.data))]).toEqual(['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-12-01', '2026-12-02', '2026-12-03', '2026-12-04']);
+    // ogni periodo di ogni giornata è occupato, senza buchi
+    const periodi = new Map<string, Set<number>>();
+    for (const x of tutte) periodi.set(x.data, (periodi.get(x.data) ?? new Set()).add(x.ordine));
+    for (const [data, ordini] of periodi) expect([...ordini].sort().join(), data).toBe(Array.from({ length: periodiDelGiorno(indiceGiorno(data)) }, (_, i) => i).join());
+    expect(corso(dati, 'c-2026-3').durata_settimane).toBe(3);
   });
 
   it('solo i cinque istruttori indicati, ognuno sui chapter che ha in conferimento', () => {

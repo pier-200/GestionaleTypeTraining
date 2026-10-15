@@ -4,7 +4,7 @@ import { programmaTeorico } from './dominio/programmi';
 import type { Backend } from './backend/tipi';
 import type { CampiLezione } from './dominio/motore';
 import { SIGLA_PERIODO, type Corso, type Dati } from './dominio/tipi';
-import { contenutoLezione, fineCorso, formatoDataBreve, frequentatori, nomeDirettore, nomeModulo, riferimentoLezione } from './dominio/viste';
+import { contenutoLezione, fineCorso, formatoDataBreve, frequentatori, nomeDirettore, nomeModulo, numeroSettimana, riferimentoLezione } from './dominio/viste';
 import { pulisciNome, scarica } from './esporta';
 import { apriXlsx, chiudiXlsx, senzaMetadati, type Parti } from './xlsx';
 
@@ -54,7 +54,7 @@ function preparaModello(originale: Parti): Parti {
 }
 
 /** Oltre questa lunghezza il titolo del chapter non sta in una riga di ADDESTRAMENTO: va a capo su due. */
-const TITOLO_IN_UNA_RIGA = 46;
+const TITOLO_IN_UNA_RIGA = 56;
 /** Altezza in punti di ogni riga di testo in più (la riga del modulo è alta 14,25). */
 const ALTEZZA_RIGA_TESTO = 12.5;
 
@@ -110,7 +110,8 @@ export function celleFisse(dati: Dati, corso: Corso, lunedi: string): Record<str
   const allievi = frequentatori(dati, corso.id, { al: lunedi });
   // ponytail: il modulo ha 16 righe fisse; oltre servirebbe un secondo foglio, da aggiungere se mai capita un corso più numeroso
   if (allievi.length > POSTI_FREQUENTATORI) throw new Error(`Il modulo ha ${POSTI_FREQUENTATORI} righe per i frequentatori: il corso ne ha ${allievi.length}.`);
-  const { numero, ritardo } = settimanaDiCorso(corso, lunedi);
+  const { ritardo } = settimanaDiCorso(corso, lunedi);
+  const numero = numeroSettimana(dati, corso, lunedi);
   const celle: Record<string, Valore> = {
     C6: corso.codice,
     H6: numero,
@@ -154,7 +155,7 @@ export function righeSettimana(dati: Dati, corso: Corso, lunedi: string, lezioni
           `${titolo}${l.tipo === 'recupero' ? ' (recupero)' : ''}`,
           // numero se Excel lo riscrive uguale ("34"), testo altrimenti ("05", "32A", "AVES 1")
           /^[1-9]\d*$/.test(codice) ? Number(codice) : codice,
-          riferimentoLezione(dati, l),
+          sospesa ? BARRATO : riferimentoLezione(dati, l),
           sospesa ? BARRATO : l.aula || corso.aula,
         ];
       });
@@ -253,7 +254,7 @@ export function foglioSettimana(
 /** Il file Excel della settimana, a partire dal modulo vuoto. */
 export function creaModuloSettimana(modello: Uint8Array, dati: Dati, corso: Corso, lunedi: string, lezioni: readonly CampiLezione[]): Uint8Array {
   const parti = preparaModello(apriXlsx(modello));
-  const { numero } = settimanaDiCorso(corso, lunedi);
+  const numero = numeroSettimana(dati, corso, lunedi);
   const aCapo = stiliACapo(parti);
   const { foglio, righeInPiu } = foglioSettimana(strFromU8(parti[FOGLIO]), dati, corso, lunedi, lezioni, aCapo);
   parti[FOGLIO] = strToU8(foglio);

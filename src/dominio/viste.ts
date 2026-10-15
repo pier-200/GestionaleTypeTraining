@@ -1,5 +1,5 @@
 import { calcolaReport, reportVuoto, requisitiMancanti, type Report } from './compliance';
-import { inOrdine, orariLezioni, statoTeorico, type Orario, type StatoTeorico } from './pianificazione';
+import { inOrdine, orariLezioni, settimanaDiCorso, sommaGiorni, statoTeorico, type Orario, type StatoTeorico } from './pianificazione';
 import { materiaDi, programmaPratico, programmaTeorico, type ProgrammaTeorico } from './programmi';
 import { ETICHETTA_PERIODO, conMateria, type Corso, type Dati, type ID, type Istruttore, type Lezione, type Registrazione, type Utente } from './tipi';
 
@@ -242,3 +242,16 @@ export const formatoMinuti = (m: number) => (m >= 60 ? `${Math.floor(m / 60)} h 
 /** Ore residue/svolte in formato compatto ("12 h", "1,5 h"). */
 export const ore = (minuti: number) => `${(minuti / 60).toLocaleString('it-IT', { maximumFractionDigits: 1 })} h`;
 
+/** Numero progressivo della settimana di corso: le settimane di sola sospensione non si contano. */
+export function numeroSettimana(dati: Dati, corso: Corso, lunedi: string): number | null {
+  const { numero } = settimanaDiCorso(corso, lunedi);
+  if (!numero) return numero;
+  const lezioni = lezioniDi(dati, corso.id);
+  let sospese = 0;
+  for (let k = 1; k < numero; k++) {
+    const inizio = sommaGiorni(lunedi, -7 * (numero - k));
+    const della = lezioni.filter((l) => l.data >= inizio && l.data <= sommaGiorni(inizio, 4));
+    if (della.length && della.every((l) => l.tipo === 'sospensione')) sospese++;
+  }
+  return numero - sospese;
+}

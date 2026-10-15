@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { expect, it } from 'vitest';
 import { datiEsempio } from '../src/dati/esempio';
 import { applica, type CampiLezione } from '../src/dominio/motore';
-import { lezioniDi } from '../src/dominio/viste';
+import { lezioniDi, numeroSettimana } from '../src/dominio/viste';
 import { celleFisse, creaModuloSettimana, righeSettimana } from '../src/moduloSettimana';
 import { apriXlsx, righeXlsx, senzaMetadati } from '../src/xlsx';
 
@@ -81,7 +81,7 @@ it('una riga per lezione: orario fisso del periodo, titolo e numero del chapter 
     lez('meo', '2026-10-14', 5, 0, 60, { materia: '', tipo: 'meo', istruttore_id: 'u-neri' }),
   ]);
   expect(varie[4][2]).toEqual([['10:50-11:35', 'Time limits/Maintenance checks (recupero)', '05', '', 'Aula N.4']]); // "05" resta testo
-  expect(varie[0][0]).toEqual([['08:20-09:20', 'Sospensione', '////', '', '////']]);
+  expect(varie[0][0]).toEqual([['08:20-09:20', 'Sospensione', '////', '////', '////']]); // sbarrata in ogni colonna
   expect(varie[1].slice(0, 3).map(([r]) => [r[1], r[2]])).toEqual([['Servicing', 12], ['Navigation', 34], [null, null]]);
   expect(varie[2].map(([r]) => r.slice(1, 4))).toEqual([
     ['Esame teorico', 'EX', 'Cap. Neri'],
@@ -196,4 +196,12 @@ it('un titolo troppo lungo per una riga va a capo e la riga si alza, invece di r
   const xf = [...strFromU8(parti['xl/styles.xml']).match(/<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/)![1].matchAll(/<xf [^>]*?(?:\/>|>[\s\S]*?<\/xf>)/g)].map((m) => m[0]);
   expect(xf[Number(stile(foglio, 'C11'))]).toContain('wrapText="1"');
   expect(xf[Number(stile(foglio, 'C12'))]).toContain('shrinkToFit="1"');
+});
+
+it('nel numero della settimana non si contano le settimane di sola sospensione', () => {
+  const uc = dati.corsi.find((c) => c.id === 'c-2026-3')!;
+  // UC-228: 9/11 prima settimana, 16/11 tutta sospesa, poi 23/11 e 30/11
+  expect(['2026-11-09', '2026-11-16', '2026-11-23', '2026-11-30'].map((l) => numeroSettimana(dati, uc, l))).toEqual([1, 2, 2, 3]);
+  expect(celleFisse(dati, uc, '2026-11-30').H6).toBe(3);
+  expect(celleFisse(dati, uc, '2026-11-30').C8).toBe('3 settimane');
 });

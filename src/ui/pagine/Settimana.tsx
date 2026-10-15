@@ -5,10 +5,10 @@ import { IconChevronLeft, IconChevronRight, IconDots, IconEraser, IconFileSpread
 import { nuovoUuid } from '../../backend/github/crittografia';
 import { messaggioErrore } from '../../dominio/errori';
 import { oggiISO, ruoloNelCorso, TIPI_PERIODO, type CampiLezione } from '../../dominio/motore';
-import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, generaSettimana, giorniSettimana, inOrdine, lunediDi, orariLezioni, periodiDelGiorno, settimanaDiCorso, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
+import { AULE, MINUTI_PERIODO, NOMI_GIORNI, ORARI_PERIODI, generaSettimana, giorniSettimana, inOrdine, lunediDi, orariLezioni, periodiDelGiorno, sommaGiorni, statoTeorico } from '../../dominio/pianificazione';
 import { materiaDi, oreDaMinuti, programmaTeorico, type Materia } from '../../dominio/programmi';
 import { conIstruttore, conMateria, conPersona, ETICHETTA_ISTRUTTORE, ETICHETTA_PERIODO, RSPP, SIGLA_PERIODO, type Lezione, type TipoPeriodo } from '../../dominio/tipi';
-import { abilitatiPer, abilitato, contenutoLezione, direttoreDi, formatoDataBreve, formatoMinuti, frequentatori, istruttoriAttivi, lezioniVisibili, nomeUtente, ore } from '../../dominio/viste';
+import { abilitatiPer, abilitato, contenutoLezione, direttoreDi, formatoDataBreve, formatoMinuti, frequentatori, istruttoriAttivi, lezioniVisibili, nomeUtente, numeroSettimana, ore } from '../../dominio/viste';
 import { IntestazionePagina } from '../componenti/disegno';
 import { useCampoVisibile } from '../componenti/tastiera';
 import { useCorso } from '../navigazione';
@@ -71,7 +71,7 @@ export function Settimana() {
   const correnti: CampiLezione[] = bozza ?? salvate.map(campi);
   const modificata = bozza != null && JSON.stringify(bozza) !== JSON.stringify(salvate.map(campi));
   const validata = salvate.length > 0 && salvate.every((l) => l.validata);
-  const settimana = settimanaDiCorso(corso, lunedi).numero;
+  const settimana = numeroSettimana(dati, corso, lunedi);
   /** Cognome dell'istruttore: nella griglia basta quello (gli account non ancora divisi in tre campi danno l'ultima parola). */
   const cognome = (id: string) => dati.utenti.find((u) => u.id === id)?.cognome || nomeUtente(dati, id).split(' ').at(-1);
   const aule = [...new Set([...AULE, corso.aula, ...lezioni.map((l) => l.aula)].filter(Boolean))];

@@ -1,4 +1,4 @@
-import { generaSettimana, giorniSettimana, lunediDi, periodiDelGiorno, sommaGiorni } from '../dominio/pianificazione';
+import { generaSettimana, lunediDi, sommaGiorni } from '../dominio/pianificazione';
 import { minimoMeta } from '../dominio/compliance';
 import { PROGRAMMI_PRATICI, PROGRAMMI_TEORICI, materiaDi, programmaTeorico, type Materia, type Task } from '../dominio/programmi';
 import type { Abilitazione, Anagrafica, Certificato, Corso, Dati, DatiTraining, Iscrizione, Istruttore, Lezione, Presenza, Rapportino, Registrazione, StatoPresenza, TipoEsecuzione, Utente } from '../dominio/tipi';
@@ -251,22 +251,33 @@ const ISTRUTTORE_UC228_C = (m: Materia) =>
           ? 'u-luon'
           : 'u-toto';
 
+/** Direttore del corso UC-228: tiene le pratiche amministrative e il mantenimento efficienza operativa. */
+const DIRETTORE_UC228 = 'u-neri';
+
 /**
- * Le giornate di lezione, con chi insegna e per quante ore, nell'ordine della giornata: ogni periodo pieno, al massimo
- * 3 ore a testa e 2 istruttori al giorno. Dal 16 al 20/11 sospensione; il 1/12, giorno dopo l'ultima lezione, esame.
+ * Le giornate del corso, in ordine: chi insegna e per quante ore, oppure un'attività (pratiche amministrative, MEO,
+ * esame, sospensione). Ogni periodo pieno, al massimo 3 ore a testa e 2 istruttori al giorno. Apre un'ora di pratiche
+ * amministrative; dal 16 al 20/11 sospensione; dopo l'ultima lezione MEO; il 1/12 esame, un'ora di pratiche
+ * amministrative e poi tutto sbarrato fino alla fine della settimana.
  */
 const GIORNATE_UC228_C: [data: string, turni: [chi: string, ore: number][]][] = [
-  ['2026-11-09', [['u-ciav', 3], ['u-mast', 3]]],
+  ['2026-11-09', [['pa', 1], ['u-ciav', 3], ['u-mast', 2]]],
   ['2026-11-10', [['u-ciav', 3], ['u-mast', 3]]],
   ['2026-11-11', [['u-ciav', 3], ['u-cang', 3]]],
   ['2026-11-12', [['u-cang', 3], ['u-luon', 3]]],
   ['2026-11-13', [['u-ciav', 1.5], ['u-mast', 1.5]]],
+  ...['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19'].map((d): [string, [string, number][]] => [d, [['sospensione', 6]]]),
+  ['2026-11-20', [['sospensione', 3]]],
   ['2026-11-23', [['u-luon', 3], ['u-toto', 3]]],
   ['2026-11-24', [['u-cang', 3], ['u-toto', 3]]],
   ['2026-11-25', [['u-luon', 3], ['u-toto', 3]]],
   ['2026-11-26', [['u-cang', 3], ['u-luon', 3]]],
-  ['2026-11-27', [['u-toto', 3]]],
-  ['2026-11-30', [['u-mast', 2.5], ['u-toto', 0.5]]],
+  ['2026-11-27', [['u-toto', 2.5], ['u-mast', 0.5]]],
+  ['2026-11-30', [['u-mast', 3], ['u-toto', 1], ['meo', 2]]],
+  ['2026-12-01', [['esame', 2], ['pa', 1], ['sospensione', 3]]],
+  ['2026-12-02', [['sospensione', 6]]],
+  ['2026-12-03', [['sospensione', 6]]],
+  ['2026-12-04', [['sospensione', 3]]],
 ];
 
 /** Programma del corso UC-228 Cat. C: ogni istruttore riprende le sue materie, nell'ordine del syllabus, da dove era rimasto. */
@@ -283,17 +294,25 @@ function lezioniUc228C(): Lezione[] {
       frequentatori: [],
       aula: '',
       validata: true,
-      validata_da: 'u-neri',
+      validata_da: DIRETTORE_UC228,
       validata_il: '2026-11-06T12:00:00.000Z',
       note: '',
       creato_il: '2026-11-06T10:00:00.000Z',
       modificato_il: '2026-11-06T10:00:00.000Z',
-      modificato_da: 'u-neri',
+      modificato_da: DIRETTORE_UC228,
     });
   for (const [data, turni] of GIORNATE_UC228_C) {
     let minuto = 0; // dall'inizio del primo periodo: i turni si susseguono senza buchi
     for (const [chi, ore] of turni) {
-      const suoi = daFare.get(chi)!;
+      const suoi = daFare.get(chi);
+      if (!suoi) {
+        // attività senza chapter: un periodo intero ciascuna; pratiche amministrative e MEO al direttore del corso
+        const tipo = chi as Lezione['tipo'];
+        for (let n = 0; n < ore; n++, minuto += 60) {
+          aggiungi({ data, ordine: minuto / 60, parte: 0, minuti: 60, materia: '', istruttore_id: tipo === 'pa' || tipo === 'meo' ? DIRETTORE_UC228 : null, tipo });
+        }
+        continue;
+      }
       for (let restano = ore * 60; restano > 0; ) {
         // una lezione non va oltre la materia, il turno o la fine del periodo (poi c'è la pausa)
         const minuti = Math.min(restano, suoi[0].minuti, 60 - (minuto % 60));
@@ -306,10 +325,6 @@ function lezioniUc228C(): Lezione[] {
       }
     }
   }
-  giorniSettimana('2026-11-16').forEach((data, g) => {
-    for (let ordine = 0; ordine < periodiDelGiorno(g); ordine++) aggiungi({ data, ordine, parte: 0, minuti: 60, materia: '', istruttore_id: null, tipo: 'sospensione' });
-  });
-  for (const ordine of [0, 1]) aggiungi({ data: '2026-12-01', ordine, parte: 0, minuti: 60, materia: '', istruttore_id: null, tipo: 'esame' });
   return lezioni;
 }
 
@@ -418,7 +433,7 @@ export function datiEsempio(): Dati {
       programma_pratico: null,
       data_inizio: '2026-11-09',
       data_fine: '2026-12-01',
-      durata_settimane: 4,
+      durata_settimane: 3, // settimane di lezione, senza quella di sospensione
       istruttori_pratica: [],
       aeromobili: [],
       created_at: '2026-10-15T08:00:00.000Z',
