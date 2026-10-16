@@ -543,19 +543,19 @@ describe('corso UC-228 Cat. C dell’esempio', () => {
   const l = tutte.filter((x) => x.tipo === 'lezione');
   const chapter = (x: { materia: string }) => uc.materie.find((m) => m.id === x.materia)!;
 
-  it('dal 9 al 13/11, sospensione, dal 23/11 ogni periodo pieno fino a esaurire le 57 ore; poi MEO, esame, pratiche e fine', () => {
+  it('dal 25/01/2027 ogni periodo pieno fino a esaurire le 57 ore; poi MEO, esame, pratiche amministrative e fine', () => {
     expect(l.reduce((t, x) => t + x.minuti, 0)).toBe(57 * 60);
     const perGiorno = new Map<string, number>();
     for (const x of l) perGiorno.set(x.data, (perGiorno.get(x.data) ?? 0) + x.minuti / 60);
-    expect([...perGiorno]).toEqual([['2026-11-09', 5], ['2026-11-10', 6], ['2026-11-11', 6], ['2026-11-12', 6], ['2026-11-13', 3], ['2026-11-23', 6], ['2026-11-24', 6], ['2026-11-25', 6], ['2026-11-26', 6], ['2026-11-27', 3], ['2026-11-30', 4]]);
+    expect([...perGiorno]).toEqual([['2027-01-25', 5], ['2027-01-26', 6], ['2027-01-27', 6], ['2027-01-28', 6], ['2027-01-29', 3], ['2027-02-01', 6], ['2027-02-02', 6], ['2027-02-03', 6], ['2027-02-04', 6], ['2027-02-05', 3], ['2027-02-08', 4]]);
     const attivita = (tipo: string) => tutte.filter((x) => x.tipo === tipo).map((x) => `${x.data} ${x.ordine + 1}°`);
     // la prima ora del corso e l'ora dopo l'esame: pratiche amministrative, con il direttore del corso
-    expect(attivita('pa')).toEqual(['2026-11-09 1°', '2026-12-01 3°']);
-    expect(attivita('meo')).toEqual(['2026-11-30 5°', '2026-11-30 6°']);
-    expect(attivita('esame')).toEqual(['2026-12-01 1°', '2026-12-01 2°']);
+    expect(attivita('pa')).toEqual(['2027-01-25 1°', '2027-02-09 3°']);
+    expect(attivita('meo')).toEqual(['2027-02-08 5°', '2027-02-08 6°']);
+    expect(attivita('esame')).toEqual(['2027-02-09 1°', '2027-02-09 2°']);
     expect(tutte.filter((x) => x.tipo === 'pa' || x.tipo === 'meo').every((x) => x.istruttore_id === 'u-neri')).toBe(true);
-    // sbarrati: la settimana di sospensione e, finito il corso, il resto della settimana dell'esame
-    expect([...new Set(tutte.filter((x) => x.tipo === 'sospensione').map((x) => x.data))]).toEqual(['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-12-01', '2026-12-02', '2026-12-03', '2026-12-04']);
+    // finito il corso, il resto della settimana dell'esame è sbarrato
+    expect([...new Set(tutte.filter((x) => x.tipo === 'sospensione').map((x) => x.data))]).toEqual(['2027-02-09', '2027-02-10', '2027-02-11', '2027-02-12']);
     // ogni periodo di ogni giornata è occupato, senza buchi
     const periodi = new Map<string, Set<number>>();
     for (const x of tutte) periodi.set(x.data, (periodi.get(x.data) ?? new Set()).add(x.ordine));
@@ -566,7 +566,7 @@ describe('corso UC-228 Cat. C dell’esempio', () => {
   it('solo i cinque istruttori indicati, ognuno sui chapter che ha in conferimento', () => {
     const ore = new Map<string, number>();
     for (const x of l) ore.set(x.istruttore_id!, (ore.get(x.istruttore_id!) ?? 0) + x.minuti / 60);
-    expect(Object.fromEntries(ore)).toEqual({ 'u-ciav': 10.5, 'u-mast': 10, 'u-cang': 12, 'u-luon': 12, 'u-toto': 12.5 });
+    expect(Object.fromEntries(ore)).toEqual({ 'u-cang': 10.5, 'u-ciav': 14, 'u-luon': 23.5, 'u-toto': 4.5, 'u-mast': 4.5 });
     expect(l.filter((x) => !dati.abilitazioni.some((a) => a.user_id === x.istruttore_id && a.mds === 'UC-228' && a.chapter === chapter(x).chapter))).toEqual([]);
     expect(['u-cang', 'u-luon', 'u-ciav', 'u-toto', 'u-mast'].map((id) => nomeUtente(dati, id))).toEqual(['Cang', 'Luon', 'Ciav', 'Toto', 'Mast']);
   });

@@ -200,8 +200,9 @@ it('un titolo troppo lungo per una riga va a capo e la riga si alza, invece di r
 
 it('nel numero della settimana non si contano le settimane di sola sospensione', () => {
   const uc = dati.corsi.find((c) => c.id === 'c-2026-3')!;
-  // UC-228: 9/11 prima settimana, 16/11 tutta sospesa, poi 23/11 e 30/11
-  expect(['2026-11-09', '2026-11-16', '2026-11-23', '2026-11-30'].map((l) => numeroSettimana(dati, uc, l))).toEqual([1, 2, 2, 3]);
-  expect(celleFisse(dati, uc, '2026-11-30').H6).toBe(3);
-  expect(celleFisse(dati, uc, '2026-11-30').C8).toBe('3 settimane');
+  // UC-228: tre settimane di fila dal 25/01/2027; una settimana tutta sospesa non si conterebbe
+  expect(['2027-01-25', '2027-02-01', '2027-02-08'].map((l) => numeroSettimana(dati, uc, l))).toEqual([1, 2, 3]);
+  expect(celleFisse(dati, uc, '2027-02-08').C8).toBe('3 settimane');
+  const conSospensione = { ...dati, lezioni: [...dati.lezioni, ...[0, 1, 2, 3, 4].map((g) => ({ ...dati.lezioni.find((x) => x.corso_id === uc.id)!, id: `s${g}`, data: `2027-02-0${1 + g}`, tipo: 'sospensione' as const }))].filter((x) => !(x.corso_id === uc.id && x.data >= '2027-02-01' && x.data <= '2027-02-05' && x.tipo !== 'sospensione')) };
+  expect(numeroSettimana(conSospensione, uc, '2027-02-08')).toBe(2);
 });

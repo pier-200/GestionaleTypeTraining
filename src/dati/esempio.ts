@@ -7,7 +7,7 @@ import type { Abilitazione, Anagrafica, Certificato, Corso, Dati, DatiTraining, 
  * Situazione esempio SINTETICA per la modalità dimostrativa: persone, matricole e
  * approvazioni sono inventate. Generata in modo deterministico (stesso seme, stessi dati).
  * Tre corsi: uno in svolgimento (teoria conclusa, pratica in corso), uno appena iniziato (solo teoria) e uno
- * UC-228 Cat. C dal 9/11, con il programma già pronto secondo i conferimenti.
+ * UC-228 Cat. C dal 25/01/2027, con il programma già pronto secondo i conferimenti.
  */
 
 export const PASSWORD_DEMO = 'ptt-demo-2026';
@@ -236,48 +236,49 @@ const CONFERIMENTI_UC228: Record<string, string[]> = {
   'u-mast': CELLULA_UC228,
 };
 
-/** Modulo 3: avionica e comandi di volo li ha solo Luon; gli impianti meccanici vanno a Toto. */
-const AVIONICA_E_COMANDI = new Set(['22', '23', '24', '27', '27A', '30', '31', '31A', '33', '34', '35', '43']);
-
-/** Un modulo per istruttore, tranne il 3 che i conferimenti dividono fra Luon e Toto. */
+/**
+ * Chi spiega cosa, come indicato dall'utente: Cang il modulo 1; Ciav i moduli 2, 7 e 8; Luon i moduli 4, 5 e 6.
+ * Il modulo 3 va a Toto e Mast, metà ciascuno (4,5 ore), tranne i chapter che solo Luon ha in conferimento
+ * (l'avionica e il 27 Flight Controls).
+ */
+const SOLO_LUON = new Set(['22', '23', '24', '27', '30', '31', '31A', '33', '34', '35', '43']);
+const META_TOTO = new Set(['21', '21A', '21C', '25', '25A', '26', '27A']);
 const ISTRUTTORE_UC228_C = (m: Materia) =>
   m.modulo === 1
-    ? 'u-ciav'
-    : m.modulo === 2 || m.modulo === 7
-      ? 'u-mast'
-      : m.modulo === 4 || m.modulo === 5
-        ? 'u-cang'
-        : m.modulo === 6 || (m.modulo === 3 && AVIONICA_E_COMANDI.has(m.chapter))
-          ? 'u-luon'
-          : 'u-toto';
+    ? 'u-cang'
+    : m.modulo === 2 || m.modulo === 7 || m.modulo === 8
+      ? 'u-ciav'
+      : m.modulo !== 3 || SOLO_LUON.has(m.chapter)
+        ? 'u-luon'
+        : META_TOTO.has(m.chapter)
+          ? 'u-toto'
+          : 'u-mast';
 
 /** Direttore del corso UC-228: tiene le pratiche amministrative e il mantenimento efficienza operativa. */
 const DIRETTORE_UC228 = 'u-neri';
 
 /**
  * Le giornate del corso, in ordine: chi insegna e per quante ore, oppure un'attività (pratiche amministrative, MEO,
- * esame, sospensione). Ogni periodo pieno, al massimo 3 ore a testa e 2 istruttori al giorno. Apre un'ora di pratiche
- * amministrative; dal 16 al 20/11 sospensione; dopo l'ultima lezione MEO; il 1/12 esame, un'ora di pratiche
- * amministrative e poi tutto sbarrato fino alla fine della settimana.
+ * esame, sospensione). Ogni periodo pieno, al massimo 3 ore a testa e 2 istruttori al giorno (calcolato cercando
+ * la ripartizione più vicina all'ordine del syllabus). Dal 25/01/2027: apre un'ora di pratiche amministrative; dopo
+ * l'ultima lezione MEO; il 9/02 esame, un'ora di pratiche amministrative e poi tutto sbarrato fino a venerdì.
  */
 const GIORNATE_UC228_C: [data: string, turni: [chi: string, ore: number][]][] = [
-  ['2026-11-09', [['pa', 1], ['u-ciav', 3], ['u-mast', 2]]],
-  ['2026-11-10', [['u-ciav', 3], ['u-mast', 3]]],
-  ['2026-11-11', [['u-ciav', 3], ['u-cang', 3]]],
-  ['2026-11-12', [['u-cang', 3], ['u-luon', 3]]],
-  ['2026-11-13', [['u-ciav', 1.5], ['u-mast', 1.5]]],
-  ...['2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19'].map((d): [string, [string, number][]] => [d, [['sospensione', 6]]]),
-  ['2026-11-20', [['sospensione', 3]]],
-  ['2026-11-23', [['u-luon', 3], ['u-toto', 3]]],
-  ['2026-11-24', [['u-cang', 3], ['u-toto', 3]]],
-  ['2026-11-25', [['u-luon', 3], ['u-toto', 3]]],
-  ['2026-11-26', [['u-cang', 3], ['u-luon', 3]]],
-  ['2026-11-27', [['u-toto', 2.5], ['u-mast', 0.5]]],
-  ['2026-11-30', [['u-mast', 3], ['u-toto', 1], ['meo', 2]]],
-  ['2026-12-01', [['esame', 2], ['pa', 1], ['sospensione', 3]]],
-  ['2026-12-02', [['sospensione', 6]]],
-  ['2026-12-03', [['sospensione', 6]]],
-  ['2026-12-04', [['sospensione', 3]]],
+  ['2027-01-25', [['pa', 1], ['u-cang', 3], ['u-ciav', 2]]],
+  ['2027-01-26', [['u-cang', 3], ['u-ciav', 3]]],
+  ['2027-01-27', [['u-cang', 3], ['u-luon', 3]]],
+  ['2027-01-28', [['u-luon', 3], ['u-toto', 3]]],
+  ['2027-01-29', [['u-cang', 1.5], ['u-toto', 1.5]]],
+  ['2027-02-01', [['u-luon', 3], ['u-mast', 3]]],
+  ['2027-02-02', [['u-ciav', 3], ['u-luon', 3]]],
+  ['2027-02-03', [['u-ciav', 3], ['u-luon', 3]]],
+  ['2027-02-04', [['u-ciav', 3], ['u-luon', 3]]],
+  ['2027-02-05', [['u-luon', 3]]],
+  ['2027-02-08', [['u-luon', 2.5], ['u-mast', 1.5], ['meo', 2]]],
+  ['2027-02-09', [['esame', 2], ['pa', 1], ['sospensione', 3]]],
+  ['2027-02-10', [['sospensione', 6]]],
+  ['2027-02-11', [['sospensione', 6]]],
+  ['2027-02-12', [['sospensione', 3]]],
 ];
 
 /** Programma del corso UC-228 Cat. C: ogni istruttore riprende le sue materie, nell'ordine del syllabus, da dove era rimasto. */
@@ -431,8 +432,8 @@ export function datiEsempio(): Dati {
       categoria: 'C',
       programma_teorico: UC228_C.id,
       programma_pratico: null,
-      data_inizio: '2026-11-09',
-      data_fine: '2026-12-01',
+      data_inizio: '2027-01-25',
+      data_fine: '2027-02-09',
       durata_settimane: 3, // settimane di lezione, senza quella di sospensione
       istruttori_pratica: [],
       aeromobili: [],
