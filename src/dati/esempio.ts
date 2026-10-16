@@ -237,22 +237,22 @@ const CONFERIMENTI_UC228: Record<string, string[]> = {
 };
 
 /**
- * Chi spiega cosa, come indicato dall'utente: Cang il modulo 1; Ciav i moduli 2, 7 e 8; Luon i moduli 4, 5 e 6.
- * Il modulo 3 va a Toto e Mast, metà ciascuno (4,5 ore), tranne i chapter che solo Luon ha in conferimento
- * (l'avionica e il 27 Flight Controls).
+ * Chi spiega cosa, come indicato dall'utente: Cang il modulo 1; Ciav il modulo 2; Luon i moduli 4, 5 e 6; Toto il
+ * modulo 7 e Mast l'8 (AVES). Il modulo 3 va a Toto e Mast, metà ciascuno (4,5 ore), tranne i chapter che solo Luon
+ * ha in conferimento (l'avionica e il 27 Flight Controls).
  */
 const SOLO_LUON = new Set(['22', '23', '24', '27', '30', '31', '31A', '33', '34', '35', '43']);
 const META_TOTO = new Set(['21', '21A', '21C', '25', '25A', '26', '27A']);
 const ISTRUTTORE_UC228_C = (m: Materia) =>
   m.modulo === 1
     ? 'u-cang'
-    : m.modulo === 2 || m.modulo === 7 || m.modulo === 8
+    : m.modulo === 2
       ? 'u-ciav'
-      : m.modulo !== 3 || SOLO_LUON.has(m.chapter)
-        ? 'u-luon'
-        : META_TOTO.has(m.chapter)
-          ? 'u-toto'
-          : 'u-mast';
+      : m.modulo === 7 || (m.modulo === 3 && META_TOTO.has(m.chapter))
+        ? 'u-toto'
+        : m.modulo === 8 || (m.modulo === 3 && !SOLO_LUON.has(m.chapter))
+          ? 'u-mast'
+          : 'u-luon';
 
 /** Direttore del corso UC-228: tiene le pratiche amministrative e il mantenimento efficienza operativa. */
 const DIRETTORE_UC228 = 'u-neri';
@@ -264,17 +264,17 @@ const DIRETTORE_UC228 = 'u-neri';
  * l'ultima lezione MEO; il 9/02 esame, un'ora di pratiche amministrative e poi tutto sbarrato fino a venerdì.
  */
 const GIORNATE_UC228_C: [data: string, turni: [chi: string, ore: number][]][] = [
-  ['2027-01-25', [['pa', 1], ['u-cang', 3], ['u-ciav', 2]]],
+  ['2027-01-25', [['pa', 1], ['u-cang', 3], ['u-toto', 2]]],
   ['2027-01-26', [['u-cang', 3], ['u-ciav', 3]]],
   ['2027-01-27', [['u-cang', 3], ['u-luon', 3]]],
-  ['2027-01-28', [['u-luon', 3], ['u-toto', 3]]],
-  ['2027-01-29', [['u-cang', 1.5], ['u-toto', 1.5]]],
+  ['2027-01-28', [['u-ciav', 3], ['u-luon', 3]]],
+  ['2027-01-29', [['u-cang', 1.5], ['u-luon', 1.5]]],
   ['2027-02-01', [['u-luon', 3], ['u-mast', 3]]],
-  ['2027-02-02', [['u-ciav', 3], ['u-luon', 3]]],
-  ['2027-02-03', [['u-ciav', 3], ['u-luon', 3]]],
-  ['2027-02-04', [['u-ciav', 3], ['u-luon', 3]]],
-  ['2027-02-05', [['u-luon', 3]]],
-  ['2027-02-08', [['u-luon', 2.5], ['u-mast', 1.5], ['meo', 2]]],
+  ['2027-02-02', [['u-luon', 3], ['u-toto', 3]]],
+  ['2027-02-03', [['u-luon', 3], ['u-mast', 3]]],
+  ['2027-02-04', [['u-luon', 3], ['u-toto', 3]]],
+  ['2027-02-05', [['u-luon', 2.5], ['u-toto', 0.5]]],
+  ['2027-02-08', [['u-luon', 1.5], ['u-mast', 2.5], ['meo', 2]]],
   ['2027-02-09', [['esame', 2], ['pa', 1], ['sospensione', 3]]],
   ['2027-02-10', [['sospensione', 6]]],
   ['2027-02-11', [['sospensione', 6]]],

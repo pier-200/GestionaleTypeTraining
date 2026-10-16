@@ -566,7 +566,7 @@ describe('corso UC-228 Cat. C dell’esempio', () => {
   it('solo i cinque istruttori indicati, ognuno sui chapter che ha in conferimento', () => {
     const ore = new Map<string, number>();
     for (const x of l) ore.set(x.istruttore_id!, (ore.get(x.istruttore_id!) ?? 0) + x.minuti / 60);
-    expect(Object.fromEntries(ore)).toEqual({ 'u-cang': 10.5, 'u-ciav': 14, 'u-luon': 23.5, 'u-toto': 4.5, 'u-mast': 4.5 });
+    expect(Object.fromEntries(ore)).toEqual({ 'u-cang': 10.5, 'u-toto': 8.5, 'u-ciav': 6, 'u-luon': 23.5, 'u-mast': 8.5 });
     expect(l.filter((x) => !dati.abilitazioni.some((a) => a.user_id === x.istruttore_id && a.mds === 'UC-228' && a.chapter === chapter(x).chapter))).toEqual([]);
     expect(['u-cang', 'u-luon', 'u-ciav', 'u-toto', 'u-mast'].map((id) => nomeUtente(dati, id))).toEqual(['Cang', 'Luon', 'Ciav', 'Toto', 'Mast']);
   });
